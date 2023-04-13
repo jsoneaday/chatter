@@ -2,22 +2,26 @@ import { Appearance } from "react-native";
 
 const colorScheme = Appearance.getColorScheme();
 
+const white = "white";
+const black = "black";
+const skyBlue = "#87CEEB";
+const navyBlue = "#000080";
+const gray = "#808080";
+
 const dark = {
-  primary: "white",
-  secondary: "white",
-  tertiary: "#808080",
-  unselected: "gray",
+  primary: white,
+  secondary: skyBlue,
+  tertiary: gray,
 };
 
 const light = {
-  primary: "black",
-  secondary: "#2D2658",
-  tertiary: "#808080",
-  unselected: "gray",
+  primary: black,
+  secondary: navyBlue,
+  tertiary: gray,
 };
 
 export function notSelected() {
-  return colorScheme === "dark" ? dark.unselected : light.unselected;
+  return colorScheme === "dark" ? dark.tertiary : light.tertiary;
 }
 
 export function primary(isInverted: Boolean = false) {
@@ -25,6 +29,18 @@ export function primary(isInverted: Boolean = false) {
     return colorScheme === "dark" ? light.primary : dark.primary;
   }
   return colorScheme === "dark" ? dark.primary : light.primary;
+}
+
+export function primaryDark() {
+  return dark.primary;
+}
+
+export function primaryLight() {
+  return light.primary;
+}
+
+export function secondaryLight() {
+  return light.secondary;
 }
 
 export function secondary(isInverted: Boolean = false) {

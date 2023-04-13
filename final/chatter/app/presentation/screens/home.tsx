@@ -1,16 +1,20 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import PostMessageButton from "../components/postMessageButton";
 
 export default function Home() {
   return (
-    <View style={styles.container}>
-      <View style={styles.main}>
-        <Text style={styles.title}>Home</Text>
-        <Text style={styles.subtitle}>
-          This is the first screen of your app.
-        </Text>
+    <>
+      <View style={styles.container}>
+        <View style={styles.main}>
+          <Text style={styles.title}>Home</Text>
+          <Text style={styles.subtitle}>
+            This is the first screen of your app.
+          </Text>
+        </View>
       </View>
-    </View>
+      <PostMessageButton />
+    </>
   );
 }
 
