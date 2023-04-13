@@ -1,4 +1,4 @@
-import {primary, secondary} from '../Colors';
+import { primary, secondary } from "../colors";
 
 export const styleHeaderFont = {
   color: primary(),
@@ -16,7 +16,7 @@ export const styleBodyFont = {
 };
 
 export const styleErrorFont = {
-  color: 'red',
+  color: "red",
   fontSize: 16,
 };
 

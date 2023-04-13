@@ -8,9 +8,10 @@ import {
   Dimensions,
 } from "react-native";
 import React, { useRef, useState } from "react";
-import { secondary } from "../theme/colors";
+import { primary, secondary } from "../theme/colors";
 import { AntDesign } from "@expo/vector-icons";
 import { PrimaryButton, SecondaryButton } from "./buttons";
+import { styleRootContainer } from "../theme/element-styles/ScreenStyles";
 
 export default function PostMessageButton() {
   const messagePostContainerHeight = useRef(new Animated.Value(0)).current;
@@ -86,10 +87,7 @@ export default function PostMessageButton() {
 
 const styles = StyleSheet.create({
   sheetContainer: {
-    flexdirection: "column",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    alignSelf: "stretch",
+    backgroundColor: primary(true),
     padding: 15,
     zIndex: 4,
     elevation: 4,
@@ -101,10 +99,11 @@ const styles = StyleSheet.create({
     alignSelf: "stretch",
   },
   submitBtn: {
+    backgroundColor: primary(true),
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-end",
-    marginRight: 15,
-    marginBottom: 15,
+    paddingRight: 15,
+    paddingBottom: 15,
   },
 });
