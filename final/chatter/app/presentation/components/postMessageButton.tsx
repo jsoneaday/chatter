@@ -7,7 +7,6 @@ import {
   SafeAreaView,
   Dimensions,
 } from "react-native";
-import { secondaryButtonStyle } from "../theme/element-styles/ButtonStyles";
 import React, { useRef, useState } from "react";
 import { secondary } from "../theme/colors";
 import { AntDesign } from "@expo/vector-icons";
@@ -43,7 +42,7 @@ export default function PostMessageButton() {
       }).start();
     } else {
       Animated.timing(messagePostContainerHeight, {
-        toValue: Dimensions.get("window").height + 50,
+        toValue: Dimensions.get("window").height,
         duration: 250,
         useNativeDriver: false,
       }).start();
@@ -94,9 +93,6 @@ const styles = StyleSheet.create({
     padding: 15,
     zIndex: 4,
     elevation: 4,
-    border: 2,
-    borderWidth: 2,
-    borderColor: "red",
   },
   sheetHeader: {
     flexDirection: "row",

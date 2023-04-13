@@ -79,7 +79,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
   headerStyle: {
-    height: Platform.OS === "ios" ? 105 : 85,
+    height: Platform.OS === "ios" ? 108 : 88,
   },
   menuIcon: {
     width: 35,

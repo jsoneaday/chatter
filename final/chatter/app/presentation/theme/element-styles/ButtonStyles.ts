@@ -1,4 +1,4 @@
-import { primary, primaryDark, secondaryLight } from "../colors";
+import { primaryLight, primaryDark, secondaryLight } from "../colors";
 
 export function primaryButtonStyle(disabled: boolean = false) {
   return {
@@ -17,3 +17,13 @@ export function secondaryButtonStyle(disabled: boolean = false) {
     opacity: !disabled ? 1 : 0.5,
   };
 }
+
+export const txtPrimary = {
+  color: primaryDark(),
+  fontSize: 14,
+};
+
+export const txtSecondary = {
+  color: primaryLight(),
+  fontSize: 14,
+};

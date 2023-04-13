@@ -1,14 +1,10 @@
-import {
-  GestureResponderEvent,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-} from "react-native";
+import { GestureResponderEvent, TouchableOpacity, Text } from "react-native";
 import {
   primaryButtonStyle,
   secondaryButtonStyle,
+  txtPrimary,
+  txtSecondary,
 } from "../theme/element-styles/ButtonStyles";
-import { primaryDark, primaryLight } from "../theme/colors";
 import React, { ReactNode } from "react";
 
 export interface ButtonProps {
@@ -26,11 +22,13 @@ export function PrimaryButton({
   onPress,
   disabled = false,
 }: ButtonProps) {
-  const style = { ...primaryButtonStyle(disabled), ...containerStyle };
-  console.log("style", style);
   return (
-    <TouchableOpacity onPress={onPress} style={style} disabled={disabled}>
-      <Text style={{ ...styles.txtPrimary, ...txtStyle }}>{children}</Text>
+    <TouchableOpacity
+      onPress={onPress}
+      style={{ ...primaryButtonStyle(disabled), ...containerStyle }}
+      disabled={disabled}
+    >
+      <Text style={{ ...txtPrimary, ...txtStyle }}>{children}</Text>
     </TouchableOpacity>
   );
 }
@@ -48,18 +46,7 @@ export function SecondaryButton({
       style={{ ...secondaryButtonStyle(disabled), ...containerStyle }}
       disabled={disabled}
     >
-      <Text style={{ ...styles.txtSecondary, ...txtStyle }}>{children}</Text>
+      <Text style={{ ...txtSecondary, ...txtStyle }}>{children}</Text>
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  txtPrimary: {
-    color: primaryDark(),
-    fontSize: 14,
-  },
-  txtSecondary: {
-    color: primaryLight(),
-    fontSize: 14,
-  },
-});
