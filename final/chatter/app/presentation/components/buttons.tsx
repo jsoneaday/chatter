@@ -1,9 +1,10 @@
-import { GestureResponderEvent, TouchableOpacity, Text } from "react-native";
+import { GestureResponderEvent, Pressable, Text } from "react-native";
 import {
+  dropDownButtonStyle,
   primaryButtonStyle,
   secondaryButtonStyle,
-  txtPrimary,
-  txtSecondary,
+  txtPrimaryFont,
+  txtSecondaryFont,
 } from "../theme/element-styles/buttonStyles";
 import React, { ReactNode } from "react";
 
@@ -23,30 +24,45 @@ export function PrimaryButton({
   disabled = false,
 }: ButtonProps) {
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
       style={{ ...primaryButtonStyle(disabled), ...containerStyle }}
       disabled={disabled}
     >
-      <Text style={{ ...txtPrimary, ...txtStyle }}>{children}</Text>
-    </TouchableOpacity>
+      <Text style={{ ...txtPrimaryFont, ...txtStyle }}>{children}</Text>
+    </Pressable>
   );
 }
 
 export function SecondaryButton({
-  onPress,
+  children,
   containerStyle = {},
   txtStyle = {},
-  children,
+  onPress,
   disabled = false,
 }: ButtonProps) {
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
       style={{ ...secondaryButtonStyle(disabled), ...containerStyle }}
       disabled={disabled}
     >
-      <Text style={{ ...txtSecondary, ...txtStyle }}>{children}</Text>
-    </TouchableOpacity>
+      <Text style={{ ...txtSecondaryFont, ...txtStyle }}>{children}</Text>
+    </Pressable>
+  );
+}
+
+export function DropDownButton({
+  children,
+  containerStyle = {},
+  onPress,
+}: ButtonProps) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{ ...(dropDownButtonStyle() as object), ...containerStyle }}
+    >
+      {children}
+    </Pressable>
   );
 }

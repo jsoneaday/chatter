@@ -1,17 +1,17 @@
 import React from "react";
-import { View, StyleSheet, TouchableOpacity, Platform } from "react-native";
+import { View, StyleSheet, Pressable, Platform } from "react-native";
 import { Config, Logo, Profile } from "../theme/icons/headerIcons";
 
 export default function Header() {
   return (
     <View style={styles.container}>
-      <TouchableOpacity testID="profileBtn">
+      <Pressable testID="profileBtn">
         <Profile size={30} />
-      </TouchableOpacity>
+      </Pressable>
       <Logo size={30} />
-      <TouchableOpacity testID="configBtn">
+      <Pressable testID="configBtn">
         <Config size={30} />
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 }

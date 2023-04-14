@@ -2,15 +2,17 @@ import {
   Animated,
   StyleSheet,
   View,
-  TouchableOpacity,
+  TextInput,
   Text,
   SafeAreaView,
   Dimensions,
+  Pressable,
 } from "react-native";
 import React, { useRef, useState } from "react";
 import { primary, secondary } from "../theme/colors";
 import { AntDesign } from "@expo/vector-icons";
-import { PrimaryButton, SecondaryButton } from "./buttons";
+import { DropDownButton, PrimaryButton, SecondaryButton } from "./buttons";
+import { Ionicons, Entypo } from "@expo/vector-icons";
 
 export default function PostMessageButton() {
   const messagePostContainerHeight = useRef(new Animated.Value(0)).current;
@@ -67,18 +69,38 @@ export default function PostMessageButton() {
               </SecondaryButton>
               <PrimaryButton onPress={onPressSubmitMessage}>Chat</PrimaryButton>
             </View>
-            <View>
-              <Text>Body</Text>
+            <View style={styles.sheetBody}>
+              <View style={styles.sheetBodyHeader}>
+                <Ionicons
+                  name="person-circle-outline"
+                  size={38}
+                  color={primary()}
+                />
+                <DropDownButton containerStyle={{ marginLeft: 8 }}>
+                  <Text style={{ color: secondary() }}>Public</Text>
+                  <Entypo
+                    name="chevron-small-down"
+                    size={20}
+                    color={secondary()}
+                  />
+                </DropDownButton>
+              </View>
+              <TextInput
+                style={{ paddingLeft: 35 }}
+                placeholder="What's happening"
+                placeholderTextColor={primary()}
+              ></TextInput>
             </View>
           </>
         )}
       </Animated.View>
       {showSubmitBtn && (
-        <View style={styles.submitBtn}>
-          <TouchableOpacity onPress={onPressShowMessageCreator}>
-            <AntDesign name="pluscircle" size={50} color={secondary()} />
-          </TouchableOpacity>
-        </View>
+        <Pressable
+          style={styles.submitBtnContainer}
+          onPress={onPressShowMessageCreator}
+        >
+          <AntDesign name="pluscircle" size={50} color={secondary()} />
+        </Pressable>
       )}
     </SafeAreaView>
   );
@@ -97,12 +119,22 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignSelf: "stretch",
   },
-  submitBtn: {
+  submitBtnContainer: {
     backgroundColor: primary(true),
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-end",
     paddingRight: 15,
     paddingBottom: 15,
+  },
+  sheetBody: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
+  },
+  sheetBodyHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
   },
 });
