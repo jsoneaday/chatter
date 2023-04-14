@@ -1,26 +1,26 @@
 import { primary, secondary } from "../colors";
 
-export const styleHeaderFont = {
+export const headerFontStyle = {
   color: primary(),
   fontSize: 18,
 };
 
-export const styleSubHeaderFont = {
+export const subHeaderFontStyle = {
   color: secondary(),
   fontSize: 14,
 };
 
-export const styleBodyFont = {
+export const bodyFontStyle = {
   color: primary(),
   fontSize: 16,
 };
 
-export const styleErrorFont = {
+export const errorFontStyle = {
   color: "red",
   fontSize: 16,
 };
 
-export const styleLabelFont = {
+export const labelFontStyle = {
   color: primary(),
   fontSize: 13,
 };

@@ -1,12 +1,12 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import PostMessageButton from "../components/postMessageButton";
-import { styleRootContainer } from "../theme/element-styles/ScreenStyles";
+import { containerStyle } from "../theme/element-styles/screenStyles";
 
 export default function Home() {
   return (
     <>
-      <View style={{ ...(styleRootContainer as object) }}>
+      <View style={{ ...(containerStyle as object) }}>
         <View style={styles.main}>
           <Text style={styles.title}>Home</Text>
           <Text style={styles.subtitle}>

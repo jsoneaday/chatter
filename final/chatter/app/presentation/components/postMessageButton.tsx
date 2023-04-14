@@ -11,7 +11,6 @@ import React, { useRef, useState } from "react";
 import { primary, secondary } from "../theme/colors";
 import { AntDesign } from "@expo/vector-icons";
 import { PrimaryButton, SecondaryButton } from "./buttons";
-import { styleRootContainer } from "../theme/element-styles/ScreenStyles";
 
 export default function PostMessageButton() {
   const messagePostContainerHeight = useRef(new Animated.Value(0)).current;

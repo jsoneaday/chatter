@@ -1,7 +1,7 @@
 import { Platform } from "react-native";
 import { secondary } from "../colors";
 
-export const styleHeaderOrFooter = {
+export const headerOrFooterStyle = {
   borderOpacity: Platform.OS === "ios" ? 0.05 : 0.2,
   borderColor: secondary(),
   borderStyle: "solid",
@@ -13,7 +13,7 @@ export const styleHeaderOrFooter = {
   justifyContent: "flex-start",
 };
 
-export const styleListBottomDivider = {
+export const listBottomDividerStyle = {
   borderOpacity: Platform.OS === "ios" ? 0.05 : 0.2,
   borderBottomWidth: Platform.OS === "ios" ? 0.17 : 0.2,
   borderColor: secondary(),

@@ -25,12 +25,4 @@ const styles = StyleSheet.create({
     width: "100%",
     marginBottom: Platform.OS === "ios" ? 20 : 0,
   },
-  logo: {
-    width: 65,
-    height: 65,
-  },
-  config: {
-    width: 30,
-    height: 30,
-  },
 });

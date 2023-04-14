@@ -4,7 +4,7 @@ import {
   secondaryButtonStyle,
   txtPrimary,
   txtSecondary,
-} from "../theme/element-styles/ButtonStyles";
+} from "../theme/element-styles/buttonStyles";
 import React, { ReactNode } from "react";
 
 export interface ButtonProps {
