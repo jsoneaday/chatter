@@ -1,12 +1,17 @@
-import { GestureResponderEvent, Pressable, Text } from "react-native";
 import {
-  dropDownButtonStyle,
+  GestureResponderEvent,
+  Pressable,
+  StyleSheet,
+  Text,
+} from "react-native";
+import {
   primaryButtonStyle,
   secondaryButtonStyle,
   txtPrimaryFont,
   txtSecondaryFont,
 } from "../theme/element-styles/buttonStyles";
 import React, { ReactNode } from "react";
+import { secondary } from "../theme/colors";
 
 export interface ButtonProps {
   children: ReactNode;
@@ -60,9 +65,27 @@ export function DropDownButton({
   return (
     <Pressable
       onPress={onPress}
-      style={{ ...(dropDownButtonStyle() as object), ...containerStyle }}
+      style={{ ...styles.dropDownButtonStyle, ...containerStyle }}
     >
       {children}
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  dropDownButtonStyle: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
+    border: 1,
+    borderWidth: 1,
+    borderColor: secondary(),
+    borderRadius: 20,
+    paddingLeft: 15,
+    paddingRight: 10,
+    paddingTop: 3,
+    paddingBottom: 3,
+    maxWidth: 90,
+  },
+});

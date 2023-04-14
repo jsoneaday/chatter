@@ -9,7 +9,7 @@ import {
   DirectMessageIcon,
   HomeIcon,
   NotificationIcon,
-} from "./app/presentation/theme/icons/menuIcons";
+} from "./app/presentation/components/icons/menuIcons";
 import Browse from "./app/presentation/screens/browse";
 import Notifications from "./app/presentation/screens/notifications";
 import DirectMessage from "./app/presentation/screens/directmessage";

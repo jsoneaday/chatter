@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet, Pressable, Platform } from "react-native";
-import { Config, Logo, Profile } from "../theme/icons/headerIcons";
+import { Config, Logo, Profile } from "./icons/headerIcons";
 
 export default function Header() {
   return (
