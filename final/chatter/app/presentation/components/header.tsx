@@ -1,24 +1,27 @@
 import React from "react";
 import { View, StyleSheet, Pressable, Platform } from "react-native";
 import { Config, Logo, Profile } from "./icons/headerIcons";
+import Spacer from "./spacer";
 
 export default function Header() {
   return (
     <View style={styles.container}>
-      <Pressable testID="profileBtn">
+      <Pressable>
         <Profile size={30} />
       </Pressable>
-      <Logo size={30} />
-      <Pressable testID="configBtn">
-        <Config size={30} />
-      </Pressable>
+      <View>
+        <Logo size={30} />
+      </View>
+      <View>
+        <Spacer width={30} />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 0,
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

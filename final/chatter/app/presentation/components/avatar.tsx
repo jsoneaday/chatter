@@ -31,12 +31,7 @@ export default function Avatar({
         ...(style as object),
       }}
     >
-      <Image
-        source={imgFile}
-        style={styles.img}
-        resizeMode="cover"
-        testID={id ? `avatar-${id}` : ""}
-      />
+      <Image source={imgFile} style={styles.img} resizeMode="cover" />
     </View>
   );
 }
