@@ -12,13 +12,13 @@ const dark = {
   primary: white,
   secondary: skyBlue,
   tertiary: gray,
-};
+} as const;
 
 const light = {
   primary: black,
   secondary: navyBlue,
   tertiary: gray,
-};
+} as const;
 
 export function notSelected() {
   return colorScheme === "dark" ? dark.tertiary : light.tertiary;

@@ -41,14 +41,12 @@ export default function PostMessageButton() {
 
   const toggleShowMessageCreator = () => {
     if (!showSubmitBtn) {
-      console.log("hide");
       Animated.timing(messagePostContainerHeight, {
         toValue: 0,
         duration: 300,
         useNativeDriver: false,
       }).start();
     } else {
-      console.log("show");
       Animated.timing(messagePostContainerHeight, {
         toValue: Dimensions.get("window").height,
         duration: 300,
