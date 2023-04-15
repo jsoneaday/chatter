@@ -4,10 +4,10 @@
     "slug": "chatter",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./theme/assets/icon.svg",
+    "icon": "./app/presentation/theme/assets/icon.svg",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./theme/assets/splash.png",
+      "image": "./app/presentation/theme/assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,12 +17,12 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./theme/assets/adaptive-icon.png",
+        "foregroundImage": "./app/presentation/theme/assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
-      "favicon": "./theme/assets/favicon.png"
+      "favicon": "./app/presentation/theme/assets/favicon.png"
     }
   }
 }

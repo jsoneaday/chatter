@@ -8,7 +8,7 @@ import {
   Dimensions,
   Pressable,
 } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { primary, secondary } from "../theme/colors";
 import { AntDesign } from "@expo/vector-icons";
 import { DropDownButton, PrimaryButton, SecondaryButton } from "./buttons";
@@ -17,6 +17,15 @@ import { Ionicons, Entypo } from "@expo/vector-icons";
 export default function PostMessageButton() {
   const messagePostContainerHeight = useRef(new Animated.Value(0)).current;
   const [showSubmitBtn, setShowSubmitBtn] = useState(true);
+  const [showSubmitBody, setShowSubmitBody] = useState(false);
+
+  useEffect(() => {
+    messagePostContainerHeight.addListener(({ value }) => {
+      value === 0 ? setShowSubmitBody(false) : setShowSubmitBody(true);
+    });
+
+    return () => messagePostContainerHeight.removeAllListeners();
+  }, []);
 
   const onPressCancelMessage = () => {
     toggleShowMessageCreator();
@@ -31,21 +40,18 @@ export default function PostMessageButton() {
   };
 
   const toggleShowMessageCreator = () => {
-    console.log(
-      "window height",
-      Dimensions.get("window").height,
-      showSubmitBtn
-    );
     if (!showSubmitBtn) {
+      console.log("hide");
       Animated.timing(messagePostContainerHeight, {
         toValue: 0,
-        duration: 250,
+        duration: 300,
         useNativeDriver: false,
       }).start();
     } else {
+      console.log("show");
       Animated.timing(messagePostContainerHeight, {
         toValue: Dimensions.get("window").height,
-        duration: 250,
+        duration: 300,
         useNativeDriver: false,
       }).start();
     }
@@ -61,7 +67,7 @@ export default function PostMessageButton() {
           height: messagePostContainerHeight,
         }}
       >
-        {!showSubmitBtn && (
+        {showSubmitBody && (
           <>
             <View style={styles.sheetHeader}>
               <SecondaryButton onPress={onPressCancelMessage}>

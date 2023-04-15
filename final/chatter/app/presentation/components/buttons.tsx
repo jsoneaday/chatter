@@ -4,14 +4,13 @@ import {
   StyleSheet,
   Text,
 } from "react-native";
-import {
-  primaryButtonStyle,
-  secondaryButtonStyle,
-  txtPrimaryFont,
-  txtSecondaryFont,
-} from "../theme/element-styles/buttonStyles";
 import React, { ReactNode } from "react";
-import { secondary } from "../theme/colors";
+import {
+  primaryDark,
+  primaryLight,
+  secondary,
+  secondaryLight,
+} from "../theme/colors";
 
 export interface ButtonProps {
   children: ReactNode;
@@ -31,10 +30,14 @@ export function PrimaryButton({
   return (
     <Pressable
       onPress={onPress}
-      style={{ ...primaryButtonStyle(disabled), ...containerStyle }}
+      style={{
+        ...styles.primaryButtonStyle,
+        ...containerStyle,
+        opacity: !disabled ? 1 : 0.5,
+      }}
       disabled={disabled}
     >
-      <Text style={{ ...txtPrimaryFont, ...txtStyle }}>{children}</Text>
+      <Text style={{ ...styles.txtPrimaryFont, ...txtStyle }}>{children}</Text>
     </Pressable>
   );
 }
@@ -49,10 +52,12 @@ export function SecondaryButton({
   return (
     <Pressable
       onPress={onPress}
-      style={{ ...secondaryButtonStyle(disabled), ...containerStyle }}
+      style={{ ...containerStyle, opacity: !disabled ? 1 : 0.5 }}
       disabled={disabled}
     >
-      <Text style={{ ...txtSecondaryFont, ...txtStyle }}>{children}</Text>
+      <Text style={{ ...styles.txtSecondaryFont, ...txtStyle }}>
+        {children}
+      </Text>
     </Pressable>
   );
 }
@@ -73,6 +78,22 @@ export function DropDownButton({
 }
 
 const styles = StyleSheet.create({
+  primaryButtonStyle: {
+    backgroundColor: secondaryLight(),
+    borderRadius: 20,
+    paddingLeft: 15,
+    paddingRight: 15,
+    paddingTop: 8,
+    paddingBottom: 8,
+  },
+  txtPrimaryFont: {
+    color: primaryDark(),
+    fontSize: 14,
+  },
+  txtSecondaryFont: {
+    color: primaryLight(),
+    fontSize: 14,
+  },
   dropDownButtonStyle: {
     flex: 1,
     flexDirection: "row",
