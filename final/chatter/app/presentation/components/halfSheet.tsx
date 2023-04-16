@@ -18,7 +18,7 @@ export default function HalfSheet({
   children,
 }: HalfSheetProps) {
   const [containerHeight, setContainerHeight] = useState(0);
-  const halfSheetTop = useRef(new Animated.Value(height)).current;
+  const halfSheetHeight = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (show) {
@@ -26,15 +26,15 @@ export default function HalfSheet({
 
       setContainerHeight(height);
 
-      Animated.timing(halfSheetTop, {
-        toValue: height / 3,
+      Animated.timing(halfSheetHeight, {
+        toValue: (height / 3) * 2,
         duration: defaultDuration,
         useNativeDriver: false,
       }).start();
     } else {
       console.log("hide halfSheet");
 
-      Animated.timing(halfSheetTop, {
+      Animated.timing(halfSheetHeight, {
         toValue: 0,
         duration: defaultDuration,
         useNativeDriver: false,
@@ -51,13 +51,16 @@ export default function HalfSheet({
       onPress={toggleShow}
       style={{
         height: containerHeight,
+        opacity: 0.5,
         backgroundColor: modalBackgroundColor,
       }}
     >
       <Animated.View
         style={{
           ...styles.container,
-          top: halfSheetTop,
+          bottom: 0,
+          opacity: 1,
+          height: halfSheetHeight,
         }}
       >
         {children}
@@ -69,12 +72,13 @@ export default function HalfSheet({
 const styles = StyleSheet.create({
   container: {
     ...(bodyFontStyle as object),
+    position: "absolute",
+    width: "100%",
     backgroundColor: primary(true),
     borderWidth: 1,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     borderColor: primary(true),
-    height: "100%",
     padding: 15,
   },
 });
