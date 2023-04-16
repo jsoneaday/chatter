@@ -1,4 +1,11 @@
-import { Platform, StyleSheet, Text, View } from "react-native";
+import {
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Home from "./app/presentation/screens/home/home";
@@ -19,6 +26,7 @@ import Browse from "./app/presentation/screens/browse";
 import Notifications from "./app/presentation/screens/notifications";
 import DirectMessage from "./app/presentation/screens/directmessage";
 import { useState } from "react";
+import HalfSheet from "./app/presentation/components/halfSheet";
 
 export type RootTabParamList = {
   Home: undefined;
@@ -30,72 +38,78 @@ export type RootTabParamList = {
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 export default function App() {
-  const [modalOnBackgroundColor, setModalOnBackgroundColor] = useState<string>(
-    primary(true)
-  );
+  const [showHalfSheet, setShowHalfSheet] = useState(false);
+  const windowDimension = useWindowDimensions();
 
-  const toggleModalBackgroundColor = () => {
-    setModalOnBackgroundColor(
-      modalOnBackgroundColor === primary(true)
-        ? modalBackgroundColor
-        : primary(true)
-    );
+  const toggleHalfSheet = () => {
+    console.log("toggleHalfSheet");
+
+    setShowHalfSheet(!showHalfSheet);
   };
 
   return (
-    <NavigationContainer>
-      <Tab.Navigator
-        sceneContainerStyle={{ backgroundColor: "lightgray" }}
-        screenOptions={({ route }) => ({
-          headerTitle: (props) => <Header />,
-          headerLeft: () => null,
-          headerStyle: {
-            ...styles.headerStyle,
-            backgroundColor: modalOnBackgroundColor,
-          },
-          tabBarShowLabel: false,
-          tabBarActiveTintColor: tertiary(),
-          tabBarInactiveTintColor: secondary(),
-        })}
+    <>
+      <NavigationContainer>
+        <Tab.Navigator
+          sceneContainerStyle={{ backgroundColor: "lightgray" }}
+          screenOptions={({ route }) => ({
+            headerTitle: (props) => <Header />,
+            headerLeft: () => null,
+            headerStyle: {
+              ...styles.headerStyle,
+            },
+            tabBarShowLabel: false,
+            tabBarActiveTintColor: tertiary(),
+            tabBarInactiveTintColor: secondary(),
+          })}
+        >
+          <Tab.Screen
+            name="Home"
+            children={() => <Home toggleHalfSheet={toggleHalfSheet} />}
+            options={{
+              tabBarIcon: ({ focused, color, size }) => (
+                <HomeIcon isSelected={focused} size={25} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Browse"
+            component={Browse}
+            options={{
+              tabBarIcon: ({ focused, color, size }) => (
+                <BrowseIcon isSelected={focused} size={28} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Notification"
+            component={Notifications}
+            options={{
+              tabBarIcon: ({ focused, color, size }) => (
+                <NotificationIcon isSelected={focused} size={26} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Dm"
+            component={DirectMessage}
+            options={{
+              tabBarIcon: ({ focused, color, size }) => (
+                <DirectMessageIcon isSelected={focused} size={25} />
+              ),
+            }}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
+
+      <HalfSheet
+        show={showHalfSheet}
+        toggleShow={toggleHalfSheet}
+        height={windowDimension.height}
       >
-        <Tab.Screen
-          name="Home"
-          children={() => <Home toggleModal={toggleModalBackgroundColor} />}
-          options={{
-            tabBarIcon: ({ focused, color, size }) => (
-              <HomeIcon isSelected={focused} size={25} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Browse"
-          component={Browse}
-          options={{
-            tabBarIcon: ({ focused, color, size }) => (
-              <BrowseIcon isSelected={focused} size={28} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Notification"
-          component={Notifications}
-          options={{
-            tabBarIcon: ({ focused, color, size }) => (
-              <NotificationIcon isSelected={focused} size={26} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Dm"
-          component={DirectMessage}
-          options={{
-            tabBarIcon: ({ focused, color, size }) => (
-              <DirectMessageIcon isSelected={focused} size={25} />
-            ),
-          }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
+        <Text>testing</Text>
+      </HalfSheet>
+    </>
   );
 }
 

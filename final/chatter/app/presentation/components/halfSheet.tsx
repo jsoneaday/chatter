@@ -1,43 +1,59 @@
-import { Animated, Dimensions, SafeAreaView, StyleSheet } from "react-native";
-import React, { ReactNode, useEffect, useRef } from "react";
+import { Animated, Pressable, StyleSheet } from "react-native";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { defaultDuration } from "../common/animation-utils";
-import { primary } from "../theme/colors";
+import { modalBackgroundColor, primary } from "../theme/colors";
 import { bodyFontStyle } from "../theme/element-styles/textStyles";
 
 interface HalfSheetProps {
   show: boolean;
-  toggleModal: () => void;
+  toggleShow: () => void;
+  height: number;
   children: ReactNode;
 }
 
 export default function HalfSheet({
   show,
-  toggleModal,
+  toggleShow,
+  height,
   children,
 }: HalfSheetProps) {
-  const halfSheetTop = useRef(
-    new Animated.Value(Dimensions.get("window").height)
-  ).current;
+  const [containerHeight, setContainerHeight] = useState(0);
+  const halfSheetTop = useRef(new Animated.Value(height)).current;
 
   useEffect(() => {
     if (show) {
+      console.log("show halfSheet");
+
+      setContainerHeight(height);
+
       Animated.timing(halfSheetTop, {
-        toValue: Dimensions.get("window").height / 3,
+        toValue: height / 3,
         duration: defaultDuration,
         useNativeDriver: false,
       }).start();
     } else {
+      console.log("hide halfSheet");
+
       Animated.timing(halfSheetTop, {
         toValue: 0,
         duration: defaultDuration,
         useNativeDriver: false,
       }).start();
+
+      setTimeout(() => {
+        setContainerHeight(0);
+      }, 300);
     }
-    toggleModal();
   }, [show]);
 
   return (
-    <SafeAreaView>
+    <Pressable
+      onPress={toggleShow}
+      style={{
+        height: containerHeight,
+        backgroundColor: modalBackgroundColor,
+      }}
+    >
       <Animated.View
         style={{
           ...styles.container,
@@ -46,7 +62,7 @@ export default function HalfSheet({
       >
         {children}
       </Animated.View>
-    </SafeAreaView>
+    </Pressable>
   );
 }
 
@@ -55,12 +71,10 @@ const styles = StyleSheet.create({
     ...(bodyFontStyle as object),
     backgroundColor: primary(true),
     borderWidth: 1,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     borderColor: primary(true),
     height: "100%",
     padding: 15,
-    zIndex: 3,
-    elevation: 3,
   },
 });

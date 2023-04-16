@@ -16,11 +16,11 @@ import { Ionicons, Entypo } from "@expo/vector-icons";
 import { defaultDuration } from "../common/animation-utils";
 
 interface PostMessageButtonProps {
-  toggleHomeSheet: () => void;
+  toggleHalfSheet: () => void;
 }
 
 export default function PostMessageButton({
-  toggleHomeSheet,
+  toggleHalfSheet,
 }: PostMessageButtonProps) {
   const messagePostContainerHeight = useRef(new Animated.Value(0)).current;
   const [showSubmitBtn, setShowSubmitBtn] = useState(true);
@@ -54,7 +54,6 @@ export default function PostMessageButton({
         useNativeDriver: false,
       }).start();
     } else {
-      console.log("showing post", Dimensions.get("window").height);
       Animated.timing(messagePostContainerHeight, {
         toValue: Dimensions.get("window").height - 200,
         duration: defaultDuration,
@@ -70,7 +69,7 @@ export default function PostMessageButton({
   };
 
   const onPressDropDown = () => {
-    toggleHomeSheet();
+    toggleHalfSheet();
   };
 
   return (
@@ -137,10 +136,6 @@ const styles = StyleSheet.create({
     width: "100%",
     position: "absolute",
     bottom: 0,
-    zIndex: 1,
-    elevation: 1,
-    borderWidth: 1,
-    borderColor: "red",
   },
   sheetHeader: {
     flexDirection: "row",
