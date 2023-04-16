@@ -13,8 +13,15 @@ import { primary, secondary } from "../theme/colors";
 import { AntDesign } from "@expo/vector-icons";
 import { DropDownButton, PrimaryButton, SecondaryButton } from "./buttons";
 import { Ionicons, Entypo } from "@expo/vector-icons";
+import { defaultDuration } from "../common/animation-utils";
 
-export default function PostMessageButton() {
+interface PostMessageButtonProps {
+  toggleHomeSheet: () => void;
+}
+
+export default function PostMessageButton({
+  toggleHomeSheet,
+}: PostMessageButtonProps) {
   const messagePostContainerHeight = useRef(new Animated.Value(0)).current;
   const [showSubmitBtn, setShowSubmitBtn] = useState(true);
   const [showSubmitBody, setShowSubmitBody] = useState(false);
@@ -43,18 +50,27 @@ export default function PostMessageButton() {
     if (!showSubmitBtn) {
       Animated.timing(messagePostContainerHeight, {
         toValue: 0,
-        duration: 300,
+        duration: defaultDuration,
         useNativeDriver: false,
       }).start();
     } else {
+      console.log("showing post", Dimensions.get("window").height);
       Animated.timing(messagePostContainerHeight, {
-        toValue: Dimensions.get("window").height,
-        duration: 300,
+        toValue: Dimensions.get("window").height - 200,
+        duration: defaultDuration,
         useNativeDriver: false,
       }).start();
     }
 
     setShowSubmitBtn(!showSubmitBtn);
+  };
+
+  const onFocusBody = () => {
+    // raise half sheet
+  };
+
+  const onPressDropDown = () => {
+    toggleHomeSheet();
   };
 
   return (
@@ -80,7 +96,10 @@ export default function PostMessageButton() {
                   size={38}
                   color={primary()}
                 />
-                <DropDownButton containerStyle={{ marginLeft: 8 }}>
+                <DropDownButton
+                  containerStyle={{ marginLeft: 8 }}
+                  onPress={onPressDropDown}
+                >
                   <Text style={{ color: secondary() }}>Public</Text>
                   <Entypo
                     name="chevron-small-down"
@@ -93,6 +112,7 @@ export default function PostMessageButton() {
                 style={{ paddingLeft: 35 }}
                 placeholder="What's happening"
                 placeholderTextColor={primary()}
+                onFocus={onFocusBody}
               ></TextInput>
             </View>
           </>
@@ -114,8 +134,13 @@ const styles = StyleSheet.create({
   sheetContainer: {
     backgroundColor: primary(true),
     padding: 15,
-    zIndex: 4,
-    elevation: 4,
+    width: "100%",
+    position: "absolute",
+    bottom: 0,
+    zIndex: 1,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: "red",
   },
   sheetHeader: {
     flexDirection: "row",

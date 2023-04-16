@@ -7,6 +7,7 @@ const black = "black";
 const skyBlue = "#87CEEB";
 const navyBlue = "#000080";
 const gray = "#808080";
+export const modalBackgroundColor = "lightgray";
 
 const dark = {
   primary: white,
