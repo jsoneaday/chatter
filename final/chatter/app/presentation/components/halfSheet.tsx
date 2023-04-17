@@ -48,29 +48,36 @@ export default function HalfSheet({
   }, [show]);
 
   return (
-    <Pressable
-      onPress={toggleShow}
-      style={{
-        position: "absolute",
-        width: "100%",
-        bottom: 0,
-        height: containerHeight,
-        opacity: 0.5,
-        backgroundColor: modalBackgroundColor,
-      }}
-    >
+    <>
+      <Pressable
+        onPress={toggleShow}
+        style={{
+          position: "absolute",
+          width: "100%",
+          bottom: 0,
+          height: containerHeight,
+          opacity: 0.5,
+          backgroundColor: modalBackgroundColor,
+        }}
+      />
       <Animated.View
         style={{
           ...styles.container,
           height: halfSheetHeight,
         }}
       >
-        <View style={{ width: "100%", alignItems: "center", marginBottom: 20 }}>
+        <View
+          style={{
+            width: "100%",
+            alignItems: "center",
+            marginBottom: 20,
+          }}
+        >
           <DragPill />
         </View>
         {children}
       </Animated.View>
-    </Pressable>
+    </>
   );
 }
 
@@ -81,7 +88,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     position: "absolute",
     bottom: 0,
-    opacity: 1,
     width: "100%",
     backgroundColor: primary(true),
     borderWidth: 1,
