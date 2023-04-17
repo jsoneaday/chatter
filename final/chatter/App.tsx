@@ -1,6 +1,5 @@
 import {
   Platform,
-  Pressable,
   StyleSheet,
   Text,
   View,
@@ -10,12 +9,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Home from "./app/presentation/screens/home/home";
 import Header from "./app/presentation/components/header";
-import {
-  modalBackgroundColor,
-  primary,
-  secondary,
-  tertiary,
-} from "./app/presentation/theme/colors";
+import { secondary, tertiary } from "./app/presentation/theme/colors";
 import {
   BrowseIcon,
   DirectMessageIcon,
@@ -40,6 +34,9 @@ const Tab = createBottomTabNavigator<RootTabParamList>();
 
 export default function App() {
   const [showHalfSheet, setShowHalfSheet] = useState(false);
+  const [HalfSheetContent, setHalfSheetContent] = useState<JSX.Element>(
+    <View />
+  );
   const windowDimension = useWindowDimensions();
 
   const toggleHalfSheet = () => {
@@ -66,7 +63,7 @@ export default function App() {
         >
           <Tab.Screen
             name="Home"
-            children={() => <Home />}
+            children={() => <Home setHalfSheetContent={setHalfSheetContent} />}
             options={{
               tabBarIcon: ({ focused, color, size }) => (
                 <HomeIcon isSelected={focused} size={25} />
@@ -113,7 +110,7 @@ export default function App() {
         toggleShow={toggleHalfSheet}
         height={windowDimension.height}
       >
-        <Text>testing</Text>
+        {HalfSheetContent}
       </HalfSheet>
     </>
   );

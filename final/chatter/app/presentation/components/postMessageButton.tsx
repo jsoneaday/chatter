@@ -9,7 +9,7 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { primary, secondary } from "../theme/colors";
 import { AntDesign } from "@expo/vector-icons";
-import { DropDownButton, PrimaryButton, SecondaryButton } from "./buttons";
+import { RingedButton, PrimaryButton, SecondaryButton } from "./buttons";
 import { Ionicons, Entypo } from "@expo/vector-icons";
 import { defaultDuration } from "../common/animation-utils";
 import { bodyFontStyle } from "../theme/element-styles/textStyles";
@@ -96,7 +96,7 @@ export default function PostMessageButton({
                   size={38}
                   color={primary()}
                 />
-                <DropDownButton
+                <RingedButton
                   containerStyle={{ marginLeft: 8 }}
                   onPress={onPressDropDown}
                 >
@@ -106,7 +106,7 @@ export default function PostMessageButton({
                     size={20}
                     color={secondary()}
                   />
-                </DropDownButton>
+                </RingedButton>
               </View>
               <TextInput
                 style={{ ...(bodyFontStyle as object), paddingLeft: 35 }}

@@ -6,8 +6,8 @@ export const headerFontStyle = {
 };
 
 export const subHeaderFontStyle = {
-  color: secondary(),
-  fontSize: 14,
+  color: primary(),
+  fontSize: 16,
 };
 
 export const bodyFontStyle = {
@@ -22,5 +22,5 @@ export const errorFontStyle = {
 
 export const labelFontStyle = {
   color: primary(),
-  fontSize: 13,
+  fontSize: 18,
 };

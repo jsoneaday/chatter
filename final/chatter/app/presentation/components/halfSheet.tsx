@@ -1,8 +1,9 @@
-import { Animated, Pressable, StyleSheet } from "react-native";
+import { Animated, Pressable, StyleSheet, View } from "react-native";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { defaultDuration } from "../common/animation-utils";
 import { modalBackgroundColor, primary } from "../theme/colors";
 import { bodyFontStyle } from "../theme/element-styles/textStyles";
+import DragPill from "./dragPill";
 
 interface HalfSheetProps {
   show: boolean;
@@ -64,6 +65,9 @@ export default function HalfSheet({
           height: halfSheetHeight,
         }}
       >
+        <View style={{ width: "100%", alignItems: "center", marginBottom: 20 }}>
+          <DragPill />
+        </View>
         {children}
       </Animated.View>
     </Pressable>
@@ -73,6 +77,8 @@ export default function HalfSheet({
 const styles = StyleSheet.create({
   container: {
     ...(bodyFontStyle as object),
+    alignItems: "center",
+    justifyContent: "flex-start",
     position: "absolute",
     bottom: 0,
     opacity: 1,

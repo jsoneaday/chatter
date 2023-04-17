@@ -62,11 +62,12 @@ export function SecondaryButton({
   );
 }
 
-export function DropDownButton({
+export function RingedButton({
   children,
   containerStyle = {},
   onPress,
 }: ButtonProps) {
+  console.log("containerStyle", containerStyle);
   return (
     <Pressable
       onPress={onPress}
@@ -95,7 +96,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   dropDownButtonStyle: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",
@@ -103,8 +103,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: secondary(),
     borderRadius: 20,
-    paddingLeft: 15,
-    paddingRight: 10,
+    paddingLeft: 16,
+    paddingRight: 12,
     paddingTop: 3,
     paddingBottom: 3,
     maxWidth: 90,
