@@ -4,8 +4,6 @@ import {
   View,
   TextInput,
   Text,
-  SafeAreaView,
-  Dimensions,
   Pressable,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
@@ -14,13 +12,16 @@ import { AntDesign } from "@expo/vector-icons";
 import { DropDownButton, PrimaryButton, SecondaryButton } from "./buttons";
 import { Ionicons, Entypo } from "@expo/vector-icons";
 import { defaultDuration } from "../common/animation-utils";
+import { bodyFontStyle } from "../theme/element-styles/textStyles";
 
 interface PostMessageButtonProps {
   toggleHalfSheet: () => void;
+  height: number;
 }
 
 export default function PostMessageButton({
   toggleHalfSheet,
+  height,
 }: PostMessageButtonProps) {
   const messagePostContainerHeight = useRef(new Animated.Value(0)).current;
   const [showSubmitBtn, setShowSubmitBtn] = useState(true);
@@ -55,7 +56,7 @@ export default function PostMessageButton({
       }).start();
     } else {
       Animated.timing(messagePostContainerHeight, {
-        toValue: Dimensions.get("window").height - 200,
+        toValue: height - 50,
         duration: defaultDuration,
         useNativeDriver: false,
       }).start();
@@ -73,7 +74,7 @@ export default function PostMessageButton({
   };
 
   return (
-    <SafeAreaView>
+    <>
       <Animated.View
         style={{
           ...styles.sheetContainer,
@@ -108,7 +109,7 @@ export default function PostMessageButton({
                 </DropDownButton>
               </View>
               <TextInput
-                style={{ paddingLeft: 35 }}
+                style={{ ...(bodyFontStyle as object), paddingLeft: 35 }}
                 placeholder="What's happening"
                 placeholderTextColor={primary()}
                 onFocus={onFocusBody}
@@ -125,7 +126,7 @@ export default function PostMessageButton({
           <AntDesign name="pluscircle" size={50} color={secondary()} />
         </Pressable>
       )}
-    </SafeAreaView>
+    </>
   );
 }
 
@@ -150,6 +151,9 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     paddingRight: 15,
     paddingBottom: 15,
+    width: "100%",
+    position: "absolute",
+    bottom: 80,
   },
   sheetBody: {
     flexDirection: "column",

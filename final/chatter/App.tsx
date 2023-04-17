@@ -27,6 +27,7 @@ import Notifications from "./app/presentation/screens/notifications";
 import DirectMessage from "./app/presentation/screens/directmessage";
 import { useState } from "react";
 import HalfSheet from "./app/presentation/components/halfSheet";
+import PostMessageButton from "./app/presentation/components/postMessageButton";
 
 export type RootTabParamList = {
   Home: undefined;
@@ -65,7 +66,7 @@ export default function App() {
         >
           <Tab.Screen
             name="Home"
-            children={() => <Home toggleHalfSheet={toggleHalfSheet} />}
+            children={() => <Home />}
             options={{
               tabBarIcon: ({ focused, color, size }) => (
                 <HomeIcon isSelected={focused} size={25} />
@@ -101,6 +102,11 @@ export default function App() {
           />
         </Tab.Navigator>
       </NavigationContainer>
+
+      <PostMessageButton
+        toggleHalfSheet={toggleHalfSheet}
+        height={windowDimension.height}
+      />
 
       <HalfSheet
         show={showHalfSheet}

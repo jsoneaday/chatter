@@ -1,20 +1,13 @@
-import React, { useState } from "react";
-import { View, Text, Dimensions, Pressable } from "react-native";
-import PostMessageButton from "../../components/postMessageButton";
+import React from "react";
+import { View, Text } from "react-native";
 import { containerStyle } from "../../theme/element-styles/screenStyles";
 
-interface HomeProps {
-  toggleHalfSheet: () => void;
-}
-
-export default function Home({ toggleHalfSheet }: HomeProps) {
+export default function Home() {
   return (
     <>
       <View style={{ ...(containerStyle as object) }}>
         <Text>Home</Text>
       </View>
-
-      <PostMessageButton toggleHalfSheet={toggleHalfSheet} />
     </>
   );
 }

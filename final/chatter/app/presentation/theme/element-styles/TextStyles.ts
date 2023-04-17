@@ -12,7 +12,7 @@ export const subHeaderFontStyle = {
 
 export const bodyFontStyle = {
   color: primary(),
-  fontSize: 16,
+  fontSize: 18,
 };
 
 export const errorFontStyle = {
