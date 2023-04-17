@@ -50,6 +50,9 @@ export default function HalfSheet({
     <Pressable
       onPress={toggleShow}
       style={{
+        position: "absolute",
+        width: "100%",
+        bottom: 0,
         height: containerHeight,
         opacity: 0.5,
         backgroundColor: modalBackgroundColor,
@@ -58,8 +61,6 @@ export default function HalfSheet({
       <Animated.View
         style={{
           ...styles.container,
-          bottom: 0,
-          opacity: 1,
           height: halfSheetHeight,
         }}
       >
@@ -73,6 +74,8 @@ const styles = StyleSheet.create({
   container: {
     ...(bodyFontStyle as object),
     position: "absolute",
+    bottom: 0,
+    opacity: 1,
     width: "100%",
     backgroundColor: primary(true),
     borderWidth: 1,
