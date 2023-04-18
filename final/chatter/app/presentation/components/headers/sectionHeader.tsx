@@ -1,5 +1,5 @@
 import { StyleProp, StyleSheet, Text, TextStyle } from "react-native";
-import { subHeaderFontStyle } from "../theme/element-styles/textStyles";
+import { subHeaderFontStyle } from "../../theme/element-styles/textStyles";
 import { ReactNode } from "react";
 
 interface SectionHeaderProps {

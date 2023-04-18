@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { containerStyle } from "../../theme/element-styles/screenStyles";
-import SectionHeader from "../../components/sectionHeader";
+import SectionHeader from "../../components/headers/sectionHeader";
 import MessageAccessiblityType, {
   Accessor,
 } from "../../components/icons/messageAccessibilityType";
@@ -10,7 +10,10 @@ import {
   labelFontStyle,
 } from "../../theme/element-styles/textStyles";
 import Spacer from "../../components/spacer";
-import { RingedButton, SecondaryButton } from "../../components/buttons";
+import {
+  RingedButton,
+  SecondaryButton,
+} from "../../components/buttons/buttons";
 
 interface HomeProps {
   setHalfSheetContent: (element: JSX.Element) => void;
@@ -46,10 +49,7 @@ export default function Home({ setHalfSheetContent }: HomeProps) {
             </View>
             <RingedButton
               containerStyle={{
-                paddingRight: 15,
-                paddingLeft: 15,
-                paddingTop: 8,
-                paddingBottom: 8,
+                padding: 6,
               }}
             >
               <Text style={{ ...bodyFontStyle, fontWeight: "bold" }}>Edit</Text>

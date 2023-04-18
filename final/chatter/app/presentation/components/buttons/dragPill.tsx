@@ -1,5 +1,5 @@
 import { StyleSheet, View } from "react-native";
-import { primary } from "../theme/colors";
+import { primary } from "../../theme/colors";
 
 export default function DragPill() {
   return <View style={styles.container}></View>;

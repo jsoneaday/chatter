@@ -5,34 +5,67 @@ import {
   TextInput,
   Text,
   Pressable,
+  Keyboard,
+  ViewStyle,
+  StyleProp,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
-import { primary, secondary } from "../theme/colors";
+import { primary, secondary, tertiary } from "../../theme/colors";
 import { AntDesign } from "@expo/vector-icons";
-import { RingedButton, PrimaryButton, SecondaryButton } from "./buttons";
+import {
+  RingedButton,
+  PrimaryButton,
+  SecondaryButton,
+} from "../buttons/buttons";
 import { Ionicons, Entypo } from "@expo/vector-icons";
-import { defaultDuration } from "../common/animation-utils";
-import { bodyFontStyle } from "../theme/element-styles/textStyles";
+import { defaultDuration } from "../../common/animation-utils";
+import { bodyFontStyle } from "../../theme/element-styles/textStyles";
+import KeyboardToolBar from "../toolBars/keyboardToolBar";
 
 interface PostMessageButtonProps {
   toggleHalfSheet: () => void;
   height: number;
 }
 
-export default function PostMessageButton({
+export default function PostMessageComponent({
   toggleHalfSheet,
   height,
 }: PostMessageButtonProps) {
   const messagePostContainerHeight = useRef(new Animated.Value(0)).current;
   const [showSubmitBtn, setShowSubmitBtn] = useState(true);
   const [showSubmitBody, setShowSubmitBody] = useState(false);
+  const [keyboardBarStyle, setKeyboardBarStyle] = useState<
+    StyleProp<ViewStyle>
+  >({ width: "100%" });
+  const [showKeyboardTabBar, setShowKeyboardTabBar] = useState(false);
 
   useEffect(() => {
     messagePostContainerHeight.addListener(({ value }) => {
       value === 0 ? setShowSubmitBody(false) : setShowSubmitBody(true);
     });
 
-    return () => messagePostContainerHeight.removeAllListeners();
+    const keyboardShow = Keyboard.addListener("keyboardDidShow", (e) => {
+      console.log("keyboard height", e.endCoordinates.height);
+      setKeyboardBarStyle({
+        width: "100%",
+        position: "absolute",
+        paddingHorizontal: 10,
+        paddingVertical: 12,
+        borderTopWidth: 1,
+        borderColor: tertiary(),
+        top: e.endCoordinates.height + 92,
+      });
+      setShowKeyboardTabBar(true);
+    });
+    const keyboardDismiss = Keyboard.addListener("keyboardDidHide", () => {
+      setShowKeyboardTabBar(false);
+    });
+
+    return () => {
+      messagePostContainerHeight.removeAllListeners();
+      keyboardShow.remove();
+      keyboardDismiss.remove();
+    };
   }, []);
 
   const onPressCancelMessage = () => {
@@ -65,10 +98,6 @@ export default function PostMessageButton({
     setShowSubmitBtn(!showSubmitBtn);
   };
 
-  const onFocusBody = () => {
-    // raise half sheet
-  };
-
   const onPressDropDown = () => {
     toggleHalfSheet();
   };
@@ -77,43 +106,53 @@ export default function PostMessageButton({
     <>
       <Animated.View
         style={{
-          ...styles.sheetContainer,
+          ...styles.container,
           height: messagePostContainerHeight,
         }}
       >
         {showSubmitBody && (
           <>
-            <View style={styles.sheetHeader}>
+            <View style={styles.header}>
               <SecondaryButton onPress={onPressCancelMessage}>
                 Cancel
               </SecondaryButton>
               <PrimaryButton onPress={onPressSubmitMessage}>Chat</PrimaryButton>
             </View>
-            <View style={styles.sheetBody}>
-              <View style={styles.sheetBodyHeader}>
-                <Ionicons
-                  name="person-circle-outline"
-                  size={38}
-                  color={primary()}
-                />
-                <RingedButton
-                  containerStyle={{ marginLeft: 8 }}
-                  onPress={onPressDropDown}
-                >
-                  <Text style={{ color: secondary() }}>Public</Text>
-                  <Entypo
-                    name="chevron-small-down"
-                    size={20}
-                    color={secondary()}
+            <View style={styles.body}>
+              <View style={{ width: "100%" }}>
+                <View style={styles.bodyTop}>
+                  <Ionicons
+                    name="person-circle-outline"
+                    size={38}
+                    color={primary()}
                   />
-                </RingedButton>
+                  <RingedButton
+                    containerStyle={{ marginLeft: 8 }}
+                    onPress={onPressDropDown}
+                  >
+                    <Text style={{ color: secondary() }}>Public</Text>
+                    <Entypo
+                      name="chevron-small-down"
+                      size={20}
+                      color={secondary()}
+                    />
+                  </RingedButton>
+                </View>
+                <TextInput
+                  style={{ ...styles.txtInput }}
+                  autoFocus={true}
+                  autoCapitalize="sentences"
+                  maxLength={140}
+                  multiline={true}
+                  placeholder="What's happening"
+                  placeholderTextColor={primary()}
+                  onSubmitEditing={Keyboard.dismiss}
+                ></TextInput>
               </View>
-              <TextInput
-                style={{ ...(bodyFontStyle as object), paddingLeft: 35 }}
-                placeholder="What's happening"
-                placeholderTextColor={primary()}
-                onFocus={onFocusBody}
-              ></TextInput>
+              <KeyboardToolBar
+                show={showKeyboardTabBar}
+                style={keyboardBarStyle}
+              />
             </View>
           </>
         )}
@@ -131,18 +170,19 @@ export default function PostMessageButton({
 }
 
 const styles = StyleSheet.create({
-  sheetContainer: {
+  container: {
     backgroundColor: primary(true),
-    padding: 15,
     width: "100%",
     position: "absolute",
     bottom: 0,
   },
-  sheetHeader: {
+  header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     alignSelf: "stretch",
+    paddingHorizontal: 15,
+    marginBottom: 10,
   },
   submitBtnContainer: {
     backgroundColor: primary(true),
@@ -155,14 +195,20 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 80,
   },
-  sheetBody: {
+  body: {
     flexDirection: "column",
     alignItems: "flex-start",
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
+    margin: 5,
   },
-  sheetBodyHeader: {
+  bodyTop: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-start",
+    paddingHorizontal: 15,
+  },
+  txtInput: {
+    ...(bodyFontStyle as object),
+    paddingLeft: 60,
   },
 });

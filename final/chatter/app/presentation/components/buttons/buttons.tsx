@@ -10,7 +10,7 @@ import {
   primaryLight,
   secondary,
   secondaryLight,
-} from "../theme/colors";
+} from "../../theme/colors";
 
 export interface ButtonProps {
   children: ReactNode;
@@ -67,7 +67,6 @@ export function RingedButton({
   containerStyle = {},
   onPress,
 }: ButtonProps) {
-  console.log("containerStyle", containerStyle);
   return (
     <Pressable
       onPress={onPress}

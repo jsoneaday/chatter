@@ -8,7 +8,7 @@ import {
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Home from "./app/presentation/screens/home/home";
-import Header from "./app/presentation/components/header";
+import Header from "./app/presentation/components/headers/header";
 import { secondary, tertiary } from "./app/presentation/theme/colors";
 import {
   BrowseIcon,
@@ -20,8 +20,8 @@ import Browse from "./app/presentation/screens/browse";
 import Notifications from "./app/presentation/screens/notifications";
 import DirectMessage from "./app/presentation/screens/directmessage";
 import { useState } from "react";
-import HalfSheet from "./app/presentation/components/halfSheet";
-import PostMessageButton from "./app/presentation/components/postMessageButton";
+import HalfSheet from "./app/presentation/components/modals/halfSheet";
+import PostMessageComponent from "./app/presentation/components/messages/postMessageComponent";
 
 export type RootTabParamList = {
   Home: undefined;
@@ -40,8 +40,6 @@ export default function App() {
   const windowDimension = useWindowDimensions();
 
   const toggleHalfSheet = () => {
-    console.log("toggleHalfSheet");
-
     setShowHalfSheet(!showHalfSheet);
   };
 
@@ -100,7 +98,7 @@ export default function App() {
         </Tab.Navigator>
       </NavigationContainer>
 
-      <PostMessageButton
+      <PostMessageComponent
         toggleHalfSheet={toggleHalfSheet}
         height={windowDimension.height}
       />

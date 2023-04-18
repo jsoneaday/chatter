@@ -1,7 +1,7 @@
 import React from "react";
 import { View, StyleSheet, Pressable, Platform } from "react-native";
-import { Config, Logo, Profile } from "./icons/headerIcons";
-import Spacer from "./spacer";
+import { Config, Logo, Profile } from "../icons/headerIcons";
+import Spacer from "../spacer";
 
 export default function Header() {
   return (
