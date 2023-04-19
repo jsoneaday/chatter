@@ -6,9 +6,21 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+    depends_on:
+      - db
     environment:
       ENV: development
       PORT: 4000
       HOST: "0.0.0.0"
     ports:
       - "4000:4000"
+  db:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_PASSWORD: chatter
+      POSTGRES_USER: chatter
+      POSTGRES_DB: chatter
+    ports:
+      - 5432:5432
+    volumes:
+      - ./dbdata:/var/lib/postgresql/data

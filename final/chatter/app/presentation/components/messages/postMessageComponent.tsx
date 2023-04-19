@@ -45,7 +45,6 @@ export default function PostMessageComponent({
     });
 
     const keyboardShow = Keyboard.addListener("keyboardDidShow", (e) => {
-      console.log("keyboard height", e.endCoordinates.height);
       setKeyboardBarStyle({
         width: "100%",
         position: "absolute",
