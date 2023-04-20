@@ -12,14 +12,15 @@ services:
       ENV: development
       PORT: 4001
       HOST: "0.0.0.0"
+      POSTGRES_HOST: "db"
+      POSTGRES_PORT: 5432
+      POSTGRES_PASSWORD: chatter
+      POSTGRES_USER: chatter
+      POSTGRES_DB: chatter
     ports:
       - "4001:4001"
   db:
     image: postgres:14-alpine
-    environment:
-      POSTGRES_PASSWORD: chatter
-      POSTGRES_USER: chatter
-      POSTGRES_DB: chatter
     ports:
       - 5432:5432
     volumes:
