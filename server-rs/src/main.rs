@@ -8,7 +8,7 @@ mod routes {
 use actix_web::{ web, App, HttpServer, Responder };
 use std::error::Error;
 use crate::common::app_state::AppState;
-use crate::routes::message_route::{create_message, get_message};
+use crate::routes::message_route::{create_message, get_messages};
 use std::env;
 use dotenv::dotenv;
 
@@ -45,7 +45,7 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/v1")
                     .service(
                         web::resource("/msg")
-                            .route(web::get().to(get_message))
+                            .route(web::get().to(get_messages))
                             .route(web::post().to(create_message))
                     )
             )
