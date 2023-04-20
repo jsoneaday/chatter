@@ -43,10 +43,15 @@ pub struct MessageJson {
 pub async fn create_message(app_data: web::Data<AppState>, params: Json<MessageJson>) -> Result<impl Responder, Box<dyn Error>> {
     let insert = "insert into message (body) values ($1)";
 
-    _ = sqlx::query(insert)
-        .bind(&params.body)
+    let query_result = sqlx::query(insert)
+        .bind(&params.body[..140])
         .execute(&app_data.conn)
         .await;
+
+    match query_result {
+        Ok(r) => println!("{:?}", r),
+        Err(e) => println!("{:?}", e),
+    };
     
     Ok("")
 }

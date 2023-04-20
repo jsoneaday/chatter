@@ -26,7 +26,11 @@ async fn main() -> std::io::Result<()> {
     let postgres_url = format!("postgres://{postgres_user}:{postgres_password}@{postgres_host}:{postgres_port}/{postgres_db}");
     
     let conn = sqlx::postgres::PgPool::connect(&postgres_url).await.unwrap();
-    _ = sqlx::migrate!("./migrations").run(&conn).await;
+    let migrate = sqlx::migrate!("./migrations").run(&conn).await;
+    match migrate {
+        Ok(()) => println!("migrate success"),
+        Err(e) => println!("migrate error: {:?}", e)
+    };
     
     let result = HttpServer::new(move || {
         App::new()

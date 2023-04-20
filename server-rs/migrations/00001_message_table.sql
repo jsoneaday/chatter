@@ -1,8 +1,6 @@
 create table message (
-    "id" bigserial not null,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
+    "id" bigserial primary key,
+    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "body"  VARCHAR(140)
-
-    CONSTRAINT "message_pkey" PRIMARY KEY ("id")
-)
+);
