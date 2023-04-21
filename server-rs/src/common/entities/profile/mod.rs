@@ -28,3 +28,13 @@ pub struct ProfileShort {
 pub struct ProfileQuery {
     pub id: i64
 }
+
+#[derive(Deserialize, Serialize)]
+pub struct ProfileCreate {
+    pub user_name: String,
+    pub full_name: String,
+    pub description: String,
+    pub region: Option<String>,
+    pub main_url: Option<String>,
+    pub avatar: Vec<u8>
+}

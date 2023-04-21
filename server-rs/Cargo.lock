@@ -1665,11 +1665,13 @@ dependencies = [
 name = "server-rs"
 version = "0.1.0"
 dependencies = [
+ "actix-http",
  "actix-web",
  "async-trait",
  "chrono",
  "dotenv",
  "futures",
+ "lazy_static",
  "reqwest",
  "serde",
  "serde_json",

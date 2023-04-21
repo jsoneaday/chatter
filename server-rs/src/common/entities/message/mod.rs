@@ -20,7 +20,7 @@ pub struct MessageQuery {
     pub id: i64
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct MessageJson {
     pub body: String
 }

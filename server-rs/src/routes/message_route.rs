@@ -2,6 +2,7 @@ use crate::common::entities::broadcast::BroadcastQueryResult;
 use crate::common::entities::message::{MessageJson, MessageQuery, MessageQueryResult, MessageBody};
 use crate::common::app_state::AppState;
 use crate::common::entities::profile::{ProfileQueryResult, ProfileShort};
+use crate::common::entities::utils::get_last_id;
 use actix_web::{web, web::{Query, Json}, Responder};
 use futures::TryStreamExt;
 use sqlx::{Pool, Postgres};
@@ -9,15 +10,24 @@ use sqlx::{Pool, Postgres};
 
 #[allow(unused)]
 pub async fn create_message(app_data: web::Data<AppState>, params: Json<MessageJson>) -> impl Responder {
-    let insert = "insert into message (body) values ($1)";
+    let insert = "insert into message (body) values ($1) returning id";
+
+    let body = if params.body.len() < 140 {
+        &params.body[..]
+    } else {
+        &params.body[..140]
+    };
 
     let query_result = sqlx::query(insert)
-        .bind(&params.body[..140])
+        .bind(body)
         .execute(&app_data.conn)
         .await;
 
     match query_result {
-        Ok(r) => Json(format!("rows affected: {}", r.rows_affected())),
+        Ok(r) => {
+            let id = get_last_id(&app_data.conn).await;
+            Json(format!("create_message id: {}", id))
+        },
         Err(e) => Json(format!("create_messaage error: {}", e)),
     }
 }
@@ -121,4 +131,43 @@ async fn set_msg_broadcasting_msg(conn: &Pool<Postgres>, mut message: MessageBod
     }
 
     Some(message)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use actix_web::{
+        test, 
+    };
+    use crate::{common_test::actix_fixtures::{get_app}, common::entities::profile::ProfileCreate};
+
+    #[actix_web::test]
+    async fn test_get_message() {
+        let app = get_app().await;
+
+        // 1. create new profile
+        let create_profile_req = test::TestRequest::post().uri("/v1/profile").set_json(Json(ProfileCreate {
+            user_name: "user_name".to_string(),
+            full_name: "full_name".to_string(),
+            description: "description".to_string(),
+            region: Some("region".to_string()),
+            main_url: Some("main_url".to_string()),
+            avatar: Vec::new()
+        })).to_request();
+        let profile_id = test::call_and_read_body_json::<_, _, i64>(&app, create_profile_req).await;
+
+        // 2. create new message
+        let create_req = test::TestRequest::post().uri("/v1/msg").set_json(Json(MessageJson {
+            body: "hello".to_string()
+        })).to_request();
+        let create_result = test::call_service(&app, create_req).await;
+        println!("create_result: {:?}", create_result.response().body());
+
+        // 3. get the new message
+        let get_req = test::TestRequest::get().uri("/v1/msg&id=123").to_request();
+        let get_result = test::call_service(&app, get_req).await;
+
+        println!("get_result: {:?}", get_result.response().body());
+        assert!(get_result.status() == 200);
+    }
 }
