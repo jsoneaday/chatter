@@ -1,13 +1,13 @@
 export default class Message {
   constructor(
+    id: string,
     userName: string,
     fullName: string,
-    timeStamp: Date,
+    updatedAt: Date,
     body: string,
-    repeatId: string,
-    likeCount: number,
-    responseIds: string[],
-    rechatIds: string[],
-    pic?: string
+    likes: number,
+    broadcastingMsg?: Message,
+    respondingMsg?: Message,
+    image?: Blob
   ) {}
 }

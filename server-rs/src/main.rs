@@ -1,14 +1,21 @@
 mod common {
     pub mod app_state;
+    pub mod entities {
+        pub mod message;
+        pub mod profile;
+        pub mod broadcast;
+    }
 }
 mod routes {
     pub mod message_route;
+    pub mod profile_route;
 }
 
 use actix_web::{ web, App, HttpServer, Responder };
+use routes::profile_route::get_profile;
 use std::error::Error;
 use crate::common::app_state::AppState;
-use crate::routes::message_route::{create_message, get_messages};
+use crate::routes::message_route::{create_message, get_message, get_messages};
 use std::env;
 use dotenv::dotenv;
 
@@ -45,8 +52,16 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/v1")
                     .service(
                         web::resource("/msg")
-                            .route(web::get().to(get_messages))
+                            .route(web::get().to(get_message))
                             .route(web::post().to(create_message))
+                    )
+                    .service(
+                        web::resource("/msgs")
+                            .route(web::get().to(get_messages))   
+                    )
+                    .service(
+                        web::resource("/profile")
+                            .route(web::get().to(get_profile))   
                     )
             )
     })
