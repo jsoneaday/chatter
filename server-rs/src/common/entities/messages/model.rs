@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use chrono::prelude::*;
 use sqlx::{FromRow};
-use super::profile::ProfileShort;
+use crate::common::entities::profiles::ProfileShort;
 
 #[derive(Deserialize, Serialize, FromRow, Clone)]
 pub struct MessageQueryResult {
@@ -20,7 +20,7 @@ pub struct MessageQuery {
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct MessageJson {
+pub struct MessagePostJson {
     pub user_id: i64,
     pub body: String
 }

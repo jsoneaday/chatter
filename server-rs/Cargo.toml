@@ -5,7 +5,12 @@ edition = "2021"
 authors = ["David Choi"]
 description = "Simple api server for Chatter"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+path = "src/main.rs"
+name = "server-rs"
 
 [dependencies]
 actix-http = "3.3.1"
