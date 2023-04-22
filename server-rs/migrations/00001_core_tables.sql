@@ -27,8 +27,8 @@ create table message (
     "updated_at" timestamptz(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "user_id" bigserial NOT NULL,
     "body"  varchar(140),
-    "image" bytea,
-    "likes" int,
+    "likes" int NOT NULL DEFAULT 0,
+    "image" bytea,    
 
     constraint fk_profile foreign key(user_id) references profile(id)
 );

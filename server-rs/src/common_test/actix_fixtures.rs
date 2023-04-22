@@ -1,4 +1,4 @@
-use crate::{common::app_state::AppState, routes::{message_route::{get_message, create_message}, profile_route::create_profile}};
+use crate::{common::app_state::AppState, routes::{message_route::{get_message, create_message}, profile_route::{create_profile, get_profile}}};
 use std::env;
 use dotenv::dotenv;
 use sqlx::postgres::PgPool;
@@ -60,6 +60,7 @@ pub async fn get_app() -> impl Service<Request, Response = ServiceResponse, Erro
                     )
                     .service(
                         web::resource("/profile")
+                            .route(web::get().to(get_profile))
                             .route(web::post().to(create_profile))
                     )
             )
