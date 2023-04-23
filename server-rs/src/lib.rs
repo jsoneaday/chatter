@@ -9,7 +9,10 @@ pub mod common {
             pub mod model;
             pub mod repo;
         }
-        pub mod broadcasts;
+        pub mod broadcasts {
+            pub mod model;
+            pub mod repo;
+        }
         pub mod utils;
     }    
 }
