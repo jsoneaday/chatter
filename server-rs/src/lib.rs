@@ -1,7 +1,10 @@
 pub mod common {
     pub mod app_state;
     pub mod entities {
-        pub mod messages;
+        pub mod messages {
+            pub mod model;
+            pub mod repo;
+        }
         pub mod profiles;
         pub mod broadcasts;
         pub mod utils;

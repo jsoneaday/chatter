@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use chrono::prelude::*;
 use sqlx::{FromRow};
-use crate::common::entities::profiles::ProfileShort;
+use crate::common::entities::profiles::model::ProfileShort;
 
 #[derive(Deserialize, Serialize, FromRow, Clone)]
 pub struct MessageQueryResult {

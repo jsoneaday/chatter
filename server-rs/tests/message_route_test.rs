@@ -1,5 +1,5 @@
 use server_rs::common_tests::actix_fixture::get_app;
-use server_rs::common::entities::profiles::ProfileCreate;
+use server_rs::common::entities::profiles::model::ProfileCreate;
 use server_rs::common::entities::messages::model::{MessagePostJson, MessageResponder};
 use actix_web::{
     test,

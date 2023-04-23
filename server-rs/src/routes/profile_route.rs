@@ -1,4 +1,4 @@
-use crate::common::{app_state::AppState, entities::{profiles::{ProfileQuery, ProfileQueryResult, ProfileCreate}, utils::EntityId}};
+use crate::common::{app_state::AppState, entities::{profiles::model::{ProfileQuery, ProfileQueryResult, ProfileCreate}, utils::EntityId}};
 use actix_web::{web, web::{Query, Json}, Responder};
 
 #[allow(unused)]
@@ -48,5 +48,5 @@ pub async fn get_profile(app_data: web::Data<AppState>, query: Query<ProfileQuer
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 }
