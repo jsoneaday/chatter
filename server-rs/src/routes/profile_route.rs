@@ -1,48 +1,54 @@
-use crate::common::{app_state::AppState, entities::{profiles::model::{ProfileQuery, ProfileQueryResult, ProfileCreate}, utils::EntityId}};
+use crate::common::{
+    app_state::AppState, 
+    entities::{
+        profiles::{
+            model::{ProfileQuery, ProfileQueryResult, ProfileResponder, ProfileCreate}, 
+            repo::{insert_profile, query_profile}
+        }
+    }
+};
 use actix_web::{web, web::{Query, Json}, Responder};
+use std::error::Error;
 
 #[allow(unused)]
-pub async fn create_profile(app_data: web::Data<AppState>, params: Json<ProfileCreate>) -> impl Responder {
-    let result = sqlx::query_as::<_, EntityId>(
-        r"
-            insert into Profile 
-                (user_name, full_name, description, region, main_url, avatar) 
-                values 
-                ($1, $2, $3, $4, $5, $6)
-            returning id"
-        )
-        .bind(&params.user_name)
-        .bind(&params.full_name)
-        .bind(&params.description)
-        .bind(&params.region)
-        .bind(&params.main_url)
-        .bind(&params.avatar)
-        .fetch_one(&app_data.conn)
-        .await;
+pub async fn create_profile(app_data: web::Data<AppState>, params: Json<ProfileCreate>) -> Result<impl Responder, Box<dyn Error>> {
+    let result = insert_profile(&app_data.conn, ProfileCreate { 
+        user_name: params.user_name.clone(), 
+        full_name: params.full_name.clone(), 
+        description: params.description.clone(), 
+        region: params.region.clone(), 
+        main_url: params.main_url.clone(), 
+        avatar: params.avatar.clone()
+    }).await;
 
-        match result {
-            Ok(r) => Json(r.id),
-            Err(e) => {
-                println!("create_profile error: {}", e);
-                Json(0)
-            },
-        }
+    match result {
+        Ok(id) => Ok(Json(id)),
+        Err(e) => Err(Box::new(e))
+    }
 }
 
-pub async fn get_profile(app_data: web::Data<AppState>, query: Query<ProfileQuery>) -> impl Responder {
-    let profile_result = sqlx::query_as::<_, ProfileQueryResult>("select * from profile where id = $1")
-        .bind(query.id)
-        .fetch_one(&app_data.conn)
-        .await;
+pub async fn get_profile(app_data: web::Data<AppState>, query: Query<ProfileQuery>) -> Result<impl Responder, Box<dyn Error>> {
+    let result = query_profile(&app_data.conn, query.id).await;
 
-    match profile_result {
-        Ok(row) => {
-            Json(Some(row))
-        },
-        Err(e) => {
-            println!("get_profile error: {:?}", e);
-            Json::<Option<ProfileQueryResult>>(None)
-        }
+    match result {
+        Ok(profile) => Ok(Json(convert(profile))),
+        Err(e) => Err(Box::new(e))
+    }
+}
+
+fn convert(profile: Option<ProfileQueryResult>) -> Option<ProfileResponder> {
+    match profile {
+        Some(item) => Some(ProfileResponder { 
+            id: item.id, 
+            created_at: item.created_at, 
+            user_name: item.user_name, 
+            full_name: item.full_name, 
+            description: item.description, 
+            region: item.region, 
+            main_url: item.main_url, 
+            avatar: item.avatar
+        }),
+        None => None
     }
 }
 

@@ -5,7 +5,10 @@ pub mod common {
             pub mod model;
             pub mod repo;
         }
-        pub mod profiles;
+        pub mod profiles {
+            pub mod model;
+            pub mod repo;
+        }
         pub mod broadcasts;
         pub mod utils;
     }    
