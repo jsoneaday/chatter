@@ -1,4 +1,5 @@
-use server_rs::common::entities::profiles::model::{ProfileCreate, ProfileResponder};
+use server_rs::common::entities::profiles::model::{ProfileCreate};
+use server_rs::routes::profile_route::ProfileResponder;
 use actix_web::test;
 use server_rs::common_tests::actix_fixture::get_app;
 

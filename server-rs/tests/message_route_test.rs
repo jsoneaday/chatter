@@ -1,6 +1,7 @@
 use server_rs::common_tests::actix_fixture::get_app;
 use server_rs::common::entities::profiles::model::ProfileCreate;
-use server_rs::common::entities::messages::model::{MessagePostJson, MessageResponder};
+use server_rs::common::entities::messages::model::{MessagePostJson};
+use server_rs::routes::message_route::MessageResponder;
 use actix_web::{
     test,
     web::{Json}

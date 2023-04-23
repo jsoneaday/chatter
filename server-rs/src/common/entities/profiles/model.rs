@@ -38,15 +38,3 @@ pub struct ProfileCreate {
     pub main_url: Option<String>,
     pub avatar: Vec<u8>
 }
-
-#[derive(Deserialize, Serialize, FromRow)]
-pub struct ProfileResponder {
-    pub id: i64,
-    pub created_at: DateTime<Utc>,
-    pub user_name: String,
-    pub full_name: String,
-    pub description: String,
-    pub region: Option<String>,
-    pub main_url: Option<String>,
-    pub avatar: Vec<u8>
-}

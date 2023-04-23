@@ -19,7 +19,7 @@ pub mod common {
 pub mod common_tests {
     pub mod actix_fixture;
 }
-mod routes {
+pub mod routes {
     pub mod message_route;
     pub mod profile_route;
 }

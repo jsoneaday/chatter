@@ -2,13 +2,15 @@ use crate::common::{
     app_state::AppState, 
     entities::{
         profiles::{
-            model::{ProfileQuery, ProfileQueryResult, ProfileResponder, ProfileCreate}, 
+            model::{ProfileQuery, ProfileQueryResult, ProfileCreate}, 
             repo::{insert_profile, query_profile}
         }
     }
 };
 use actix_web::{web, web::{Query, Json}, Responder};
+use chrono::{DateTime, Utc};
 use std::error::Error;
+use serde::{Deserialize, Serialize};
 
 #[allow(unused)]
 pub async fn create_profile(app_data: web::Data<AppState>, params: Json<ProfileCreate>) -> Result<impl Responder, Box<dyn Error>> {
@@ -51,6 +53,19 @@ fn convert(profile: Option<ProfileQueryResult>) -> Option<ProfileResponder> {
         None => None
     }
 }
+
+#[derive(Deserialize, Serialize)]
+pub struct ProfileResponder {
+    pub id: i64,
+    pub created_at: DateTime<Utc>,
+    pub user_name: String,
+    pub full_name: String,
+    pub description: String,
+    pub region: Option<String>,
+    pub main_url: Option<String>,
+    pub avatar: Vec<u8>
+}
+
 
 #[cfg(test)]
 mod tests {
