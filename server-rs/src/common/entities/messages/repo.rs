@@ -14,7 +14,7 @@ pub async fn insert_message(conn: &Pool<Postgres>, user_id: i64, body: &str) -> 
     match query_result {
         Ok(r) => Ok(r.id),
         Err(e) => {
-            println!("create_messaage error: {}", e);
+            println!("insert_message error: {}", e);
             Err(e)
         },
     }

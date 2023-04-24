@@ -30,18 +30,8 @@ pub async fn insert_profile(conn: &Pool<Postgres>, params: ProfileCreate) -> Res
 }
 
 pub async fn query_profile(conn: &Pool<Postgres>, id: i64) -> Result<Option<ProfileQueryResult>, sqlx::Error> {
-    let profile_result = sqlx::query_as::<_, ProfileQueryResult>("select * from profile where id = $1")
+    sqlx::query_as::<_, ProfileQueryResult>("select * from profile where id = $1")
     .bind(id)
-    .fetch_one(conn)
-    .await;
-
-    match profile_result {
-        Ok(row) => {
-            Ok(Some(row))
-        },
-        Err(e) => {
-            println!("get_profile error: {:?}", e);
-            Err(e)
-        }
-    }
+    .fetch_optional(conn)
+    .await
 }
