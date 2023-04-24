@@ -2,7 +2,7 @@ use crate::common::entities::{
     utils::EntityId
 };
 use sqlx::{Pool, Postgres};
-use super::model::{MessageQueryResult};
+use super::model::MessageQueryResult;
 
 pub async fn insert_message(conn: &Pool<Postgres>, user_id: i64, body: &str) -> Result<i64, sqlx::Error> {
     let query_result = sqlx::query_as::<_, EntityId>("insert into message (user_id, body) values ($1, $2) returning id")
