@@ -1,14 +1,13 @@
-use server_rs::common_tests::actix_fixture::get_app;
+use server_rs::{common_tests::actix_fixture::get_app, routes::message_route::MessageResponder};
 use server_rs::common::entities::profiles::model::ProfileCreate;
-use server_rs::common::entities::messages::model::{MessagePostJson};
-use server_rs::routes::message_route::MessageResponder;
+use server_rs::common::entities::messages::model::MessagePostJson;
 use actix_web::{
     test,
-    web::{Json}
+    web::Json
 };
 
-#[actix_web::test]
-async fn test_create_and_get_message() {
+#[tokio::test]
+pub async fn test_create_and_get_message() {
     let app = get_app().await;
 
     // 1. create new profile
