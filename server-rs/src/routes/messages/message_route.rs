@@ -1,15 +1,14 @@
 use crate::common::entities::broadcasts::repo::query_message_broadcast;
-use crate::common::entities::messages::model::{MessagePostJson, MessageQuery, MessageQueryResult};
+use crate::common::entities::messages::model::MessageQueryResult;
 use crate::common::app_state::AppState;
 use crate::common::entities::messages::repo::{insert_message, query_message};
 use crate::common::entities::profiles::model::{ProfileQueryResult, ProfileShort};
 use crate::common::entities::profiles::repo::query_profile;
 use actix_web::{web, web::{Query, Json}, Responder};
-use chrono::{DateTime, Utc};
 use futures::TryStreamExt;
 use sqlx::{Pool, Postgres};
 use std::error::Error;
-use serde::{Deserialize, Serialize};
+use super::model::{MessageResponder, MessagePostJson, MessageQuery};
 
 
 #[allow(unused)]
@@ -120,21 +119,4 @@ fn convert(message: Option<MessageQueryResult>, profile: ProfileQueryResult) -> 
         },
         None => None
     }
-}
-
-#[derive(Deserialize, Serialize)]
-pub struct MessageResponder {
-    pub id: i64,
-    pub created_at: DateTime<Utc>,
-    pub body: Option<String>,
-    pub likes: i32,
-    pub broadcasting_msg: Option<Box<MessageResponder>>,
-    pub image: Option<Vec<u8>>,
-    pub profile: ProfileShort
-}
-
-
-#[cfg(test)]
-mod tests {
-    
 }

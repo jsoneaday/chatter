@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
-use chrono::prelude::*;
+use chrono::{DateTime, Utc};
+use serde::{Serialize, Deserialize};
 use sqlx::{FromRow};
 
 
@@ -12,15 +12,4 @@ pub struct MessageQueryResult {
     pub body: Option<String>,
     pub image: Option<Vec<u8>>,
     pub likes: i32    
-}
-
-#[derive(Deserialize)]
-pub struct MessageQuery {
-    pub id: i64
-}
-
-#[derive(Deserialize, Serialize)]
-pub struct MessagePostJson {
-    pub user_id: i64,
-    pub body: String
 }

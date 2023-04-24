@@ -1,4 +1,4 @@
-use crate::{common::app_state::AppState, routes::{message_route::{get_message, create_message}, profile_route::{create_profile, get_profile}}};
+use crate::{common::app_state::AppState, routes::{messages::message_route::{get_message, create_message}, profile_route::{create_profile, get_profile}}};
 use std::env;
 use dotenv::dotenv;
 use sqlx::postgres::PgPool;

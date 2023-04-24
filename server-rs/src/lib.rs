@@ -1,8 +1,8 @@
 pub mod common {
     pub mod app_state;
     pub mod entities {
-        pub mod messages {
-            pub mod model;
+        pub mod messages {       
+            pub mod model;     
             pub mod repo;
         }
         pub mod profiles {
@@ -20,7 +20,10 @@ pub mod common_tests {
     pub mod actix_fixture;
 }
 pub mod routes {
-    pub mod message_route;
+    pub mod messages {
+        pub mod model;
+        pub mod message_route;
+    }
     pub mod profile_route;
 }
 
@@ -30,7 +33,7 @@ use actix_web::{ web, App, HttpServer, Responder };
 use routes::profile_route::get_profile;
 use std::error::Error;
 use crate::common::app_state::AppState;
-use crate::routes::message_route::{create_message, get_message, get_messages};
+use crate::routes::messages::message_route::{create_message, get_message, get_messages};
 
 
 pub async fn run() -> std::io::Result<()> {
