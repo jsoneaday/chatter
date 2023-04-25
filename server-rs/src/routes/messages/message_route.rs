@@ -3,7 +3,7 @@ use crate::common::entities::messages::model::MessageQueryResult;
 use crate::common::app_state::AppState;
 use crate::common::entities::messages::repo::{InsertMessageFn, QueryMessageFn};
 use crate::common::entities::profiles::model::{ProfileQueryResult, ProfileShort};
-use crate::common::entities::profiles::repo::ProfileRepo;
+use crate::common::entities::profiles::repo::{QueryProfileFn};
 use crate::common::entities::base::DbRepo;
 use actix_web::{web, web::{Query, Json}, Responder};
 use futures::TryStreamExt;

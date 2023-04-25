@@ -3,7 +3,7 @@ use crate::common::{
     entities::{
         profiles::{
             model::{ProfileQuery, ProfileQueryResult, ProfileCreate}, 
-            repo::ProfileRepo
+            repo::{InsertProfileFn, QueryProfileFn}
         }
     }
 };

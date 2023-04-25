@@ -1,6 +1,6 @@
 use server_rs::{
     common_tests::actix_fixture::get_app_data, 
-    common::entities::{profiles::{model::ProfileCreate, repo::ProfileRepo}, messages::repo::{InsertMessageFn, QueryMessageFn}}
+    common::entities::{profiles::{model::ProfileCreate, repo::{InsertProfileFn}}, messages::repo::{InsertMessageFn, QueryMessageFn}}
 };
 
 #[tokio::test]

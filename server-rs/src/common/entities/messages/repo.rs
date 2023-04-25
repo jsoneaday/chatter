@@ -109,7 +109,7 @@ impl QueryMessageFn for DbRepo {
 
 #[cfg(test)]
 mod tests {
-    use crate::{common_tests::actix_fixture::get_conn_pool, common::entities::profiles::{repo::ProfileRepo, model::ProfileCreate}};
+    use crate::{common_tests::actix_fixture::get_conn_pool, common::entities::profiles::{repo::{InsertProfileFn}, model::ProfileCreate}};
     use super::*;
 
     #[derive(Clone)]
@@ -167,15 +167,31 @@ mod tests {
             }
         }
 
+        #[allow(unused)]
+        #[async_trait]
+        impl InsertProfileFn for InsertResponseMsgDbRepo {
+            async fn insert_profile(&self, conn: &Pool<Postgres>, params: ProfileCreate) -> Result<i64, sqlx::Error> {
+                Ok(self.configs.clone().unwrap().profile_id)
+            }
+        }
+
         #[tokio::test]
         async fn test_insert_response_message() {                
             let mut db_repo = InsertResponseMsgDbRepo{ configs: None };
             let configs = db_repo.setup().await;
             db_repo.configs = Some(configs.clone());
 
-            let original_msg_id = db_repo.insert_message(&configs.conn, configs.profile_id, "Body of message that is being responded to.").await;
+            let profile_id = db_repo.insert_profile(&configs.conn, ProfileCreate { 
+                user_name: "tester".to_string(), 
+                full_name: "Dave Wave".to_string(), 
+                description: "a description".to_string(), 
+                region: Some("usa".to_string()), 
+                main_url: Some("http://whatever.com".to_string()), 
+                avatar: vec![] 
+            }).await;
+            let original_msg_id = db_repo.insert_message(&configs.conn, profile_id.unwrap(), "Body of message that is being responded to.").await;
 
-            let response_msg = db_repo.insert_response_message(&configs.conn, configs.profile_id, "This body testing", original_msg_id.unwrap()).await;
+            let response_msg = db_repo.insert_response_message(&configs.conn, configs.profile_id, "Body of response message", original_msg_id.unwrap()).await;
             assert!(response_msg.unwrap() > 0);
         }
     }
