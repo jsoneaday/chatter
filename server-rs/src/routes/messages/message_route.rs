@@ -1,4 +1,4 @@
-use crate::common::entities::broadcasts::repo::query_message_broadcast;
+use crate::common::entities::broadcasts::repo::{QueryMessageBroadcastFn};
 use crate::common::entities::messages::model::MessageQueryResult;
 use crate::common::app_state::AppState;
 use crate::common::entities::messages::repo::{InsertMessageFn, QueryMessageFn};
@@ -82,7 +82,7 @@ async fn get_message_responder(app_data: web::Data<AppState>, msg_query_result: 
 }
 
 async fn get_broadcast_msg_responder(db_repo: &DbRepo, conn: &Pool<Postgres>, main_msg_id: i64) -> Option<Box<MessageResponder>> {
-    let message_broadcast = query_message_broadcast(conn, main_msg_id).await;
+    let message_broadcast = db_repo.query_message_broadcast(conn, main_msg_id).await;
 
     match message_broadcast {
         Ok(mb) => {
