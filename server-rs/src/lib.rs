@@ -13,7 +13,7 @@ pub mod common {
             pub mod model;
             pub mod repo;
         }
-        pub mod utils;
+        pub mod base;
     }    
 }
 pub mod common_tests {
@@ -28,6 +28,7 @@ pub mod routes {
 }
 
 use std::env;
+use common::entities::base::DbRepo;
 use dotenv::dotenv;
 use actix_web::{ web, App, HttpServer, Responder };
 use routes::profile_route::get_profile;
@@ -60,7 +61,8 @@ pub async fn run() -> std::io::Result<()> {
             .app_data(web::Data::new(
                 AppState{
                     client: reqwest::Client::new(),
-                    conn: conn.clone()
+                    conn: conn.clone(),
+                    db_repo: DbRepo{}
                 }
             ))
             .route("/", web::get().to(get_root))

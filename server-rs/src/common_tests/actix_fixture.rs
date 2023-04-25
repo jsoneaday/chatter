@@ -1,7 +1,7 @@
-use crate::{common::app_state::AppState, routes::{messages::message_route::{get_message, create_message}, profile_route::{create_profile, get_profile}}};
+use crate::{common::{app_state::AppState, entities::base::DbRepo}, routes::{messages::message_route::{get_message, create_message}, profile_route::{create_profile, get_profile}}};
 use std::env;
 use dotenv::dotenv;
-use sqlx::postgres::PgPool;
+use sqlx::{postgres::PgPool, Postgres, Pool};
 use actix_web::{
     App,
     web,
@@ -11,8 +11,7 @@ use actix_web::{
 };
 use actix_http::Request;
 
-#[allow(unused)]
-pub async fn get_app_data() -> AppState {
+pub async fn get_conn_pool() -> Pool<Postgres> {
     dotenv().ok();
     let postgres_host = env::var("POSTGRES_HOST").unwrap();
     let postgres_port = env::var("POSTGRES_PORT").unwrap().parse::<u16>().unwrap();
@@ -20,9 +19,15 @@ pub async fn get_app_data() -> AppState {
     let postgres_user = env::var("POSTGRES_USER").unwrap();
     let postgres_db = env::var("POSTGRES_DB").unwrap();
 
+    PgPool::connect(&format!("postgres://{postgres_user}:{postgres_password}@{postgres_host}:{postgres_port}/{postgres_db}")).await.unwrap()
+}
+
+#[allow(unused)]
+pub async fn get_app_data() -> AppState {   
     AppState {
         client: reqwest::Client::new(),
-        conn: PgPool::connect(&format!("postgres://{postgres_user}:{postgres_password}@{postgres_host}:{postgres_port}/{postgres_db}")).await.unwrap()
+        conn: get_conn_pool().await,
+        db_repo: DbRepo{}
     }
 }
 

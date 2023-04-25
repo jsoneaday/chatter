@@ -3,7 +3,7 @@ use crate::common::{
     entities::{
         profiles::{
             model::{ProfileQuery, ProfileQueryResult, ProfileCreate}, 
-            repo::{insert_profile, query_profile}
+            repo::ProfileRepo
         }
     }
 };
@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 
 #[allow(unused)]
 pub async fn create_profile(app_data: web::Data<AppState>, params: Json<ProfileCreate>) -> Result<impl Responder, Box<dyn Error>> {
-    let result = insert_profile(&app_data.conn, ProfileCreate { 
+    let result = app_data.db_repo.insert_profile(&app_data.conn, ProfileCreate { 
         user_name: params.user_name.clone(), 
         full_name: params.full_name.clone(), 
         description: params.description.clone(), 
@@ -30,7 +30,7 @@ pub async fn create_profile(app_data: web::Data<AppState>, params: Json<ProfileC
 }
 
 pub async fn get_profile(app_data: web::Data<AppState>, query: Query<ProfileQuery>) -> Result<impl Responder, Box<dyn Error>> {
-    let result = query_profile(&app_data.conn, query.id).await;
+    let result = app_data.db_repo.query_profile(&app_data.conn, query.id).await;
 
     match result {
         Ok(profile) => Ok(Json(convert(profile))),
@@ -64,10 +64,4 @@ pub struct ProfileResponder {
     pub region: Option<String>,
     pub main_url: Option<String>,
     pub avatar: Vec<u8>
-}
-
-
-#[cfg(test)]
-mod tests {
-    
 }

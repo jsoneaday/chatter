@@ -1,9 +1,10 @@
 use crate::common::entities::broadcasts::repo::query_message_broadcast;
 use crate::common::entities::messages::model::MessageQueryResult;
 use crate::common::app_state::AppState;
-use crate::common::entities::messages::repo::{insert_message, query_message};
+use crate::common::entities::messages::repo::MessageRepo;
 use crate::common::entities::profiles::model::{ProfileQueryResult, ProfileShort};
-use crate::common::entities::profiles::repo::query_profile;
+use crate::common::entities::profiles::repo::ProfileRepo;
+use crate::common::entities::base::DbRepo;
 use actix_web::{web, web::{Query, Json}, Responder};
 use futures::TryStreamExt;
 use sqlx::{Pool, Postgres};
@@ -19,7 +20,7 @@ pub async fn create_message(app_data: web::Data<AppState>, params: Json<MessageP
         &params.body[..140]
     };
 
-    let result = insert_message(&app_data.conn, params.user_id, body).await;
+    let result = app_data.db_repo.insert_message(&app_data.conn, params.user_id, body).await;
     match result {
         Ok(id) => Ok(Json(id)),
         Err(e) => Err(Box::new(e))
@@ -28,7 +29,7 @@ pub async fn create_message(app_data: web::Data<AppState>, params: Json<MessageP
 
 #[allow(unused)]
 pub async fn get_message(app_data: web::Data<AppState>, query: Query<MessageQuery>) -> Result<impl Responder, Box<dyn Error>> {
-    let result = query_message(&app_data.conn, query.id).await;
+    let result = app_data.db_repo.query_message(&app_data.conn, query.id).await;
 
     let msg_responder_result = get_message_responder(app_data, result).await;
 
@@ -62,9 +63,9 @@ async fn get_message_responder(app_data: web::Data<AppState>, msg_query_result: 
     match msg_query_result {
         Ok(row) => {
             if let Some(message) = row {                
-                let broadcasting_msg_responder = get_broadcast_msg_responder(&app_data.conn, message.id).await;
+                let broadcasting_msg_responder = get_broadcast_msg_responder(&app_data.db_repo, &app_data.conn, message.id).await;
                 
-                let message_profile = query_profile(&app_data.conn, message.id).await.unwrap();
+                let message_profile = app_data.db_repo.query_profile(&app_data.conn, message.id).await.unwrap();
                 let mut message_responder = convert(Some(message), message_profile.unwrap()).unwrap();
                 message_responder.broadcasting_msg = broadcasting_msg_responder;
                 
@@ -80,15 +81,15 @@ async fn get_message_responder(app_data: web::Data<AppState>, msg_query_result: 
     }
 }
 
-async fn get_broadcast_msg_responder(conn: &Pool<Postgres>, main_msg_id: i64) -> Option<Box<MessageResponder>> {
+async fn get_broadcast_msg_responder(msg_repo: &DbRepo, conn: &Pool<Postgres>, main_msg_id: i64) -> Option<Box<MessageResponder>> {
     let message_broadcast = query_message_broadcast(conn, main_msg_id).await;
 
     match message_broadcast {
         Ok(mb) => {
             match mb {
                 Some(item) => {
-                    let broadcast_profile = query_profile(conn, item.broadcasting_msg_id).await.unwrap();
-                    let broadcast_msg = query_message(conn, item.broadcasting_msg_id).await.unwrap();
+                    let broadcast_profile = msg_repo.query_profile(conn, item.broadcasting_msg_id).await.unwrap();
+                    let broadcast_msg = msg_repo.query_message(conn, item.broadcasting_msg_id).await.unwrap();
                     Some(Box::new(convert(broadcast_msg, broadcast_profile.unwrap()).unwrap()))
                 },
                 None => None

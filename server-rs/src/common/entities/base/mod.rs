@@ -6,3 +6,6 @@ use sqlx::{FromRow};
 pub struct EntityId {
     pub id: i64
 }
+
+#[derive(Clone)]
+pub struct DbRepo{}
