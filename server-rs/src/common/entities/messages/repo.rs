@@ -113,15 +113,15 @@ mod tests {
     use super::*;
 
     #[derive(Clone)]
-    struct Configs{
+    struct Fixtures{
         pub original_msg_id: i64,
         pub profile_id: i64,
         pub conn: Pool<Postgres>
     }
 
     #[async_trait]
-    trait RepoSetupConfigs {
-        async fn setup(&mut self) -> Configs {
+    trait TestRepoSetup {
+        async fn setup(&mut self) -> Fixtures {
             let conn = get_conn_pool().await;
             let db_repo = DbRepo{};
             let profile = db_repo.insert_profile(&conn, ProfileCreate { 
@@ -135,7 +135,7 @@ mod tests {
             let profile_id = profile.unwrap();
             let original_msg_id = db_repo.insert_message(&conn, profile_id, "Testing body 123").await;
     
-            Configs {
+            Fixtures {
                 original_msg_id: original_msg_id.unwrap(),
                 profile_id: profile_id,
                 conn
@@ -143,14 +143,14 @@ mod tests {
         }
     }
 
-    mod insert_response_message {
+    mod test_mod_insert_response_message {
         use super::*;
 
         struct InsertResponseMsgDbRepo {
-            configs: Option<Configs>
+            fixtures: Option<Fixtures>
         }
 
-        impl RepoSetupConfigs for InsertResponseMsgDbRepo {}
+        impl TestRepoSetup for InsertResponseMsgDbRepo {}
 
         #[async_trait]
         impl InsertResponseMessageFn for InsertResponseMsgDbRepo {
@@ -163,7 +163,7 @@ mod tests {
         #[async_trait]
         impl InsertMessageFn for InsertResponseMsgDbRepo {
             async fn insert_message(&self, conn: &Pool<Postgres>, user_id: i64, body: &str) -> Result<i64, sqlx::Error> {
-                Ok(self.configs.clone().unwrap().original_msg_id)
+                Ok(self.fixtures.clone().unwrap().original_msg_id)
             }
         }
 
@@ -171,17 +171,17 @@ mod tests {
         #[async_trait]
         impl InsertProfileFn for InsertResponseMsgDbRepo {
             async fn insert_profile(&self, conn: &Pool<Postgres>, params: ProfileCreate) -> Result<i64, sqlx::Error> {
-                Ok(self.configs.clone().unwrap().profile_id)
+                Ok(self.fixtures.clone().unwrap().profile_id)
             }
         }
 
         #[tokio::test]
         async fn test_insert_response_message() {                
-            let mut db_repo = InsertResponseMsgDbRepo{ configs: None };
-            let configs = db_repo.setup().await;
-            db_repo.configs = Some(configs.clone());
+            let mut db_repo = InsertResponseMsgDbRepo{ fixtures: None };
+            let fixtures = db_repo.setup().await;
+            db_repo.fixtures = Some(fixtures.clone());
 
-            let profile_id = db_repo.insert_profile(&configs.conn, ProfileCreate { 
+            let profile_id_result = db_repo.insert_profile(&fixtures.conn, ProfileCreate { 
                 user_name: "tester".to_string(), 
                 full_name: "Dave Wave".to_string(), 
                 description: "a description".to_string(), 
@@ -189,9 +189,10 @@ mod tests {
                 main_url: Some("http://whatever.com".to_string()), 
                 avatar: vec![] 
             }).await;
-            let original_msg_id = db_repo.insert_message(&configs.conn, profile_id.unwrap(), "Body of message that is being responded to.").await;
+            let profile_id = profile_id_result.unwrap();
+            let original_msg_id = db_repo.insert_message(&fixtures.conn, profile_id, "Body of message that is being responded to.").await;
 
-            let response_msg = db_repo.insert_response_message(&configs.conn, configs.profile_id, "Body of response message", original_msg_id.unwrap()).await;
+            let response_msg = db_repo.insert_response_message(&fixtures.conn, profile_id, "Body of response message", original_msg_id.unwrap()).await;
             assert!(response_msg.unwrap() > 0);
         }
     }
