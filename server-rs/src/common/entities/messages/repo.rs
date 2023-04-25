@@ -4,39 +4,11 @@ use crate::common::entities::{
 use sqlx::{Pool, Postgres};
 use super::model::MessageQueryResult;
 use async_trait::async_trait;
-use self::private_members::InsertMessageFn;
-use self::private_members::InsertResponseMessageFn;
-use self::private_members::QueryMessageFn;
 
 mod private_members {
     use super::*;
 
-    #[async_trait]
-    pub trait InsertMessageFn {
-        async fn insert_message_inner(&self, conn: &Pool<Postgres>, user_id: i64, body: &str) -> Result<i64, sqlx::Error>;
-    }
-
-    #[async_trait]
-    pub trait InsertResponseMessageFn {
-        async fn insert_response_message_inner(&self, conn: &Pool<Postgres>, user_id: i64, body: &str, original_msg_id: i64) -> Result<i64, sqlx::Error>;
-    }
-
-    #[async_trait]
-    pub trait QueryMessageFn {
-        async fn query_message_inner(&self, conn: &Pool<Postgres>, id: i64) -> Result<Option<MessageQueryResult>, sqlx::Error>;
-    }
-}
-
-#[async_trait]
-pub trait MessageRepo: private_members::InsertMessageFn + private_members::QueryMessageFn + private_members::InsertResponseMessageFn {
-    async fn insert_message(&self, conn: &Pool<Postgres>, user_id: i64, body: &str) -> Result<i64, sqlx::Error>;
-    async fn query_message(&self, conn: &Pool<Postgres>, id: i64) -> Result<Option<MessageQueryResult>, sqlx::Error>;
-    async fn insert_response_message(&self, conn: &Pool<Postgres>, user_id: i64, body: &str, original_msg_id: i64) -> Result<i64, sqlx::Error>;
-}
-
-#[async_trait]
-impl private_members::InsertMessageFn for DbRepo {
-    async fn insert_message_inner(&self, conn: &Pool<Postgres>, user_id: i64, body: &str) -> Result<i64, sqlx::Error> {
+    pub async fn insert_message_inner(conn: &Pool<Postgres>, user_id: i64, body: &str) -> Result<i64, sqlx::Error> {
         let query_result = sqlx::query_as::<_, EntityId>("insert into message (user_id, body) values ($1, $2) returning id")
             .bind(user_id)
             .bind(body)
@@ -51,11 +23,8 @@ impl private_members::InsertMessageFn for DbRepo {
             },
         }
     }
-}
 
-#[async_trait]
-impl private_members::InsertResponseMessageFn for DbRepo {
-    async fn insert_response_message_inner(&self, conn: &Pool<Postgres>, user_id: i64, body: &str, original_msg_id: i64) -> Result<i64, sqlx::Error> {
+    pub async fn insert_response_message_inner(conn: &Pool<Postgres>, user_id: i64, body: &str, original_msg_id: i64) -> Result<i64, sqlx::Error> {
         let tx = conn.begin().await.unwrap();
 
         let insert_result = sqlx::query_as::<_, EntityId>("insert into message (user_id, body) values ($1, $2) returning id")
@@ -93,11 +62,8 @@ impl private_members::InsertResponseMessageFn for DbRepo {
 
         Ok(msg_id)
     }
-}
 
-#[async_trait]
-impl private_members::QueryMessageFn for DbRepo {
-    async fn query_message_inner(&self, conn: &Pool<Postgres>, id: i64) -> Result<Option<MessageQueryResult>, sqlx::Error> {
+    pub async fn query_message_inner(conn: &Pool<Postgres>, id: i64) -> Result<Option<MessageQueryResult>, sqlx::Error> {
         sqlx::query_as::<_, MessageQueryResult>("select * from message where id = $1")
             .bind(id)
             .fetch_optional(conn)
@@ -106,42 +72,111 @@ impl private_members::QueryMessageFn for DbRepo {
 }
 
 #[async_trait]
-impl MessageRepo for DbRepo {
+pub trait InsertMessageFn {
+    async fn insert_message(&self, conn: &Pool<Postgres>, user_id: i64, body: &str) -> Result<i64, sqlx::Error>;
+}
+
+#[async_trait]
+pub trait InsertResponseMessageFn {
+    async fn insert_response_message(&self, conn: &Pool<Postgres>, user_id: i64, body: &str, original_msg_id: i64) -> Result<i64, sqlx::Error>;
+}
+
+#[async_trait]
+pub trait QueryMessageFn {
+    async fn query_message(&self, conn: &Pool<Postgres>, id: i64) -> Result<Option<MessageQueryResult>, sqlx::Error>;
+}
+
+#[async_trait]
+impl InsertMessageFn for DbRepo {
     async fn insert_message(&self, conn: &Pool<Postgres>, user_id: i64, body: &str) -> Result<i64, sqlx::Error> {
-        self.insert_message_inner(conn, user_id, body).await
-    }
-
-    async fn query_message(&self, conn: &Pool<Postgres>, id: i64) -> Result<Option<MessageQueryResult>, sqlx::Error> {
-        self.query_message_inner(conn, id).await
-    }
-
-    async fn insert_response_message(&self, conn: &Pool<Postgres>, user_id: i64, body: &str, original_msg_id: i64) -> Result<i64, sqlx::Error> {
-        self.insert_response_message_inner(conn, user_id, body, original_msg_id).await
+        private_members::insert_message_inner(conn, user_id, body).await
     }
 }
 
+#[async_trait]
+impl InsertResponseMessageFn for DbRepo {
+    async fn insert_response_message(&self, conn: &Pool<Postgres>, user_id: i64, body: &str, original_msg_id: i64) -> Result<i64, sqlx::Error> {
+        private_members::insert_response_message_inner(conn, user_id, body, original_msg_id).await
+    }
+}
+
+#[async_trait]
+impl QueryMessageFn for DbRepo {
+    async fn query_message(&self, conn: &Pool<Postgres>, id: i64) -> Result<Option<MessageQueryResult>, sqlx::Error> {
+        private_members::query_message_inner(conn, id).await
+    }
+}
 
 #[cfg(test)]
 mod tests {
-    // use crate::common_tests::actix_fixture::get_conn_pool;
-    // use super::*;
+    use crate::{common_tests::actix_fixture::get_conn_pool, common::entities::profiles::{repo::ProfileRepo, model::ProfileCreate}};
+    use super::*;
 
-    // pub struct Configs{
-    //     response_msg_id: i64,
-    //     profile_id: i64
-    // }
+    #[derive(Clone)]
+    struct Configs{
+        pub original_msg_id: i64,
+        pub profile_id: i64,
+        pub conn: Pool<Postgres>
+    }
 
-    // async fn setup(conn: &Pool<Postgres>, msg_repo: &DbRepo) -> Configs {
-    //     let profile = msg_repo.
-    //     let response = msg_repo.insert_message(conn, , body)
-    // }
+    #[async_trait]
+    trait RepoSetupConfigs {
+        async fn setup(&mut self) -> Configs {
+            let conn = get_conn_pool().await;
+            let db_repo = DbRepo{};
+            let profile = db_repo.insert_profile(&conn, ProfileCreate { 
+                user_name: "tester".to_string(), 
+                full_name: "Dave Wave".to_string(), 
+                description: "a description".to_string(), 
+                region: Some("usa".to_string()), 
+                main_url: Some("http://whatever.com".to_string()), 
+                avatar: vec![] 
+            }).await;
+            let profile_id = profile.unwrap();
+            let original_msg_id = db_repo.insert_message(&conn, profile_id, "Testing body 123").await;
+    
+            Configs {
+                original_msg_id: original_msg_id.unwrap(),
+                profile_id: profile_id,
+                conn
+            }
+        }
+    }
 
-    #[tokio::test]
-    async fn test_insert_response_message() {        
-        //let conn = get_conn_pool().await;
-        //let db_repo = DbRepo{};
-        //let configs = setup(&conn, &db_repo).await;
+    mod insert_response_message {
+        use super::*;
 
-        //db_repo.insert_response_message_inner(&conn, user_id, body, original_msg_id).await;
+        struct InsertResponseMsgDbRepo {
+            configs: Option<Configs>
+        }
+
+        impl RepoSetupConfigs for InsertResponseMsgDbRepo {}
+
+        #[async_trait]
+        impl InsertResponseMessageFn for InsertResponseMsgDbRepo {
+            async fn insert_response_message(&self, conn: &Pool<Postgres>, user_id: i64, body: &str, original_msg_id: i64) -> Result<i64, sqlx::Error> {
+                private_members::insert_response_message_inner(conn, user_id, body, original_msg_id).await
+            }
+        }
+
+        #[allow(unused)]
+        #[async_trait]
+        impl InsertMessageFn for InsertResponseMsgDbRepo {
+            async fn insert_message(&self, conn: &Pool<Postgres>, user_id: i64, body: &str) -> Result<i64, sqlx::Error> {
+                Ok(self.configs.clone().unwrap().original_msg_id)
+            }
+        }
+
+        #[tokio::test]
+        async fn test_insert_response_message() {                
+            let mut db_repo = InsertResponseMsgDbRepo{ configs: None };
+            let configs = db_repo.setup().await;
+            db_repo.configs = Some(configs.clone());
+
+            let original_msg_id = db_repo.insert_message(&configs.conn, configs.profile_id, "Body of message that is being responded to.").await;
+
+            let response_msg = db_repo.insert_response_message(&configs.conn, configs.profile_id, "This body testing", original_msg_id.unwrap()).await;
+            assert!(response_msg.unwrap() > 0);
+        }
     }
 }

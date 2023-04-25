@@ -1,7 +1,7 @@
 use crate::common::entities::broadcasts::repo::query_message_broadcast;
 use crate::common::entities::messages::model::MessageQueryResult;
 use crate::common::app_state::AppState;
-use crate::common::entities::messages::repo::MessageRepo;
+use crate::common::entities::messages::repo::{InsertMessageFn, QueryMessageFn};
 use crate::common::entities::profiles::model::{ProfileQueryResult, ProfileShort};
 use crate::common::entities::profiles::repo::ProfileRepo;
 use crate::common::entities::base::DbRepo;
@@ -81,15 +81,15 @@ async fn get_message_responder(app_data: web::Data<AppState>, msg_query_result: 
     }
 }
 
-async fn get_broadcast_msg_responder(msg_repo: &DbRepo, conn: &Pool<Postgres>, main_msg_id: i64) -> Option<Box<MessageResponder>> {
+async fn get_broadcast_msg_responder(db_repo: &DbRepo, conn: &Pool<Postgres>, main_msg_id: i64) -> Option<Box<MessageResponder>> {
     let message_broadcast = query_message_broadcast(conn, main_msg_id).await;
 
     match message_broadcast {
         Ok(mb) => {
             match mb {
                 Some(item) => {
-                    let broadcast_profile = msg_repo.query_profile(conn, item.broadcasting_msg_id).await.unwrap();
-                    let broadcast_msg = msg_repo.query_message(conn, item.broadcasting_msg_id).await.unwrap();
+                    let broadcast_profile = db_repo.query_profile(conn, item.broadcasting_msg_id).await.unwrap();
+                    let broadcast_msg = db_repo.query_message(conn, item.broadcasting_msg_id).await.unwrap();
                     Some(Box::new(convert(broadcast_msg, broadcast_profile.unwrap()).unwrap()))
                 },
                 None => None
