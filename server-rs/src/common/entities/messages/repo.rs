@@ -4,8 +4,10 @@ use crate::common::entities::{
 use sqlx::{Pool, Postgres};
 use super::model::MessageQueryResult;
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 
-mod private_members {
+
+mod private_members {   
     use super::*;
 
     pub async fn insert_message_inner(conn: &Pool<Postgres>, user_id: i64, body: &str) -> Result<i64, sqlx::Error> {
@@ -69,6 +71,21 @@ mod private_members {
             .fetch_optional(conn)
             .await
     }
+
+    pub async fn query_messages_by_user_inner(conn: &Pool<Postgres>, user_id: i64, last_updated_at: DateTime<Utc>, page_size: i16) -> Result<Vec<MessageQueryResult>, sqlx::Error> {
+        sqlx::query_as::<_, MessageQueryResult>(
+            r"select * from message 
+                where user_id = $1 
+                and updated_at < $2 
+                order by $2 desc 
+                limit $3
+            ")
+            .bind(user_id)
+            .bind(last_updated_at)
+            .bind(page_size)
+            .fetch_all(conn)
+            .await
+    }
 }
 
 #[async_trait]
@@ -84,6 +101,11 @@ pub trait InsertResponseMessageFn {
 #[async_trait]
 pub trait QueryMessageFn {
     async fn query_message(&self, conn: &Pool<Postgres>, id: i64) -> Result<Option<MessageQueryResult>, sqlx::Error>;
+}
+
+#[async_trait]
+pub trait QueryMessagesByUserFn {
+    async fn query_messages_by_user(&self, conn: &Pool<Postgres>, user_id: i64, last_updated_at: DateTime<Utc>, page_size: i16) -> Result<Vec<MessageQueryResult>, sqlx::Error>;
 }
 
 #[async_trait]
@@ -104,6 +126,13 @@ impl InsertResponseMessageFn for DbRepo {
 impl QueryMessageFn for DbRepo {
     async fn query_message(&self, conn: &Pool<Postgres>, id: i64) -> Result<Option<MessageQueryResult>, sqlx::Error> {
         private_members::query_message_inner(conn, id).await
+    }
+}
+
+#[async_trait]
+impl QueryMessagesByUserFn for DbRepo {
+    async fn query_messages_by_user(&self, conn: &Pool<Postgres>, user_id: i64, last_updated_at: DateTime<Utc>, page_size: i16) -> Result<Vec<MessageQueryResult>, sqlx::Error> {
+        private_members::query_messages_by_user_inner(conn, user_id, last_updated_at, page_size).await
     }
 }
 
@@ -194,6 +223,71 @@ mod tests {
 
             let response_msg = db_repo.insert_response_message(&fixtures.conn, profile_id, "Body of response message", original_msg_id.unwrap()).await;
             assert!(response_msg.unwrap() > 0);
+        }
+    }
+
+    mod test_mod_query_messages_by_user {
+        use crate::common::entities::profiles::repo::QueryProfileFn;
+
+        use super::*;
+
+        struct QueryMsgByUserDbRepo { fixtures: Option<Fixtures> }
+
+        impl QueryMsgByUserDbRepo {
+            async fn setup(&mut self) -> Fixtures {
+                let conn = get_conn_pool().await;
+                let db_repo = DbRepo{};
+                let profile = db_repo.query_profile(&conn, 1).await;
+                let optional_profile_result = profile.unwrap();
+                let profile_id: i64 = match optional_profile_result {
+                    Some(profile_result) => profile_result.id,
+                    None => {
+                        let inserted_profile = db_repo.insert_profile(&conn, ProfileCreate { 
+                            user_name: "tester".to_string(), 
+                            full_name: "Dave Wave".to_string(), 
+                            description: "a description".to_string(), 
+                            region: Some("usa".to_string()), 
+                            main_url: Some("http://whatever.com".to_string()), 
+                            avatar: vec![] 
+                        }).await;
+                        inserted_profile.unwrap()
+                    }
+                };
+                let original_msg_id = db_repo.insert_message(&conn, profile_id, "Testing body 123").await;
+        
+                Fixtures {
+                    original_msg_id: original_msg_id.unwrap(),
+                    profile_id: profile_id,
+                    conn
+                }
+            }
+        }
+
+        #[async_trait]
+        impl QueryMessagesByUserFn for QueryMsgByUserDbRepo {
+            async fn query_messages_by_user(&self, conn: &Pool<Postgres>, user_id: i64, last_updated_at: DateTime<Utc>, page_size: i16) -> Result<Vec<MessageQueryResult>, sqlx::Error> {
+                private_members::query_messages_by_user_inner(conn, user_id, last_updated_at, page_size).await
+            }
+        }
+
+        #[tokio::test]
+        async fn test_query_messages_by_user () {
+            let mut db_repo = QueryMsgByUserDbRepo{fixtures: None};
+            db_repo.fixtures = Some(db_repo.setup().await);
+
+            let fixtures = db_repo.fixtures.clone().unwrap();
+            let result = db_repo.query_messages_by_user(&fixtures.conn, fixtures.profile_id, Utc::now(), 10).await;
+
+            match result {
+                Ok(rows) => {
+                    println!("length {}", rows.len());
+                    assert!(rows.len() == 10)
+                },
+                Err(e) => {
+                    println!("test_query_messages_by_user error: {:?}", e);
+                    panic!("{}", e)
+                }
+            }
         }
     }
 }
