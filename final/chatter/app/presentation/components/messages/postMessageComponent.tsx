@@ -38,6 +38,7 @@ export default function PostMessageComponent({
     StyleProp<ViewStyle>
   >({ width: "100%" });
   const [showKeyboardTabBar, setShowKeyboardTabBar] = useState(false);
+  const [messageValue, setMessageValue] = useState("");
 
   useEffect(() => {
     messagePostContainerHeight.addListener(({ value }) => {
@@ -67,12 +68,32 @@ export default function PostMessageComponent({
     };
   }, []);
 
+  const onChangeText = (text: string) => {
+    setMessageValue(text);
+  };
+
   const onPressCancelMessage = () => {
     toggleShowMessageCreator();
   };
 
-  const onPressSubmitMessage = () => {
-    throw new Error("not implemented");
+  const onPressSubmitMessage = async () => {
+    const result = await fetch("http://localhost:4001/v1/msg", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: 1,
+        body: messageValue,
+      }),
+    });
+
+    if (result.ok) {
+      console.log("result", await result.json());
+    } else {
+      console.log("result", result.statusText);
+    }
+    setMessageValue("");
   };
 
   const onPressShowMessageCreator = () => {
@@ -146,6 +167,8 @@ export default function PostMessageComponent({
                   placeholder="What's happening"
                   placeholderTextColor={primary()}
                   onSubmitEditing={Keyboard.dismiss}
+                  value={messageValue}
+                  onChangeText={onChangeText}
                 ></TextInput>
               </View>
               <KeyboardToolBar
