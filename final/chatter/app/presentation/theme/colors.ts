@@ -6,8 +6,11 @@ const white = "white";
 const black = "black";
 const skyBlue = "#87CEEB";
 const navyBlue = "#000080";
-const gray = "#808080";
 export const modalBackgroundColor = "lightgray";
+
+function gray(opacity: number = 1.0): string {
+  return `rgba(169,169,169, ${opacity})`;
+}
 
 const dark = {
   primary: white,
@@ -51,9 +54,13 @@ export function secondary(isInverted: Boolean = false) {
   return colorScheme === "dark" ? dark.secondary : light.secondary;
 }
 
-export function tertiary(isInverted: Boolean = false) {
+export function tertiary(isInverted: Boolean = false, opacity: number = 1.0) {
   if (isInverted) {
-    return colorScheme === "dark" ? light.tertiary : dark.tertiary;
+    return colorScheme === "dark"
+      ? light.tertiary(opacity)
+      : dark.tertiary(opacity);
   }
-  return colorScheme === "dark" ? dark.tertiary : light.tertiary;
+  return colorScheme === "dark"
+    ? dark.tertiary(opacity)
+    : light.tertiary(opacity);
 }

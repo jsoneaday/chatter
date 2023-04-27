@@ -10,10 +10,8 @@ import {
   labelFontStyle,
 } from "../../theme/element-styles/textStyles";
 import Spacer from "../../components/spacer";
-import {
-  RingedButton,
-  SecondaryButton,
-} from "../../components/buttons/buttons";
+import { RingedButton } from "../../components/buttons/buttons";
+import HomeTab, { HomeTabType } from "./homeTab";
 
 interface HomeProps {
   setHalfSheetContent: (element: JSX.Element) => void;
@@ -30,7 +28,7 @@ export default function Home({ setHalfSheetContent }: HomeProps) {
           <View style={{ ...styles.itemContainer, marginBottom: 30 }}>
             <MessageAccessiblityType type={Accessor.Public} />
             <Spacer width={20} />
-            <Text style={{ ...labelFontStyle }}>Public</Text>
+            <Text style={labelFontStyle}>Public</Text>
             <Spacer width={200} />
           </View>
           <View style={styles.circleContainer}>
@@ -43,8 +41,8 @@ export default function Home({ setHalfSheetContent }: HomeProps) {
                   justifyContent: "flex-start",
                 }}
               >
-                <Text style={{ ...labelFontStyle }}>Chatter Circle</Text>
-                <Text style={{ ...bodyFontStyle }}>0 people</Text>
+                <Text style={labelFontStyle}>Chatter Circle</Text>
+                <Text style={bodyFontStyle}>0 people</Text>
               </View>
             </View>
             <RingedButton
@@ -60,10 +58,18 @@ export default function Home({ setHalfSheetContent }: HomeProps) {
     );
   }, []);
 
+  const onSelectedHomeTabChanged = (newHomeTab: HomeTabType) => {
+    // get appropriate set of messages for tab
+  };
+
   return (
     <>
       <View style={{ ...(containerStyle as object) }}>
-        <Text>Home</Text>
+        <HomeTab onSelectedHomeTabChanged={onSelectedHomeTabChanged}>
+          <View style={styles.messagesContainer}>
+            <Text>following</Text>
+          </View>
+        </HomeTab>
       </View>
     </>
   );
@@ -85,5 +91,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  messagesContainer: {
+    padding: 10,
   },
 });
