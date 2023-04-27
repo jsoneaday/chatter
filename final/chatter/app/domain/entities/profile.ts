@@ -1,14 +1,16 @@
-import Follow from "./follow";
+import FollowEntity from "./follow";
 
 export default class Profile {
   constructor(
-    id: string,
-    userName: string,
-    fullName: string,
-    updatedAt: Date,
+    id: number,
+    created_at: Date,
+    user_name: string,
+    full_name: string,
     description: string,
+    region: string,
+    main_url: string,
     avatar: Blob,
-    following: Follow[],
-    followers: Follow[]
+    following: FollowEntity[],
+    followers: FollowEntity[]
   ) {}
 }

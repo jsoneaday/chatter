@@ -1,13 +1,10 @@
-export default class Message {
+export default class MessageEntity {
   constructor(
-    id: string,
-    userName: string,
-    fullName: string,
-    updatedAt: Date,
+    id: number,
+    user_id: number,
     body: string,
     likes: number,
-    broadcastingMsg?: Message,
-    respondingMsg?: Message,
+    updated_at?: Date,
     image?: Blob
   ) {}
 }

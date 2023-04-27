@@ -1,7 +1,7 @@
-import Message from "../../entities/message";
+import MessageEntity from "../../entities/message";
 
 export function Messages() {
-  const messages: Message = [];
+  const messages: MessageEntity = [];
   for (let i = 0; i < 50; i++) {}
   return messages;
 }

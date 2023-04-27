@@ -36,6 +36,7 @@ export default function HomeTab({
       setForyouSelectedStyle(styles.unselectedHeaderContainer);
       setFollowingSelectedStyle(styles.selectedHeaderContainer);
     }
+    onSelectedHomeTabChanged(selectedHomeTab);
   }, [selectedHomeTab]);
 
   const onPressForyou = () => {

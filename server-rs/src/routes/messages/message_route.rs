@@ -75,7 +75,7 @@ async fn get_message_responder(app_data: web::Data<AppState>, msg_query_result: 
             }
         },
         Err(e) => {
-            println!("get_message error: {:?}", e);
+            println!("get_message_responder error: {:?}", e);
             Err(Box::new(e))
         }
     }

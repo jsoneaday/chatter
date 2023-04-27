@@ -1,8 +1,8 @@
-export default class Follow {
+export default class FollowEntity {
   constructor(
     id: string,
-    userName: string,
-    fullName: string,
-    description: string
+    created_at: Date,
+    followerId: number,
+    followingId: number
   ) {}
 }

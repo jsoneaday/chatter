@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { containerStyle } from "../../theme/element-styles/screenStyles";
 import SectionHeader from "../../components/headers/sectionHeader";
@@ -12,12 +12,18 @@ import {
 import Spacer from "../../components/spacer";
 import { RingedButton } from "../../components/buttons/buttons";
 import HomeTab, { HomeTabType } from "./homeTab";
+import { FlashList } from "@shopify/flash-list";
+import MessageItem from "../../components/messages/messageItem";
+import MessageModel from "../../common/models/message";
+import { CHATTER_ROOT_URL, MSGS_URL, MSG_URL } from "../../../domain/utils/api";
 
 interface HomeProps {
   setHalfSheetContent: (element: JSX.Element) => void;
 }
 
 export default function Home({ setHalfSheetContent }: HomeProps) {
+  const [messageItems, setMessageItems] = useState<MessageModel[]>([]);
+
   useEffect(() => {
     setHalfSheetContent(
       <View style={styles.halfSheetContainer}>
@@ -58,8 +64,19 @@ export default function Home({ setHalfSheetContent }: HomeProps) {
     );
   }, []);
 
-  const onSelectedHomeTabChanged = (newHomeTab: HomeTabType) => {
-    // get appropriate set of messages for tab
+  const onSelectedHomeTabChanged = async (newHomeTab: HomeTabType) => {
+    const messages = await fetch(CHATTER_ROOT_URL + MSGS_URL, {
+      method: "get",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    console.log("messages status ok?", messages.ok);
+    if (messages.ok) {
+      const messagesJson = await messages.json();
+      console.log("messagesJson", messagesJson);
+      setMessageItems(JSON.parse(messagesJson));
+    }
   };
 
   return (
@@ -67,7 +84,11 @@ export default function Home({ setHalfSheetContent }: HomeProps) {
       <View style={{ ...(containerStyle as object) }}>
         <HomeTab onSelectedHomeTabChanged={onSelectedHomeTabChanged}>
           <View style={styles.messagesContainer}>
-            <Text>following</Text>
+            <FlashList
+              renderItem={(item) => <MessageItem item={item} />}
+              estimatedItemSize={10}
+              data={messageItems}
+            />
           </View>
         </HomeTab>
       </View>

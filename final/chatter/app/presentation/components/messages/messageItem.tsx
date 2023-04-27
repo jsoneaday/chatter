@@ -1,13 +1,27 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Text } from "react-native";
+import MessageModel from "../../common/models/message";
+import { ListRenderItemInfo } from "@shopify/flash-list";
 
-export default function MessageItem() {
-  return <View style={styles.container}></View>;
+interface MessageItemProps {
+  item: ListRenderItemInfo<MessageModel>;
+}
+
+export default function MessageItem({ item }: MessageItemProps) {
+  return (
+    <View style={styles.container}>
+      <View style={styles.containerBodyHeader}>
+        <Text>{item.item.profile.full_name}</Text>
+        <Text>{`@${item.item.profile.user_name}`}</Text>
+      </View>
+      <Text>{item.item.body}</Text>
+      <View style={styles.containerBodyFooter}>footer</View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-start",
   },
