@@ -2,7 +2,7 @@ use crate::common::entities::{
     base::{EntityId, DbRepo}
 };
 use sqlx::{Pool, Postgres};
-use super::model::MessageQueryResult;
+use super::model::{MessageQueryResult, MessageWithProfileQueryResult};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 
@@ -86,6 +86,105 @@ mod private_members {
             .fetch_all(conn)
             .await
     }
+
+    pub async fn query_messages_by_following_inner(conn: &Pool<Postgres>, user_id: i64, last_updated_at: DateTime<Utc>, page_size: i16) -> Result<Vec<MessageWithProfileQueryResult>, sqlx::Error> {
+        // 1. get the messages of the users the user_id is following
+        let following_messages_with_profiles_result = sqlx::query_as::<_, MessageWithProfileQueryResult>(
+            r"
+                select m.id, m.updated_at, m.body, m.likes, m.image, m.user_id as creator_id, p.user_name, p.full_name, p.avatar, mb.id as broadcast_msg_id                    
+                    from message m 
+                        join follow f on m.user_id = f.follower_id
+                        join profile p on p.id = f.following_id
+                        left message_broadcast mb on m.id = mb.main_msg_id
+                        where
+                            f.follower_id = $1 
+                            and m.updated_at < $2
+                        order by $2 desc 
+                        limit $3
+            "
+        )
+        .bind(user_id)
+        .bind(last_updated_at)
+        .bind(page_size)
+        .fetch_all(conn)
+        .await;
+
+        match following_messages_with_profiles_result {
+            Ok(following_messages) => {
+                // get root messages that have broadcast messages
+                let mut following_messages_with_broadcasts = following_messages
+                    .into_iter()
+                    .filter(|msg| {
+                        msg.broadcast_msg_id.is_some() && msg.broadcast_msg_id.unwrap() > 0
+                    })                    
+                    .collect::<Vec<MessageWithProfileQueryResult>>();
+
+                let optional_matching_broadcast_messages = get_broadcasting_messages_of_messages(conn, &following_messages_with_broadcasts).await;
+
+                append_broadcasting_message_to_messages(optional_matching_broadcast_messages, &mut following_messages_with_broadcasts);
+
+                Ok(following_messages_with_broadcasts)
+            },
+            Err(e) => Err(e) 
+        }
+    }
+
+    async fn get_broadcasting_messages_of_messages(conn: &Pool<Postgres>, following_messages_with_broadcasts: &Vec<MessageWithProfileQueryResult>) -> Option<Vec<MessageWithProfileQueryResult>> {               
+        let following_broadcast_message_ids = following_messages_with_broadcasts
+            .iter()
+            .map(|msg| {
+                msg.broadcast_msg_id.unwrap()
+            })
+            .collect::<Vec<i64>>();
+
+        let broadcasting_msg_result = sqlx::query_as::<_, MessageWithProfileQueryResult>(
+            r"
+                select m.id, m.updated_at, m.body, m.likes, m.image, m.user_id as creator_id, p.user_name, p.full_name, p.avatar 
+                    from message m 
+                        join profile p on m.user_id = p.id
+                    where m.id in $1
+            "
+        )
+        .bind(following_broadcast_message_ids)
+        .fetch_all(conn)
+        .await;
+
+        match broadcasting_msg_result {
+            Ok(broadcast_messages) => {
+                Some(broadcast_messages)
+            },
+            Err(e) => { 
+                println!("broadcast_messages error {}", e);
+                None
+            }
+        }
+    }
+
+    fn append_broadcasting_message_to_messages(optional_broadcast_messages: Option<Vec<MessageWithProfileQueryResult>>, following_messages_with_broadcasts: &mut Vec<MessageWithProfileQueryResult>) {
+        if let Some(broadcast_messages) = optional_broadcast_messages {
+            following_messages_with_broadcasts
+                .iter_mut()
+                .for_each(|following_message_with_broadcast| {
+                    let optional_matching_broadcast_msg = broadcast_messages
+                        .iter()
+                        .find(|bm| {
+                            Some(bm.id) == following_message_with_broadcast.broadcast_msg_id
+                        });
+
+                    if let Some(matching_broadcast) = optional_matching_broadcast_msg {
+                        following_message_with_broadcast.broadcast_msg_id = Some(matching_broadcast.id);
+                        following_message_with_broadcast.broadcast_msg_updated_at = Some(matching_broadcast.updated_at);
+                        following_message_with_broadcast.broadcast_msg_creator_id = Some(matching_broadcast.creator_id);
+                        following_message_with_broadcast.broadcast_msg_body = matching_broadcast.body.to_owned();
+                        following_message_with_broadcast.broadcast_msg_likes = Some(matching_broadcast.likes);
+                        following_message_with_broadcast.broadcast_msg_image = matching_broadcast.image.to_owned();
+                        following_message_with_broadcast.broadcast_msg_user_name = Some(matching_broadcast.user_name.to_string());
+                        following_message_with_broadcast.broadcast_msg_full_name = Some(matching_broadcast.full_name.to_string());
+                        following_message_with_broadcast.broadcast_msg_avatar = Some(matching_broadcast.avatar.to_owned());
+                    };                            
+                });
+        }
+    }
 }
 
 #[async_trait]
@@ -106,6 +205,11 @@ pub trait QueryMessageFn {
 #[async_trait]
 pub trait QueryMessagesByUserFn {
     async fn query_messages_by_user(&self, conn: &Pool<Postgres>, user_id: i64, last_updated_at: DateTime<Utc>, page_size: i16) -> Result<Vec<MessageQueryResult>, sqlx::Error>;
+}
+
+#[async_trait]
+pub trait QueryMessagesByFollowingFn {
+    async fn query_messaages_by_following(&self, conn: &Pool<Postgres>, user_id: i64, last_updated_at: DateTime<Utc>, page_size: i16) -> Result<Vec<MessageWithProfileQueryResult>, sqlx::Error>;
 }
 
 #[async_trait]
@@ -133,6 +237,13 @@ impl QueryMessageFn for DbRepo {
 impl QueryMessagesByUserFn for DbRepo {
     async fn query_messages_by_user(&self, conn: &Pool<Postgres>, user_id: i64, last_updated_at: DateTime<Utc>, page_size: i16) -> Result<Vec<MessageQueryResult>, sqlx::Error> {
         private_members::query_messages_by_user_inner(conn, user_id, last_updated_at, page_size).await
+    }
+}
+
+#[async_trait]
+impl QueryMessagesByFollowingFn for DbRepo {
+    async fn query_messaages_by_following(&self, conn: &Pool<Postgres>, user_id: i64, last_updated_at: DateTime<Utc>, page_size: i16) -> Result<Vec<MessageWithProfileQueryResult>, sqlx::Error> {
+        private_members::query_messages_by_following_inner(conn, user_id, last_updated_at, page_size).await
     }
 }
 

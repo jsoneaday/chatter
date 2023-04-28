@@ -18,7 +18,7 @@ import {
   SecondaryButton,
 } from "../buttons/buttons";
 import { Ionicons, Entypo } from "@expo/vector-icons";
-import { defaultDuration } from "../../common/animation-utils";
+import { defaultDuration } from "../../common/animationUtils";
 import { bodyFontStyle } from "../../theme/element-styles/textStyles";
 import KeyboardToolBar from "../toolBars/keyboardToolBar";
 

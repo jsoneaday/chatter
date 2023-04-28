@@ -1,6 +1,6 @@
 import { Animated, Pressable, StyleSheet, View } from "react-native";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
-import { defaultDuration } from "../../common/animation-utils";
+import { defaultDuration } from "../../common/animationUtils";
 import { modalBackgroundColor, primary } from "../../theme/colors";
 import { bodyFontStyle } from "../../theme/element-styles/textStyles";
 import DragPill from "../buttons/dragPill";

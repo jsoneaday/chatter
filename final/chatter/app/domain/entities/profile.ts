@@ -2,7 +2,7 @@ import FollowEntity from "./follow";
 
 export default class Profile {
   constructor(
-    id: number,
+    id: bigint,
     created_at: Date,
     user_name: string,
     full_name: string,
