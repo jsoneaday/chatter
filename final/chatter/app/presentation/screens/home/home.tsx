@@ -15,7 +15,7 @@ import HomeTab, { HomeTabType } from "./homeTab";
 import { FlashList } from "@shopify/flash-list";
 import MessageItem from "../../components/messages/messageItem";
 import MessageModel from "../../common/models/message";
-import { CHATTER_ROOT_URL, MSGS_URL, MSG_URL } from "../../../domain/utils/api";
+import { MSGS_URL } from "../../../domain/utils/api";
 
 interface HomeProps {
   setHalfSheetContent: (element: JSX.Element) => void;
@@ -65,7 +65,7 @@ export default function Home({ setHalfSheetContent }: HomeProps) {
   }, []);
 
   const onSelectedHomeTabChanged = async (newHomeTab: HomeTabType) => {
-    const messages = await fetch(CHATTER_ROOT_URL + MSGS_URL, {
+    const messages = await fetch(MSGS_URL, {
       method: "get",
       headers: {
         "Content-Type": "application/json",

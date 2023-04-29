@@ -18,7 +18,6 @@ pub struct ProfileQueryResult {
 #[derive(Deserialize, Serialize)]
 pub struct ProfileShort {
     pub id: i64,
-    pub created_at: DateTime<Utc>,
     pub user_name: String,
     pub full_name: String,
     pub avatar: Vec<u8>
