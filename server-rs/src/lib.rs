@@ -24,14 +24,17 @@ pub mod routes {
         pub mod model;
         pub mod message_route;
     }
-    pub mod profile_route;
+    pub mod profiles {
+        pub mod model;
+        pub mod profile_route;
+    }
 }
 
 use std::env;
 use common::entities::base::DbRepo;
 use dotenv::dotenv;
 use actix_web::{ web, App, HttpServer, Responder };
-use routes::profile_route::get_profile;
+use routes::profiles::profile_route::get_profile;
 use std::error::Error;
 use crate::common::app_state::AppState;
 use crate::routes::messages::message_route::{create_message, get_message, get_messages};

@@ -17,6 +17,7 @@ pub struct MessagePostJson {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MessageResponder {
     pub id: i64,
     pub created_at: DateTime<Utc>,
