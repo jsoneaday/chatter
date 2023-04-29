@@ -33,6 +33,19 @@ mod private_members {
         }
     }
 
+    pub async fn follow_user_inner(conn: &Pool<Postgres>, follower_id: i64, following_id: i64) -> Result<i64, sqlx::Error> {
+        let id_result = sqlx::query_as::<_, EntityId>("insert into follow (follower_id, following_id) values ($1, $2) returning id")
+            .bind(follower_id)
+            .bind(following_id)
+            .fetch_one(conn)
+            .await;
+
+        match id_result {
+            Ok(row) => Ok(row.id),
+            Err(e) => Err(e)
+        }
+    }
+
     pub async fn query_profile_inner(conn: &Pool<Postgres>, id: i64) -> Result<Option<ProfileQueryResult>, sqlx::Error> {
         sqlx::query_as::<_, ProfileQueryResult>("select * from profile where id = $1")
             .bind(id)
@@ -52,6 +65,11 @@ pub trait QueryProfileFn {
 }
 
 #[async_trait]
+pub trait FollowUserFn {
+    async fn follow_user(&self, conn: &Pool<Postgres>, follower_id: i64, following_id: i64) -> Result<i64, sqlx::Error>;
+}
+
+#[async_trait]
 impl InsertProfileFn for DbRepo {
     async fn insert_profile(&self, conn: &Pool<Postgres>, params: ProfileCreate) -> Result<i64, sqlx::Error> {
         private_members::insert_profile_inner(conn, params).await
@@ -62,5 +80,12 @@ impl InsertProfileFn for DbRepo {
 impl QueryProfileFn for DbRepo {
     async fn query_profile(&self, conn: &Pool<Postgres>, id: i64) -> Result<Option<ProfileQueryResult>, sqlx::Error> {
         private_members::query_profile_inner(conn, id).await
+    }
+}
+
+#[async_trait]
+impl FollowUserFn for DbRepo {
+    async fn follow_user(&self, conn: &Pool<Postgres>, follower_id: i64, following_id: i64) -> Result<i64, sqlx::Error>  {
+        private_members::follow_user_inner(conn, follower_id, following_id).await
     }
 }

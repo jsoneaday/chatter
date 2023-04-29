@@ -4,17 +4,17 @@ import MessageModel from "../../common/models/message";
 import { ListRenderItemInfo } from "@shopify/flash-list";
 
 interface MessageItemProps {
-  item: ListRenderItemInfo<MessageModel>;
+  messageModel: ListRenderItemInfo<MessageModel>;
 }
 
-export default function MessageItem({ item }: MessageItemProps) {
+export default function MessageItem({ messageModel }: MessageItemProps) {
   return (
     <View style={styles.container}>
       <View style={styles.containerBodyHeader}>
-        <Text>{item.item.profile.full_name}</Text>
-        <Text>{`@${item.item.profile.user_name}`}</Text>
+        <Text>{messageModel.item.full_name}</Text>
+        <Text>{`@${messageModel.item.user_name}`}</Text>
       </View>
-      <Text>{item.item.body}</Text>
+      <Text>{messageModel.item.body}</Text>
       <View style={styles.containerBodyFooter}>footer</View>
     </View>
   );

@@ -2,7 +2,7 @@ use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow};
 
-#[derive(Debug, Deserialize, Serialize, FromRow)]
+#[derive(Debug, Deserialize, Serialize, FromRow, Clone)]
 pub struct ProfileQueryResult {
     pub id: i64,
     pub created_at: DateTime<Utc>,

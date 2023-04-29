@@ -20,7 +20,7 @@ pub async fn create_message(app_data: web::Data<AppState>, params: Json<MessageP
         &params.body[..140]
     };
 
-    let result = app_data.db_repo.insert_message(&app_data.conn, params.user_id, body).await;
+    let result = app_data.db_repo.insert_message(&app_data.conn, params.user_id, body, params.broadcasting_msg_id).await;
     match result {
         Ok(id) => Ok(Json(id)),
         Err(e) => Err(Box::new(e))

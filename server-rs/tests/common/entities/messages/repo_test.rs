@@ -17,7 +17,7 @@ async fn test_insert_message() {
         avatar: vec![] 
     }).await.unwrap();
 
-    let message_id = app_data.db_repo.insert_message(&app_data.conn, profile_id, BODY).await.unwrap();
+    let message_id = app_data.db_repo.insert_message(&app_data.conn, profile_id, BODY, None).await.unwrap();
     
     assert!(message_id > 0);
 }
@@ -36,7 +36,7 @@ async fn test_query_message() {
         avatar: vec![] 
     }).await.unwrap();
 
-    let message_id = app_data.db_repo.insert_message(&app_data.conn, profile_id, BODY).await.unwrap();    
+    let message_id = app_data.db_repo.insert_message(&app_data.conn, profile_id, BODY, None).await.unwrap();    
     assert!(message_id > 0);
 
     let message = app_data.db_repo.query_message(&app_data.conn, message_id).await.unwrap();

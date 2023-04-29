@@ -3,7 +3,7 @@ use serde::{Serialize, Deserialize};
 use sqlx::{FromRow};
 
 
-#[derive(Deserialize, Serialize, FromRow, Clone)]
+#[derive(Deserialize, Serialize, FromRow, Clone, Debug)]
 pub struct MessageQueryResult {
     pub id: i64,
     pub created_at: DateTime<Utc>,
@@ -14,8 +14,25 @@ pub struct MessageQueryResult {
     pub likes: i32    
 }
 
-#[derive(Deserialize, Serialize, FromRow, Clone)]
+#[derive(Deserialize, Serialize, FromRow, Clone, Debug)]
 pub struct MessageWithProfileQueryResult {
+    // messsage fields
+    pub id: i64,
+    pub updated_at: DateTime<Utc>,
+    pub creator_id: i64,
+    pub body: Option<String>,
+    pub likes: i32,
+    pub image: Option<Vec<u8>>,    
+    // profile fields
+    pub user_name: String,
+    pub full_name: String,
+    pub avatar: Vec<u8>,
+    // broadcast message fields
+    pub broadcast_msg_id: Option<i64>    
+}
+
+#[derive(Deserialize, Serialize, FromRow, Clone, Debug)]
+pub struct MsgWithBroadcastMsgQueryResult {
     // messsage fields
     pub id: i64,
     pub updated_at: DateTime<Utc>,

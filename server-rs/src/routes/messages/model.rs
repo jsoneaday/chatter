@@ -11,7 +11,8 @@ pub struct MessageQuery {
 #[derive(Deserialize, Serialize)]
 pub struct MessagePostJson {
     pub user_id: i64,
-    pub body: String
+    pub body: String,
+    pub broadcasting_msg_id: Option<i64>
 }
 
 #[derive(Deserialize, Serialize)]

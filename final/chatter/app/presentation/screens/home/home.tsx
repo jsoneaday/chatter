@@ -85,7 +85,7 @@ export default function Home({ setHalfSheetContent }: HomeProps) {
         <HomeTab onSelectedHomeTabChanged={onSelectedHomeTabChanged}>
           <View style={styles.messagesContainer}>
             <FlashList
-              renderItem={(item) => <MessageItem item={item} />}
+              renderItem={(item) => <MessageItem messageModel={item} />}
               estimatedItemSize={10}
               data={messageItems}
             />

@@ -25,7 +25,8 @@ pub async fn test_create_and_get_message() {
     const MSG_BODY_STR: &str = "Testing 123";
     let create_msg_req = test::TestRequest::post().uri("/v1/msg").set_json(Json(MessagePostJson {
         user_id: profile_id,
-        body: MSG_BODY_STR.clone().to_string()
+        body: MSG_BODY_STR.clone().to_string(),
+        broadcasting_msg_id: None
     })).to_request();
     let msg_id = test::call_and_read_body_json::<_, _, i64>(&app, create_msg_req).await;
 
