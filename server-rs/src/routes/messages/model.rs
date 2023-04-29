@@ -9,6 +9,7 @@ pub struct MessageQuery {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MessagePostJson {
     pub user_id: i64,
     pub body: String,

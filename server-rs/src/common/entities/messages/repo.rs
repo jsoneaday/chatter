@@ -13,11 +13,13 @@ mod private_members {
     pub async fn insert_message_inner(conn: &Pool<Postgres>, user_id: i64, body: &str, broadcasting_msg_id: Option<i64>) -> Result<i64, sqlx::Error> {
         let tx = conn.begin().await.unwrap();
 
-        let insert_msg_result = sqlx::query_as::<_, EntityId>("insert into message (user_id, body) values ($1, $2) returning id")
-            .bind(user_id)
-            .bind(body)
-            .fetch_one(conn)
-            .await;        
+        let insert_msg_result = sqlx::query_as::<_, EntityId>(
+            "insert into message (user_id, body) values ($1, $2) returning id"
+        )
+        .bind(user_id)
+        .bind(body)
+        .fetch_one(conn)
+        .await;        
     
         let message_id_result = match insert_msg_result {
             Ok(r) => Ok(r.id),
@@ -32,11 +34,13 @@ mod private_members {
         }
 
         if let Some(bm_id) = broadcasting_msg_id {
-            let message_braodcast_result = sqlx::query_as::<_, EntityId>("insert into message_broadcast (main_msg_id, broadcasting_msg_id) values ($1, $2) returning id")
-                .bind(message_id_result.as_ref().unwrap())
-                .bind(bm_id)
-                .fetch_one(conn)
-                .await;
+            let message_braodcast_result = sqlx::query_as::<_, EntityId>(
+                "insert into message_broadcast (main_msg_id, broadcasting_msg_id) values ($1, $2) returning id"
+            )
+            .bind(message_id_result.as_ref().unwrap())
+            .bind(bm_id)
+            .fetch_one(conn)
+            .await;
 
             if let Err(e) = message_braodcast_result {
                 _ = tx.rollback().await;
