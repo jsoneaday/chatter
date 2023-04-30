@@ -1,5 +1,4 @@
-use server_rs::common::entities::profiles::model::ProfileCreate;
-use server_rs::routes::profiles::model::ProfileResponder;
+use server_rs::routes::profiles::model::{ProfileResponder, ProfileCreateJson};
 use actix_web::test;
 use server_rs::common_tests::actix_fixture::get_app;
 
@@ -13,7 +12,7 @@ async fn test_create_profile_and_get_profile() {
     const MAIN_URL: Option<&str> = Some("http://test.com");
     const AVATAR: Vec<u8> = Vec::new();
 
-    let create_req = test::TestRequest::post().uri("/v1/profile").set_json(ProfileCreate {
+    let create_req = test::TestRequest::post().uri("/v1/profile").set_json(ProfileCreateJson {
         user_name: USER_NAME.to_string(),
         full_name: FULL_NAME.to_string(), 
         description: DESCRIPTION.to_string(), 
