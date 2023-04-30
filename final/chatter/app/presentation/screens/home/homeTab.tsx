@@ -1,6 +1,10 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { secondary, tertiary } from "../../theme/colors";
+import {
+  headerFontStyle,
+  subHeaderFontStyle,
+} from "../../theme/element-styles/textStyles";
 
 export enum HomeTabType {
   ForYou = "For you",
@@ -77,6 +81,7 @@ const styles = StyleSheet.create({
     borderBottomColor: tertiary(false, 0.5),
   },
   headerText: {
+    ...subHeaderFontStyle,
     fontWeight: "bold",
   },
   selectedHeaderContainer: {

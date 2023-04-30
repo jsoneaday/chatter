@@ -3,14 +3,15 @@ import ProfileShortModel from "./profile";
 export default class MessageModel {
   constructor(
     public id: bigint,
-    public updated_at: Date,
+    public updatedAt: string, // utc string later converted
     public body: string,
     public likes: number,
-    public image: Blob,
-    public creator_id: bigint,
-    public user_name: string,
-    public full_name: string,
-    public avatar: Blob,
-    public broadcasting_msg?: MessageModel
+    public profile: {
+      userName: string;
+      fullName: string;
+      avatar?: Blob;
+    },
+    public broadcastingMsg?: MessageModel,
+    public image?: Blob
   ) {}
 }

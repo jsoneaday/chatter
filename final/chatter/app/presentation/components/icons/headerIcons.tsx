@@ -1,6 +1,7 @@
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import { IconProps } from "./iconPropType";
 import { primary, secondary } from "../../theme/colors";
+import React from "react";
 
 export function Logo({ size }: IconProps) {
   return <Entypo name="network" size={size} color={secondary()} />;
