@@ -1,5 +1,5 @@
+use server_rs::routes::profiles::model::ProfileCreateJson;
 use server_rs::{common_tests::actix_fixture::get_app, routes::messages::model::MessageResponder};
-use server_rs::common::entities::profiles::model::ProfileCreate;
 use server_rs::routes::messages::model::MessagePostJson;
 use actix_web::{
     test,
@@ -10,18 +10,18 @@ use actix_web::{
 pub async fn test_create_and_get_message() {
     let app = get_app().await;
 
-    // 1. create new profile
-    let create_profile_req = test::TestRequest::post().uri("/v1/profile").set_json(Json(ProfileCreate {
-        user_name: "user_name".to_string(),
-        full_name: "full_name".to_string(),
+    println!("one");
+    let create_profile_req = test::TestRequest::post().uri("/v1/profile").set_json(Json(ProfileCreateJson {
+        user_name: "tester".to_string(),
+        full_name: "fullName".to_string(),
         description: "description".to_string(),
         region: Some("region".to_string()),
-        main_url: Some("main_url".to_string()),
+        main_url: Some("mainUrl".to_string()),
         avatar: Vec::new()
     })).to_request();
     let profile_id = test::call_and_read_body_json::<_, _, i64>(&app, create_profile_req).await;
 
-    // 2. create new message
+    println!("two");
     const MSG_BODY_STR: &str = "Testing 123";
     let create_msg_req = test::TestRequest::post().uri("/v1/msg").set_json(Json(MessagePostJson {
         user_id: profile_id,

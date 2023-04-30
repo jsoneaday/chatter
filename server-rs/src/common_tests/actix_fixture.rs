@@ -2,7 +2,7 @@ use crate::{
     common::{app_state::AppState, 
         entities::base::DbRepo}, 
         routes::{
-            messages::message_route::{get_message, create_message}, 
+            messages::message_route::{get_message, create_message, get_messages}, 
             profiles::profile_route::{create_profile, get_profile}
         }
     };
@@ -49,6 +49,10 @@ pub async fn get_app() -> impl Service<Request, Response = ServiceResponse, Erro
                         web::resource("/msg")
                             .route(web::get().to(get_message))
                             .route(web::post().to(create_message))
+                    )
+                    .service(
+                      web::resource("/msgs")
+                          .route(web::get().to(get_messages))   
                     )
                     .service(
                         web::resource("/profile")
