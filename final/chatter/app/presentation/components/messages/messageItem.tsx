@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "space-between",
     paddingRight: 10,
-    paddingLeft: 8,
+    paddingLeft: 4,
     paddingVertical: 5,
   },
   avatarContainer: {},
