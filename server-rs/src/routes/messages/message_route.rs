@@ -1,7 +1,7 @@
 use crate::common::entities::messages::model::{MessageWithFollowingAndBroadcastQueryResult};
 use crate::common::app_state::AppState;
 use crate::common::entities::messages::repo::{InsertMessageFn, QueryMessageFn, QueryMessagesFn};
-use crate::common::entities::profiles::model::ProfileShort;
+use crate::routes::profiles::model::ProfileShort;
 use actix_web::{web, web::{Query, Json}, Responder};
 use std::error::Error;
 use super::model::{MessageResponder, MessagePostJson, MessageQuery, MessageByFollowingQuery};
@@ -78,23 +78,19 @@ fn convert(message: &MessageWithFollowingAndBroadcastQueryResult) -> MessageResp
                     body: message.broadcast_msg_body.clone(),
                     likes: message.broadcast_msg_likes.unwrap(),
                     broadcasting_msg: None ,
-                    image: message.broadcast_msg_image.clone(),
                     profile: ProfileShort {
                         id: message.broadcast_msg_user_id.unwrap(),
                         user_name: message.broadcast_msg_user_name.clone().unwrap(),
-                        full_name: message.broadcast_msg_full_name.clone().unwrap(),
-                        avatar: message.broadcast_msg_avatar.clone().unwrap()
+                        full_name: message.broadcast_msg_full_name.clone().unwrap()
                     }
                 }))
             },
             None => None
         },
-        image: message.image.clone(),
         profile: ProfileShort {
             id: message.id,
             user_name: message.user_name.clone(),
-            full_name: message.full_name.clone(),
-            avatar: message.avatar.clone()
+            full_name: message.full_name.clone()
         }
     }
 }

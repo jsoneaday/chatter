@@ -2,17 +2,17 @@ use crate::common::{
     app_state::AppState, 
     entities::{
         profiles::{
-            model::{ProfileQuery, ProfileQueryResult, ProfileCreate}, 
+            model::{ProfileCreate, ProfileQueryResult}, 
             repo::{InsertProfileFn, QueryProfileFn}
         }
     }
 };
 use actix_web::{web, web::{Query, Json}, Responder};
 use std::error::Error;
-use super::model::ProfileResponder;
+use super::model::{ProfileQuery, ProfileResponder, ProfileCreateJson};
 
 #[allow(unused)]
-pub async fn create_profile(app_data: web::Data<AppState>, params: Json<ProfileCreate>) -> Result<impl Responder, Box<dyn Error>> {
+pub async fn create_profile(app_data: web::Data<AppState>, params: Json<ProfileCreateJson>) -> Result<impl Responder, Box<dyn Error>> {
     let result = app_data.db_repo.insert_profile(&app_data.conn, ProfileCreate { 
         user_name: params.user_name.clone(), 
         full_name: params.full_name.clone(), 

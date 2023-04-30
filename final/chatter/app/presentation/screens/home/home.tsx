@@ -65,17 +65,24 @@ export default function Home({ setHalfSheetContent }: HomeProps) {
   }, []);
 
   const onSelectedHomeTabChanged = async (newHomeTab: HomeTabType) => {
-    const messages = await fetch(MSGS_URL, {
-      method: "get",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    console.log("messages status ok?", messages.ok);
+    console.log(
+      "path",
+      `${MSGS_URL}?followerId=233&lastUpdatedAt=2023-04-30T14:30:30Z}`
+    );
+    const messages = await fetch(
+      `${MSGS_URL}?followerId=233&lastUpdatedAt=2023-04-30T14:30:30Z`,
+      {
+        method: "get",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
     if (messages.ok) {
       const messagesJson = await messages.json();
       console.log("messagesJson", messagesJson);
-      setMessageItems(JSON.parse(messagesJson));
+      setMessageItems(messagesJson);
     }
   };
 

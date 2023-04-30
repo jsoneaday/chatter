@@ -110,7 +110,7 @@ mod private_members {
         .bind(id)
         .fetch_optional(conn)
         .await;
-        println!("query_message_inner: {:?}", message_result);
+        
         match message_result {
             Ok(message) => {
                 if let Some(msg) = message {

@@ -16,19 +16,6 @@ pub struct ProfileQueryResult {
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct ProfileShort {
-    pub id: i64,
-    pub user_name: String,
-    pub full_name: String,
-    pub avatar: Vec<u8>
-}
-
-#[derive(Deserialize)]
-pub struct ProfileQuery {
-    pub id: i64
-}
-
-#[derive(Deserialize, Serialize)]
 pub struct ProfileCreate {
     pub user_name: String,
     pub full_name: String,

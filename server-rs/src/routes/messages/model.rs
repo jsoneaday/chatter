@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use chrono::prelude::*;
-use crate::common::entities::profiles::model::ProfileShort;
+use crate::routes::profiles::model::ProfileShort;
 
 
 #[derive(Deserialize)]
@@ -32,7 +32,6 @@ pub struct MessageResponder {
     pub body: Option<String>,
     pub likes: i32,
     pub broadcasting_msg: Option<Box<MessageResponder>>,
-    pub image: Option<Vec<u8>>,
     pub profile: ProfileShort
 }
 

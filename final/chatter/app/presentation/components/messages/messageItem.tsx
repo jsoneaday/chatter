@@ -15,7 +15,9 @@ export default function MessageItem({ messageModel }: MessageItemProps) {
         <Text>{`@${messageModel.item.user_name}`}</Text>
       </View>
       <Text>{messageModel.item.body}</Text>
-      <View style={styles.containerBodyFooter}>footer</View>
+      <View style={styles.containerBodyFooter}>
+        <Text>footer</Text>
+      </View>
     </View>
   );
 }
