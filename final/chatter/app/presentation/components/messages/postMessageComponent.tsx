@@ -83,17 +83,17 @@ export default function PostMessageComponent({
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        user_id: 1,
+        userId: 1,
         body: messageValue,
       }),
     });
 
     if (result.ok) {
       console.log("result", await result.json());
+      setMessageValue(await result.json());
     } else {
       console.log("result", result.statusText);
     }
-    setMessageValue("");
   };
 
   const onPressShowMessageCreator = () => {
