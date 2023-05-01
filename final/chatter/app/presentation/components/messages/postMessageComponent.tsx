@@ -21,6 +21,7 @@ import { Ionicons, Entypo } from "@expo/vector-icons";
 import { defaultDuration } from "../../common/animationUtils";
 import { bodyFontStyle } from "../../theme/element-styles/textStyles";
 import KeyboardToolBar from "../toolBars/keyboardToolBar";
+import { CHATTER_ROOT_URL, MSG_URL } from "../../../domain/utils/api";
 
 interface PostMessageButtonProps {
   toggleHalfSheet: () => void;
@@ -73,11 +74,11 @@ export default function PostMessageComponent({
   };
 
   const onPressCancelMessage = () => {
-    toggleShowMessageCreator();
+    toggleShowPostMessageDialog();
   };
 
   const onPressSubmitMessage = async () => {
-    const result = await fetch("http://localhost:4001/v1/msg", {
+    const result = await fetch(`${MSG_URL}`, {
       method: "post",
       headers: {
         "Content-Type": "application/json",
@@ -90,17 +91,18 @@ export default function PostMessageComponent({
 
     if (result.ok) {
       console.log("result", await result.json());
-      setMessageValue(await result.json());
+      setMessageValue("");
+      toggleShowPostMessageDialog();
     } else {
       console.log("result", result.statusText);
     }
   };
 
-  const onPressShowMessageCreator = () => {
-    toggleShowMessageCreator();
+  const onPressShowPostMessageDialog = () => {
+    toggleShowPostMessageDialog();
   };
 
-  const toggleShowMessageCreator = () => {
+  const toggleShowPostMessageDialog = () => {
     if (!showSubmitBtn) {
       Animated.timing(messagePostContainerHeight, {
         toValue: 0,
@@ -182,7 +184,7 @@ export default function PostMessageComponent({
       {showSubmitBtn && (
         <Pressable
           style={styles.submitBtnContainer}
-          onPress={onPressShowMessageCreator}
+          onPress={onPressShowPostMessageDialog}
         >
           <AntDesign name="pluscircle" size={50} color={secondary()} />
         </Pressable>

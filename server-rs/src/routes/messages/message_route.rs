@@ -8,11 +8,12 @@ use super::model::{MessageResponder, MessagePostJson, MessageQuery, MessageByFol
 
 
 #[allow(unused)]
-pub async fn create_message(app_data: web::Data<AppState>, params: Json<MessagePostJson>) -> Result<impl Responder, Box<dyn Error>> {   
-    let body = if params.body.len() < 140 {
+pub async fn create_message(app_data: web::Data<AppState>, params: Json<MessagePostJson>) -> Result<impl Responder, Box<dyn Error>> {  
+    let max = 141; 
+    let body = if params.body.len() < max {
         &params.body[..]
     } else {
-        &params.body[..140]
+        &params.body[..max]
     };
 
     let result = app_data.db_repo.insert_message(&app_data.conn, params.user_id, body, params.broadcasting_msg_id).await;
