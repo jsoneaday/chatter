@@ -11,6 +11,8 @@ import { parseISO, formatDistanceToNow } from "date-fns";
 import { tertiary } from "../../theme/colors";
 import Avatar from "../avatar";
 import Spacer from "../spacer";
+import MessageItemToolbar from "./messageItemToolbar";
+import { DotsIcon } from "../icons/menuItemToolbarIcons";
 const profile = require("../../theme/assets/profile.jpeg");
 
 interface MessageItemProps {
@@ -32,7 +34,8 @@ export default function MessageItem({ messageModel }: MessageItemProps) {
         <Avatar imgFile={profile} size={50} />
       </View>
       <Spacer width={10} />
-      <View style={styles.containerBody}>
+      {/* top width sets following widths if wrapped */}
+      <View>
         <View style={styles.containerBodyHeader}>
           <Text style={styles.txtFullName}>
             {messageModel.item.profile.fullName}
@@ -47,10 +50,15 @@ export default function MessageItem({ messageModel }: MessageItemProps) {
             >{`\u2B22`}</Text>
             <Text style={styles.txtUpdatedAt}>{` ${updatedAt}`}</Text>
           </View>
+          <DotsIcon size={18} />
         </View>
-        <Text style={styles.txtBody}>{messageModel.item.body}</Text>
-        <View style={styles.containerBodyFooter}>
-          <Text>footer</Text>
+        <View style={styles.containerBody}>
+          <View style={{ flexDirection: "row" }}>
+            <Text style={styles.txtBody}>{messageModel.item.body}</Text>
+          </View>
+        </View>
+        <View style={{ padding: 4 }}>
+          <MessageItemToolbar />
         </View>
       </View>
     </View>
@@ -61,12 +69,14 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "flex-start",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     paddingRight: 10,
     paddingLeft: 4,
     paddingVertical: 5,
   },
-  avatarContainer: {},
+  avatarContainer: {
+    paddingTop: 2,
+  },
   containerBody: {
     alignItems: "flex-start",
     justifyContent: "flex-start",
@@ -74,11 +84,12 @@ const styles = StyleSheet.create({
   containerBodyHeader: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
   },
   updatedAtContainer: {
     flexDirection: "row",
     alignItems: "center",
+    marginRight: 10,
   },
   txtFullName: {
     ...subHeaderFontStyle,
@@ -86,18 +97,15 @@ const styles = StyleSheet.create({
   },
   txtUserName: {
     ...subHeaderFontStyle,
-    width: 95,
+    width: 100,
     color: tertiary(),
   },
   txtBody: {
     ...bodyFontStyle,
+    flex: 1,
+    flexWrap: "wrap",
   },
   txtUpdatedAt: {
     color: tertiary(),
-  },
-  containerBodyFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
   },
 });

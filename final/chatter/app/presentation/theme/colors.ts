@@ -28,8 +28,10 @@ const light = {
   tertiary: gray,
 } as const;
 
-export function notSelected() {
-  return colorScheme === "dark" ? dark.tertiary : light.tertiary;
+export function notSelected(opacity: number = 0.75) {
+  return colorScheme === "dark"
+    ? dark.tertiary(opacity)
+    : light.tertiary(opacity);
 }
 
 export function primary(isInverted: Boolean = false) {
