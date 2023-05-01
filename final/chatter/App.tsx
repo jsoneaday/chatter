@@ -15,7 +15,9 @@ import Notifications from "./app/presentation/screens/notifications";
 import DirectMessage from "./app/presentation/screens/directmessage";
 import { useState } from "react";
 import HalfSheet from "./app/presentation/components/modals/halfSheet";
+import OuterFullSheet from "./app/presentation/components/modals/fullSheet";
 import PostMessageComponent from "./app/presentation/components/messages/postMessageComponent";
+import EditCircleComponent from "./app/presentation/components/messages/editCircleComponent";
 
 export type RootTabParamList = {
   Home: undefined;
@@ -28,13 +30,31 @@ const Tab = createBottomTabNavigator<RootTabParamList>();
 
 export default function App() {
   const [showHalfSheet, setShowHalfSheet] = useState(false);
+  const [showInnerFullSheet, setShowInnerFullSheet] = useState(false);
+  const [showOuterFullSheet, setShowOuterFullSheet] = useState(false);
   const [HalfSheetContent, setHalfSheetContent] = useState<JSX.Element>(
     <View />
   );
+  const [InnerFullSheetContent, setInnerFullSheetContent] =
+    useState<JSX.Element>(<View />);
+  const [OuterFullSheetContent, setOuterFullSheetContent] =
+    useState<JSX.Element>(<View />);
   const windowDimension = useWindowDimensions();
 
   const toggleHalfSheet = () => {
     setShowHalfSheet(!showHalfSheet);
+  };
+
+  const toggleInnerFullSheet = () => {
+    console.log("start showInnerFullSheet", showInnerFullSheet);
+    const currentShowInnerFullSheet = !showInnerFullSheet;
+    setShowInnerFullSheet(currentShowInnerFullSheet);
+    console.log("end showInnerFullSheet", currentShowInnerFullSheet);
+  };
+
+  const toggleOuterFullSheet = () => {
+    setShowOuterFullSheet(!showOuterFullSheet);
+    console.log("showOuterFullSheet", !showOuterFullSheet);
   };
 
   return (
@@ -55,7 +75,12 @@ export default function App() {
         >
           <Tab.Screen
             name="Home"
-            children={() => <Home setHalfSheetContent={setHalfSheetContent} />}
+            children={() => (
+              <Home
+                setHalfSheetContent={setHalfSheetContent}
+                toggleOuterFullSheet={toggleOuterFullSheet}
+              />
+            )}
             options={{
               tabBarIcon: ({ focused, color, size }) => (
                 <HomeIcon isSelected={focused} size={25} />
@@ -94,7 +119,8 @@ export default function App() {
 
       <PostMessageComponent
         toggleHalfSheet={toggleHalfSheet}
-        height={windowDimension.height}
+        toggleInnerFullSheet={toggleInnerFullSheet}
+        show={showInnerFullSheet}
       />
 
       <HalfSheet
@@ -104,6 +130,8 @@ export default function App() {
       >
         {HalfSheetContent}
       </HalfSheet>
+
+      <EditCircleComponent show={showOuterFullSheet} />
     </>
   );
 }

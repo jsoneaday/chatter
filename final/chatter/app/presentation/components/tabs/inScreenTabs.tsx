@@ -1,15 +1,7 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { secondary, tertiary } from "../../theme/colors";
-import {
-  headerFontStyle,
-  subHeaderFontStyle,
-} from "../../theme/element-styles/textStyles";
-
-export enum HomeTabType {
-  ForYou = "For you",
-  Following = "Following",
-}
+import { subHeaderFontStyle } from "../../theme/element-styles/textStyles";
 
 type SelectedHeaderContainerStyle = {
   height: number;
@@ -18,48 +10,50 @@ type SelectedHeaderContainerStyle = {
 };
 
 interface HomeTabProps {
-  onSelectedHomeTabChanged: (newHomeTab: HomeTabType) => void;
+  availableTabs: [left: string, right: string];
+  onSelectedTabChanged: (selectedTab: string) => void;
   children: ReactNode;
 }
 
-export default function HomeTab({
-  onSelectedHomeTabChanged,
+export default function InScreenTabs({
+  availableTabs,
+  onSelectedTabChanged,
   children,
 }: HomeTabProps) {
-  const [selectedHomeTab, setSelectedHomeTab] = useState(HomeTabType.ForYou);
-  const [foryouSelectedStyle, setForyouSelectedStyle] =
+  const [selectedTab, setSelectedTab] = useState(availableTabs[0]);
+  const [leftSelectedStyle, setLeftSelectedStyle] =
     useState<SelectedHeaderContainerStyle>(styles.unselectedHeaderContainer);
-  const [followingSelectedStyle, setFollowingSelectedStyle] =
+  const [rightSelectedStyle, setRightSelectedStyle] =
     useState<SelectedHeaderContainerStyle>(styles.selectedHeaderContainer);
 
   useEffect(() => {
-    if (selectedHomeTab === HomeTabType.ForYou) {
-      setForyouSelectedStyle(styles.selectedHeaderContainer);
-      setFollowingSelectedStyle(styles.unselectedHeaderContainer);
+    if (selectedTab === availableTabs[0]) {
+      setLeftSelectedStyle(styles.selectedHeaderContainer);
+      setRightSelectedStyle(styles.unselectedHeaderContainer);
     } else {
-      setForyouSelectedStyle(styles.unselectedHeaderContainer);
-      setFollowingSelectedStyle(styles.selectedHeaderContainer);
+      setLeftSelectedStyle(styles.unselectedHeaderContainer);
+      setRightSelectedStyle(styles.selectedHeaderContainer);
     }
-    onSelectedHomeTabChanged(selectedHomeTab);
-  }, [selectedHomeTab]);
+    onSelectedTabChanged(selectedTab);
+  }, [selectedTab]);
 
-  const onPressForyou = () => {
-    setSelectedHomeTab(HomeTabType.ForYou);
-    console.log("set for you");
+  const onPressLeftTab = () => {
+    setSelectedTab(availableTabs[0]);
+    console.log("set left");
   };
 
-  const onPressFollowing = () => {
-    setSelectedHomeTab(HomeTabType.Following);
-    console.log("set following");
+  const onPressRightTab = () => {
+    setSelectedTab(availableTabs[1]);
+    console.log("set right");
   };
 
   return (
     <>
       <View style={styles.header}>
-        <Pressable style={foryouSelectedStyle} onPress={onPressForyou}>
+        <Pressable style={leftSelectedStyle} onPress={onPressLeftTab}>
           <Text style={styles.headerText}>For you</Text>
         </Pressable>
-        <Pressable style={followingSelectedStyle} onPress={onPressFollowing}>
+        <Pressable style={rightSelectedStyle} onPress={onPressRightTab}>
           <Text style={styles.headerText}>Following</Text>
         </Pressable>
       </View>

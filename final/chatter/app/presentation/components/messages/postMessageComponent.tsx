@@ -1,5 +1,4 @@
 import {
-  Animated,
   StyleSheet,
   View,
   TextInput,
@@ -9,7 +8,7 @@ import {
   ViewStyle,
   StyleProp,
 } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { primary, secondary, tertiary } from "../../theme/colors";
 import { AntDesign } from "@expo/vector-icons";
 import {
@@ -18,34 +17,34 @@ import {
   SecondaryButton,
 } from "../buttons/buttons";
 import { Ionicons, Entypo } from "@expo/vector-icons";
-import { defaultDuration } from "../../common/animationUtils";
 import { bodyFontStyle } from "../../theme/element-styles/textStyles";
 import KeyboardToolBar from "../toolBars/keyboardToolBar";
-import { CHATTER_ROOT_URL, MSG_URL } from "../../../domain/utils/api";
+import { MSG_URL } from "../../../domain/utils/api";
+import { ChatterGroups } from "./chatterGroups";
+import FullSheet from "../modals/fullSheet";
 
 interface PostMessageButtonProps {
   toggleHalfSheet: () => void;
-  height: number;
+  toggleInnerFullSheet: () => void;
+  show: boolean;
 }
 
 export default function PostMessageComponent({
   toggleHalfSheet,
-  height,
+  toggleInnerFullSheet,
+  show,
 }: PostMessageButtonProps) {
-  const messagePostContainerHeight = useRef(new Animated.Value(0)).current;
   const [showSubmitBtn, setShowSubmitBtn] = useState(true);
-  const [showSubmitBody, setShowSubmitBody] = useState(false);
   const [keyboardBarStyle, setKeyboardBarStyle] = useState<
     StyleProp<ViewStyle>
   >({ width: "100%" });
   const [showKeyboardTabBar, setShowKeyboardTabBar] = useState(false);
   const [messageValue, setMessageValue] = useState("");
+  const [currentChatterGroup, setCurrentChatterGroup] = useState<ChatterGroups>(
+    ChatterGroups.Public
+  );
 
   useEffect(() => {
-    messagePostContainerHeight.addListener(({ value }) => {
-      value === 0 ? setShowSubmitBody(false) : setShowSubmitBody(true);
-    });
-
     const keyboardShow = Keyboard.addListener("keyboardDidShow", (e) => {
       setKeyboardBarStyle({
         width: "100%",
@@ -63,7 +62,6 @@ export default function PostMessageComponent({
     });
 
     return () => {
-      messagePostContainerHeight.removeAllListeners();
       keyboardShow.remove();
       keyboardDismiss.remove();
     };
@@ -103,21 +101,8 @@ export default function PostMessageComponent({
   };
 
   const toggleShowPostMessageDialog = () => {
-    if (!showSubmitBtn) {
-      Animated.timing(messagePostContainerHeight, {
-        toValue: 0,
-        duration: defaultDuration,
-        useNativeDriver: false,
-      }).start();
-    } else {
-      Animated.timing(messagePostContainerHeight, {
-        toValue: height - 50,
-        duration: defaultDuration,
-        useNativeDriver: false,
-      }).start();
-    }
-
     setShowSubmitBtn(!showSubmitBtn);
+    toggleInnerFullSheet();
   };
 
   const onPressDropDown = () => {
@@ -126,13 +111,8 @@ export default function PostMessageComponent({
 
   return (
     <>
-      <Animated.View
-        style={{
-          ...styles.container,
-          height: messagePostContainerHeight,
-        }}
-      >
-        {showSubmitBody && (
+      <FullSheet show={show}>
+        {!showSubmitBtn && (
           <>
             <View style={styles.header}>
               <SecondaryButton onPress={onPressCancelMessage}>
@@ -152,7 +132,9 @@ export default function PostMessageComponent({
                     containerStyle={{ marginLeft: 8 }}
                     onPress={onPressDropDown}
                   >
-                    <Text style={{ color: secondary() }}>Public</Text>
+                    <Text style={{ color: secondary() }}>
+                      {currentChatterGroup}
+                    </Text>
                     <Entypo
                       name="chevron-small-down"
                       size={20}
@@ -180,7 +162,8 @@ export default function PostMessageComponent({
             </View>
           </>
         )}
-      </Animated.View>
+      </FullSheet>
+
       {showSubmitBtn && (
         <Pressable
           style={styles.submitBtnContainer}
@@ -194,12 +177,6 @@ export default function PostMessageComponent({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: primary(true),
-    width: "100%",
-    position: "absolute",
-    bottom: 0,
-  },
   header: {
     flexDirection: "row",
     alignItems: "center",

@@ -22,9 +22,7 @@ interface MessageItemProps {
 export default function MessageItem({ messageModel }: MessageItemProps) {
   const [updatedAt, setUpdatedAt] = useState("");
   useEffect(() => {
-    console.log("updatedDate", messageModel.item.updatedAt);
     const date = parseISO(messageModel.item.updatedAt);
-    console.log("date", date);
     setUpdatedAt(formatDistanceToNow(date, { addSuffix: true }));
   }, [messageModel]);
 

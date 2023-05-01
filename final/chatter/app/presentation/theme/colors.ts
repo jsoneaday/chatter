@@ -9,7 +9,6 @@ const navyBlue = "#000080";
 export const modalBackgroundColor = "lightgray";
 
 function gray(opacity: number = 1.0): string {
-  console.log("colorScheme", colorScheme);
   if (colorScheme === "dark") {
     return `rgba(169,169,169, ${opacity})`;
   }
