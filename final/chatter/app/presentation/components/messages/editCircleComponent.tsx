@@ -41,7 +41,7 @@ export default function EditCircleComponent({
         <View style={styles.containerTop}>
           <View style={styles.containerHeader}>
             <CloseButton size={20} />
-            <Text style={{ ...(headerFontStyle as object) }}>
+            <Text style={{ ...(headerFontStyle() as object) }}>
               Edit your Chatter Circle
             </Text>
             <Spacer width={18} />

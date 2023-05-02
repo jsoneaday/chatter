@@ -1,10 +1,7 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { secondary, tertiary } from "../../theme/colors";
-import {
-  headerFontStyle,
-  subHeaderFontStyle,
-} from "../../theme/element-styles/textStyles";
+import { subHeaderFontStyle } from "../../theme/element-styles/textStyles";
 
 type SelectedHeaderContainerStyle = {
   height: number;

@@ -1,8 +1,8 @@
 import React, { ReactNode } from "react";
 import { View, StyleSheet } from "react-native";
 import { PrimaryButton } from "./buttons";
-import { visibleBorder } from "../../theme/visibleBorder";
 import { primary } from "../../theme/colors";
+import { headerFontStyle } from "../../theme/element-styles/textStyles";
 
 interface BottomButtonProps {
   children: ReactNode;
@@ -11,7 +11,12 @@ interface BottomButtonProps {
 export default function BottomButton({ children }: BottomButtonProps) {
   return (
     <View style={styles.container}>
-      <PrimaryButton containerStyle={styles.button}>{children}</PrimaryButton>
+      <PrimaryButton
+        containerStyle={styles.button}
+        txtStyle={headerFontStyle(true)}
+      >
+        {children}
+      </PrimaryButton>
     </View>
   );
 }
@@ -28,5 +33,6 @@ const styles = StyleSheet.create({
     backgroundColor: primary(),
     paddingTop: 15,
     paddingBottom: 15,
+    borderRadius: 25,
   },
 });

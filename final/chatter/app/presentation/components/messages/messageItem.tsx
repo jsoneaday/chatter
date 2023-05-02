@@ -4,7 +4,6 @@ import MessageModel from "../../common/models/message";
 import { ListRenderItemInfo } from "@shopify/flash-list";
 import {
   bodyFontStyle,
-  headerFontStyle,
   subHeaderFontStyle,
 } from "../../theme/element-styles/textStyles";
 import { parseISO, formatDistanceToNow } from "date-fns";
@@ -95,7 +94,7 @@ const styles = StyleSheet.create({
   },
   txtUserName: {
     ...subHeaderFontStyle,
-    width: 100,
+    width: 90,
     color: tertiary(),
   },
   txtBody: {
