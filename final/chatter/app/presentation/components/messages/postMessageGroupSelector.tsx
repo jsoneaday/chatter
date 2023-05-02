@@ -15,13 +15,13 @@ import { RingedButton } from "../buttons/buttons";
 
 interface PostMessageGroupSelectorProps {
   show: boolean;
-  toggleShow: () => void;
+  toggleSelf: () => void;
   toggleOuterFullSheet: () => void;
 }
 
 export default function PostMessageGroupSelector({
   show,
-  toggleShow,
+  toggleSelf,
   toggleOuterFullSheet,
 }: PostMessageGroupSelectorProps) {
   const [chatterCircleCount, setChatterCircleCount] = useState(0);
@@ -30,7 +30,7 @@ export default function PostMessageGroupSelector({
   };
 
   return (
-    <HalfSheet show={show} toggleShow={toggleShow}>
+    <HalfSheet show={show} toggleShow={toggleSelf}>
       <View style={styles.halfSheetContainer}>
         <SectionHeader style={{ marginBottom: 30 }}>
           Choose audience

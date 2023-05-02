@@ -24,14 +24,14 @@ import { ChatterGroups } from "./chatterGroups";
 import FullSheet from "../modals/fullSheet";
 
 interface PostMessageButtonProps {
-  toggleHalfSheet: () => void;
-  toggleInnerFullSheet: () => void;
+  togglePostMsgGroupSelector: () => void;
+  toggleSelf: () => void;
   show: boolean;
 }
 
 export default function PostMessageComponent({
-  toggleHalfSheet,
-  toggleInnerFullSheet,
+  togglePostMsgGroupSelector: toggleHalfSheet,
+  toggleSelf,
   show,
 }: PostMessageButtonProps) {
   const [showSubmitBtn, setShowSubmitBtn] = useState(true);
@@ -102,7 +102,7 @@ export default function PostMessageComponent({
 
   const toggleShowPostMessageDialog = () => {
     setShowSubmitBtn(!showSubmitBtn);
-    toggleInnerFullSheet();
+    toggleSelf();
   };
 
   const onPressDropDown = () => {

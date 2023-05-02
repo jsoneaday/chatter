@@ -1,7 +1,10 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { secondary, tertiary } from "../../theme/colors";
-import { subHeaderFontStyle } from "../../theme/element-styles/textStyles";
+import {
+  headerFontStyle,
+  subHeaderFontStyle,
+} from "../../theme/element-styles/textStyles";
 
 type SelectedHeaderContainerStyle = {
   height: number;
@@ -51,10 +54,10 @@ export default function InScreenTabs({
     <>
       <View style={styles.header}>
         <Pressable style={leftSelectedStyle} onPress={onPressLeftTab}>
-          <Text style={styles.headerText}>For you</Text>
+          <Text style={styles.headerText}>{availableTabs[0]}</Text>
         </Pressable>
         <Pressable style={rightSelectedStyle} onPress={onPressRightTab}>
-          <Text style={styles.headerText}>Following</Text>
+          <Text style={styles.headerText}>{availableTabs[1]}</Text>
         </Pressable>
       </View>
       {children}
@@ -65,7 +68,6 @@ export default function InScreenTabs({
 const styles = StyleSheet.create({
   header: {
     width: "100%",
-    marginHorizontal: 140,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -75,8 +77,7 @@ const styles = StyleSheet.create({
     borderBottomColor: tertiary(false, 0.5),
   },
   headerText: {
-    ...subHeaderFontStyle,
-    fontWeight: "bold",
+    ...(subHeaderFontStyle as object),
   },
   selectedHeaderContainer: {
     height: 31,

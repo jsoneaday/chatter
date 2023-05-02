@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
   txtPrimaryFont: {
     color: primaryDark(),
     fontSize: 14,
+    textAlign: "center",
   },
   txtSecondaryFont: {
     color: primaryLight(),

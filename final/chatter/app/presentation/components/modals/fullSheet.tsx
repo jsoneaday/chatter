@@ -1,7 +1,7 @@
 import React, { useRef, ReactNode, useEffect, useState } from "react";
 import { Animated, StyleSheet, useWindowDimensions } from "react-native";
-import { primary } from "../../theme/colors";
 import { defaultDuration } from "../../common/animationUtils";
+import { containerStyle } from "../../theme/element-styles/screenStyles";
 
 interface FullSheetProps {
   children: ReactNode;
@@ -52,7 +52,8 @@ export default function FullSheet({ children, show }: FullSheetProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: primary(true),
+    ...(containerStyle as object),
+    alignItems: "flex-start",
     width: "100%",
     position: "absolute",
     bottom: 0,

@@ -3,11 +3,13 @@ import { primary, secondary } from "../colors";
 export const headerFontStyle = {
   color: primary(),
   fontSize: 18,
+  fontWeight: "bold",
 };
 
 export const subHeaderFontStyle = {
   color: primary(),
   fontSize: 16,
+  fontWeight: "bold",
 };
 
 export const bodyFontStyle = {

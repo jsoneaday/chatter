@@ -1,24 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { containerStyle } from "../../theme/element-styles/screenStyles";
-import SectionHeader from "../../components/headers/sectionHeader";
-import MessageAccessiblityType, {
-  Accessor,
-} from "../../components/icons/messageAccessibilityType";
-import {
-  bodyFontStyle,
-  labelFontStyle,
-} from "../../theme/element-styles/textStyles";
-import Spacer from "../../components/spacer";
-import { RingedButton } from "../../components/buttons/buttons";
 import InScreenTabs from "../../components/tabs/inScreenTabs";
 import { FlashList } from "@shopify/flash-list";
 import MessageItem from "../../components/messages/messageItem";
 import MessageModel from "../../common/models/message";
 import { MSGS_URL } from "../../../domain/utils/api";
-import { ChatterGroups } from "../../components/messages/chatterGroups";
-import PostMessageComponent from "../../components/messages/postMessageComponent";
-import EditCircleComponent from "../../components/messages/editCircleComponent";
 
 export default function Home() {
   const [messageItems, setMessageItems] = useState<MessageModel[]>([]);

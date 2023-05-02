@@ -28,24 +28,26 @@ export type RootTabParamList = {
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 export default function App() {
-  const [showHalfSheet, setShowHalfSheet] = useState(false);
-  const [showInnerFullSheet, setShowInnerFullSheet] = useState(false);
-  const [showOuterFullSheet, setShowOuterFullSheet] = useState(false);
+  const [showPostMsgGroupSelector, setShowPostMsgGroupSelector] =
+    useState(false);
+  const [showPostMessageComponent, setShowPostMessageComponent] =
+    useState(false);
+  const [showEditCircle, setShowEditCircle] = useState(false);
 
-  const toggleHalfSheet = () => {
-    setShowHalfSheet(!showHalfSheet);
+  const togglePostMsgGroupSelector = () => {
+    setShowPostMsgGroupSelector(!showPostMsgGroupSelector);
   };
 
-  const toggleInnerFullSheet = () => {
-    console.log("start showInnerFullSheet", showInnerFullSheet);
-    const currentShowInnerFullSheet = !showInnerFullSheet;
-    setShowInnerFullSheet(currentShowInnerFullSheet);
+  const togglePostMessageComponent = () => {
+    console.log("start showInnerFullSheet", showPostMessageComponent);
+    const currentShowInnerFullSheet = !showPostMessageComponent;
+    setShowPostMessageComponent(currentShowInnerFullSheet);
     console.log("end showInnerFullSheet", currentShowInnerFullSheet);
   };
 
-  const toggleOuterFullSheet = () => {
-    setShowOuterFullSheet(!showOuterFullSheet);
-    console.log("showOuterFullSheet", !showOuterFullSheet);
+  const toggleShowEditCircle = () => {
+    setShowEditCircle(!showEditCircle);
+    console.log("showOuterFullSheet", !showEditCircle);
   };
 
   return (
@@ -104,18 +106,21 @@ export default function App() {
       </NavigationContainer>
 
       <PostMessageComponent
-        toggleHalfSheet={toggleHalfSheet}
-        toggleInnerFullSheet={toggleInnerFullSheet}
-        show={showInnerFullSheet}
+        togglePostMsgGroupSelector={togglePostMsgGroupSelector}
+        toggleSelf={togglePostMessageComponent}
+        show={showPostMessageComponent}
       />
 
       <PostMessageGroupSelector
-        show={showHalfSheet}
-        toggleShow={toggleHalfSheet}
-        toggleOuterFullSheet={toggleOuterFullSheet}
+        show={showPostMsgGroupSelector}
+        toggleSelf={togglePostMsgGroupSelector}
+        toggleOuterFullSheet={toggleShowEditCircle}
       />
 
-      <EditCircleComponent show={showOuterFullSheet} />
+      <EditCircleComponent
+        show={showEditCircle}
+        toggleSelf={toggleShowEditCircle}
+      />
     </>
   );
 }
