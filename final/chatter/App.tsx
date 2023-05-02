@@ -14,10 +14,9 @@ import Browse from "./app/presentation/screens/browse";
 import Notifications from "./app/presentation/screens/notifications";
 import DirectMessage from "./app/presentation/screens/directmessage";
 import { useState } from "react";
-import HalfSheet from "./app/presentation/components/modals/halfSheet";
-import OuterFullSheet from "./app/presentation/components/modals/fullSheet";
 import PostMessageComponent from "./app/presentation/components/messages/postMessageComponent";
 import EditCircleComponent from "./app/presentation/components/messages/editCircleComponent";
+import PostMessageGroupSelector from "./app/presentation/components/messages/postMessageGroupSelector";
 
 export type RootTabParamList = {
   Home: undefined;
@@ -32,14 +31,6 @@ export default function App() {
   const [showHalfSheet, setShowHalfSheet] = useState(false);
   const [showInnerFullSheet, setShowInnerFullSheet] = useState(false);
   const [showOuterFullSheet, setShowOuterFullSheet] = useState(false);
-  const [HalfSheetContent, setHalfSheetContent] = useState<JSX.Element>(
-    <View />
-  );
-  const [InnerFullSheetContent, setInnerFullSheetContent] =
-    useState<JSX.Element>(<View />);
-  const [OuterFullSheetContent, setOuterFullSheetContent] =
-    useState<JSX.Element>(<View />);
-  const windowDimension = useWindowDimensions();
 
   const toggleHalfSheet = () => {
     setShowHalfSheet(!showHalfSheet);
@@ -75,12 +66,7 @@ export default function App() {
         >
           <Tab.Screen
             name="Home"
-            children={() => (
-              <Home
-                setHalfSheetContent={setHalfSheetContent}
-                toggleOuterFullSheet={toggleOuterFullSheet}
-              />
-            )}
+            children={() => <Home />}
             options={{
               tabBarIcon: ({ focused, color, size }) => (
                 <HomeIcon isSelected={focused} size={25} />
@@ -123,13 +109,11 @@ export default function App() {
         show={showInnerFullSheet}
       />
 
-      <HalfSheet
+      <PostMessageGroupSelector
         show={showHalfSheet}
         toggleShow={toggleHalfSheet}
-        height={windowDimension.height}
-      >
-        {HalfSheetContent}
-      </HalfSheet>
+        toggleOuterFullSheet={toggleOuterFullSheet}
+      />
 
       <EditCircleComponent show={showOuterFullSheet} />
     </>

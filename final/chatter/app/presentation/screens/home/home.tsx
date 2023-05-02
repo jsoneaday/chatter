@@ -20,66 +20,8 @@ import { ChatterGroups } from "../../components/messages/chatterGroups";
 import PostMessageComponent from "../../components/messages/postMessageComponent";
 import EditCircleComponent from "../../components/messages/editCircleComponent";
 
-interface HomeProps {
-  setHalfSheetContent: (element: JSX.Element) => void;
-  toggleOuterFullSheet: () => void;
-}
-
-export default function Home({
-  setHalfSheetContent,
-  toggleOuterFullSheet,
-}: HomeProps) {
+export default function Home() {
   const [messageItems, setMessageItems] = useState<MessageModel[]>([]);
-  const [chatterCircleCount, setChatterCircleCount] = useState(0);
-
-  const onPressEditCircleGroup = () => {
-    toggleOuterFullSheet();
-  };
-
-  useEffect(() => {
-    setHalfSheetContent(
-      <View style={styles.halfSheetContainer}>
-        <SectionHeader style={{ marginBottom: 30 }}>
-          Choose audience
-        </SectionHeader>
-        <View>
-          <View style={{ ...styles.itemContainer, marginBottom: 30 }}>
-            <MessageAccessiblityType type={Accessor.Public} />
-            <Spacer width={20} />
-            <Text style={labelFontStyle}>{ChatterGroups.Public}</Text>
-            <Spacer width={200} />
-          </View>
-          <View style={styles.circleContainer}>
-            <View style={styles.itemContainer}>
-              <MessageAccessiblityType type={Accessor.Circle} />
-              <Spacer width={20} />
-              <View
-                style={{
-                  alignItems: "flex-start",
-                  justifyContent: "flex-start",
-                }}
-              >
-                <Text style={labelFontStyle}>
-                  {ChatterGroups.ChatterCircle}
-                </Text>
-                <Text
-                  style={bodyFontStyle}
-                >{`${chatterCircleCount} people`}</Text>
-              </View>
-            </View>
-            <RingedButton
-              containerStyle={{
-                padding: 6,
-              }}
-              onPress={onPressEditCircleGroup}
-            >
-              <Text style={{ ...bodyFontStyle, fontWeight: "bold" }}>Edit</Text>
-            </RingedButton>
-          </View>
-        </View>
-      </View>
-    );
-  }, []);
 
   const onSelectedHomeTabChanged = async (selectedTab: string) => {
     const messages = await fetch(
@@ -117,22 +59,6 @@ export default function Home({
 }
 
 const styles = StyleSheet.create({
-  halfSheetContainer: {
-    alignItems: "center",
-    justifyContent: "flex-start",
-    paddingHorizontal: 15,
-  },
-  itemContainer: {
-    width: "60%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-start",
-  },
-  circleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
   messagesContainer: {
     padding: 10,
     width: "100%",

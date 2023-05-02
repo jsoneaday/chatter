@@ -1,4 +1,10 @@
-import { Animated, Pressable, StyleSheet, View } from "react-native";
+import {
+  Animated,
+  Pressable,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { defaultDuration } from "../../common/animationUtils";
 import { modalBackgroundColor, primary } from "../../theme/colors";
@@ -8,25 +14,24 @@ import DragPill from "../buttons/dragPill";
 interface HalfSheetProps {
   show: boolean;
   toggleShow: () => void;
-  height: number;
   children: ReactNode;
 }
 
 export default function HalfSheet({
   show,
   toggleShow,
-  height,
   children,
 }: HalfSheetProps) {
   const [containerHeight, setContainerHeight] = useState(0);
   const halfSheetHeight = useRef(new Animated.Value(0)).current;
+  const windowsDimension = useWindowDimensions();
 
   useEffect(() => {
     if (show) {
-      setContainerHeight(height);
+      setContainerHeight(windowsDimension.height);
 
       Animated.timing(halfSheetHeight, {
-        toValue: (height / 3) * 2,
+        toValue: (windowsDimension.height / 3) * 2,
         duration: defaultDuration,
         useNativeDriver: false,
       }).start();
