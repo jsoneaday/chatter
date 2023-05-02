@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     borderBottomColor: tertiary(false, 0.5),
   },
   headerText: {
-    ...(subHeaderFontStyle as object),
+    ...(subHeaderFontStyle() as object),
   },
   selectedHeaderContainer: {
     height: 31,

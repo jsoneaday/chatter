@@ -6,11 +6,12 @@ export const headerFontStyle = (isInverted: boolean = false) => ({
   fontWeight: "bold",
 });
 
-export const subHeaderFontStyle = {
-  color: primary(),
-  fontSize: 16,
-  fontWeight: "bold",
-} as const;
+export const subHeaderFontStyle = (isInverted: boolean = false) =>
+  ({
+    color: primary(isInverted),
+    fontSize: 16,
+    fontWeight: "bold",
+  } as const);
 
 export const bodyFontStyle = {
   color: primary(),

@@ -79,6 +79,7 @@ export function RingedButton({
 
 const styles = StyleSheet.create({
   primaryButtonStyle: {
+    justifyContent: "center",
     backgroundColor: secondaryLight(),
     borderRadius: 20,
     paddingLeft: 15,

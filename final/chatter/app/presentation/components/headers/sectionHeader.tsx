@@ -20,7 +20,7 @@ export default function SectionHeader({
 
 const styles = StyleSheet.create({
   container: {
-    ...(subHeaderFontStyle as object),
+    ...(subHeaderFontStyle() as object),
     fontWeight: "800",
   },
 });

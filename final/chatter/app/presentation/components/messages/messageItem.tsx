@@ -89,11 +89,11 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   txtFullName: {
-    ...subHeaderFontStyle,
+    ...subHeaderFontStyle(),
     fontWeight: "bold",
   },
   txtUserName: {
-    ...subHeaderFontStyle,
+    ...subHeaderFontStyle(),
     width: 90,
     color: tertiary(),
   },

@@ -1,6 +1,5 @@
 import { StyleSheet, View, Text } from "react-native";
-import React, { useEffect, useState } from "react";
-import { primary } from "../../theme/colors";
+import React, { useState } from "react";
 import {
   bodyFontStyle,
   headerFontStyle,
@@ -8,11 +7,33 @@ import {
 import FullSheet from "../modals/fullSheet";
 import InScreenTabs from "../tabs/inScreenTabs";
 import Spacer from "../spacer";
-import { visibleBorder } from "../../theme/visibleBorder";
 import { CloseButton } from "../icons/closeIcon";
 import BottomButton from "../buttons/bottomButtons";
+import SearchButton from "../buttons/searchButton";
+import { BrowseIcon } from "../icons/menuIcons";
+import { FlashList } from "@shopify/flash-list";
+import ProfileNameDisplay, {
+  ProfileNameDisplayData,
+} from "../profiles/profileNameDisplay";
 
 const Tabs: [string, string] = ["Twitter Circle", "Recommended"];
+const potentialCircleProfiles: ProfileNameDisplayData[] = [
+  {
+    fullName: "Dave Choi",
+    userName: "dave",
+    avatar: new Blob(),
+  },
+  {
+    fullName: "Jill Bill",
+    userName: "jill",
+    avatar: new Blob(),
+  },
+  {
+    fullName: "Hey Day",
+    userName: "hey",
+    avatar: new Blob(),
+  },
+];
 
 interface EditCircleComponentProps {
   show: boolean;
@@ -37,24 +58,26 @@ export default function EditCircleComponent({
 
   return (
     <FullSheet show={show}>
-      <View style={styles.container}>
-        <View style={styles.containerTop}>
-          <View style={styles.containerHeader}>
-            <CloseButton size={20} />
-            <Text style={{ ...(headerFontStyle() as object) }}>
-              Edit your Chatter Circle
-            </Text>
-            <Spacer width={18} />
+      {show && (
+        <View style={styles.container}>
+          <View style={styles.containerTop}>
+            <View style={styles.containerHeader}>
+              <CloseButton onPress={toggleSelf} size={20} />
+              <Text style={{ ...(headerFontStyle() as object) }}>
+                Edit your Chatter Circle
+              </Text>
+              <Spacer width={18} />
+            </View>
+            <InScreenTabs
+              availableTabs={Tabs}
+              onSelectedTabChanged={onSelectedTabChanged}
+            >
+              {currentView}
+            </InScreenTabs>
           </View>
-          <InScreenTabs
-            availableTabs={Tabs}
-            onSelectedTabChanged={onSelectedTabChanged}
-          >
-            {currentView}
-          </InScreenTabs>
+          <BottomButton>Done</BottomButton>
         </View>
-        <BottomButton>Done</BottomButton>
-      </View>
+      )}
     </FullSheet>
   );
 }
@@ -62,11 +85,7 @@ export default function EditCircleComponent({
 function TwitterCircle() {
   return (
     <View style={styles.childContainer}>
-      <Text style={styles.rootText}>
-        People won't be notified when you edit your Chatter Circle. Anyone you
-        add will be able to see your previous Chatter Circle Chats.
-        <Text style={{ fontWeight: "bold" }}> How it works</Text>
-      </Text>
+      <Disclaimer />
     </View>
   );
 }
@@ -74,8 +93,34 @@ function TwitterCircle() {
 function Recommended() {
   return (
     <View style={styles.childContainer}>
-      <Text>Recommended</Text>
+      <View style={styles.childItem}>
+        <SearchButton>
+          <BrowseIcon size={18} />
+          <Spacer width={4} />
+          <Text>Search people</Text>
+        </SearchButton>
+      </View>
+      <View style={styles.childItem}>
+        <Disclaimer />
+      </View>
+      <View style={{ width: "100%", height: "100%" }}>
+        <FlashList
+          renderItem={(item) => <ProfileNameDisplay profile={item.item} />}
+          estimatedItemSize={10}
+          data={potentialCircleProfiles}
+        />
+      </View>
     </View>
+  );
+}
+
+function Disclaimer() {
+  return (
+    <Text style={styles.rootText}>
+      People won't be notified when you edit your Chatter Circle. Anyone you add
+      will be able to see your previous Chatter Circle Chats.
+      <Text style={{ fontWeight: "bold" }}> How it works</Text>
+    </Text>
   );
 }
 
@@ -94,10 +139,12 @@ const styles = StyleSheet.create({
   },
   childContainer: {
     alignItems: "center",
+    justifyContent: "flex-start",
     padding: 10,
     width: "100%",
     height: "100%",
   },
+  childItem: { width: "100%", marginBottom: 20 },
   rootText: {
     ...bodyFontStyle,
     textAlign: "center",
