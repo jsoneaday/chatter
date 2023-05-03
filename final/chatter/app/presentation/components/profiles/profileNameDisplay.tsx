@@ -6,6 +6,7 @@ import {
   bodyFontStyle,
   subHeaderFontStyle,
 } from "../../theme/element-styles/textStyles";
+import { visibleBorder } from "../../theme/visibleBorder";
 const profilePic = require("../../theme/assets/profile.jpeg");
 
 export type ProfileNameDisplayData = {
@@ -23,16 +24,18 @@ export default function ProfileNameDisplay({
 }: ProfileNameDisplayProps) {
   return (
     <View style={styles.container}>
-      <Avatar imgFile={profilePic} size={50} />
-      <View
-        style={{
-          width: "50%",
-          alignItems: "flex-start",
-          justifyContent: "flex-start",
-        }}
-      >
-        <Text style={{ ...subHeaderFontStyle() }}>{profile.fullName}</Text>
-        <Text style={{ ...bodyFontStyle }}>{`@${profile.userName}`}</Text>
+      <View style={styles.profileInfoContainer}>
+        <Avatar imgFile={profilePic} size={50} />
+        <View
+          style={{
+            marginLeft: 12,
+            alignItems: "flex-start",
+            justifyContent: "flex-start",
+          }}
+        >
+          <Text style={{ ...subHeaderFontStyle() }}>{profile.fullName}</Text>
+          <Text style={{ ...bodyFontStyle }}>{`@${profile.userName}`}</Text>
+        </View>
       </View>
       <PrimaryButton
         containerStyle={styles.primaryBtnContainer}
@@ -49,6 +52,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 30,
+  },
+  profileInfoContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
   },
   primaryBtnContainer: {
     width: 110,
