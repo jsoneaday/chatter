@@ -50,7 +50,9 @@ export default function FullSheet({ children, show }: FullSheetProps) {
       <View
         style={{
           ...styles.childContainer,
-          // the topLimiter is needed to prevent the bottom of this view from going below the visible screen,
+          // container View generally do not automatically expand to fill their space
+          // therefore we need to set the height and width
+          // so the topLimiter is needed to prevent the bottom of this view from going below the visible screen,
           // and causing cascading effects to children
           height: windowDimension.height - topLimiter,
         }}
