@@ -1,7 +1,9 @@
 import React, { useRef, ReactNode, useEffect, useState } from "react";
-import { Animated, StyleSheet, useWindowDimensions } from "react-native";
+import { Animated, StyleSheet, View, useWindowDimensions } from "react-native";
 import { defaultDuration } from "../../common/animationUtils";
 import { containerStyle } from "../../theme/element-styles/screenStyles";
+
+const topLimiter = 60;
 
 interface FullSheetProps {
   children: ReactNode;
@@ -24,7 +26,7 @@ export default function FullSheet({ children, show }: FullSheetProps) {
     if (show) {
       console.log("show full sheet", show);
       Animated.timing(sheetContainerHeight, {
-        toValue: windowDimension.height - 50,
+        toValue: windowDimension.height,
         duration: defaultDuration,
         useNativeDriver: false,
       }).start();
@@ -45,7 +47,16 @@ export default function FullSheet({ children, show }: FullSheetProps) {
         height: sheetContainerHeight,
       }}
     >
-      {children}
+      <View
+        style={{
+          ...styles.childContainer,
+          // the topLimiter is needed to prevent the bottom of this view from going below the visible screen,
+          // and causing cascading effects to children
+          height: windowDimension.height - topLimiter,
+        }}
+      >
+        {children}
+      </View>
     </Animated.View>
   );
 }
@@ -57,5 +68,9 @@ const styles = StyleSheet.create({
     width: "100%",
     position: "absolute",
     bottom: 0,
+  },
+  childContainer: {
+    marginTop: topLimiter,
+    width: "100%",
   },
 });

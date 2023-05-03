@@ -2,7 +2,7 @@ import { Platform, StyleSheet, View, useWindowDimensions } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Home from "./app/presentation/screens/home/home";
-import Header from "./app/presentation/components/headers/header";
+import Header from "./app/presentation/components/headers/screenHeader";
 import { secondary, tertiary } from "./app/presentation/theme/colors";
 import {
   BrowseIcon,
