@@ -128,20 +128,40 @@ mod tests {
         pub conn: Pool<Postgres>
     }
     
-    struct CircleRepo { fixtures: Option<Fixtures> }
-    impl CircleRepo {
-        async fn setup(&mut self, conn: Pool<Postgres>) {
-            let db_repo = DbRepo{};
+    async fn setup(conn: Pool<Postgres>) -> Fixtures {
+        let db_repo = DbRepo{};
 
-            let follower_result_id = db_repo.insert_profile(&conn, ProfileCreate { 
-                user_name: "follower".to_string(), 
-                full_name: "Follower Guy".to_string(), 
-                description: "Follower's description".to_string(), 
+        let follower_result_id = db_repo.insert_profile(&conn, ProfileCreate { 
+            user_name: "follower".to_string(), 
+            full_name: "Follower Guy".to_string(), 
+            description: "Follower's description".to_string(), 
+            region: Some("usa".to_string()), 
+            main_url: Some("http://whatever.com".to_string()), 
+            avatar: vec![] 
+        }).await;
+        let follower = match follower_result_id {
+            Ok(id) => {
+                let profile_result = db_repo.query_profile(&conn, id).await;
+                match profile_result {
+                    Ok(profile) => profile,
+                    Err(_) => None
+                }
+            },
+            Err(_) => None
+        }.unwrap();
+
+        let mut following_profiles = Vec::new();
+        for _ in [..11] {               
+            let following_result_id = db_repo.insert_profile(&conn, ProfileCreate { 
+                user_name: "following".to_string(), 
+                full_name: "Following Guy".to_string(), 
+                description: "Following's description".to_string(), 
                 region: Some("usa".to_string()), 
                 main_url: Some("http://whatever.com".to_string()), 
                 avatar: vec![] 
             }).await;
-            let follower = match follower_result_id {
+
+            let following = match following_result_id {
                 Ok(id) => {
                     let profile_result = db_repo.query_profile(&conn, id).await;
                     match profile_result {
@@ -152,104 +172,82 @@ mod tests {
                 Err(_) => None
             }.unwrap();
 
-            let mut following_profiles = Vec::new();
-            for _ in [..11] {               
-                let following_result_id = db_repo.insert_profile(&conn, ProfileCreate { 
-                    user_name: "following".to_string(), 
-                    full_name: "Following Guy".to_string(), 
-                    description: "Following's description".to_string(), 
-                    region: Some("usa".to_string()), 
-                    main_url: Some("http://whatever.com".to_string()), 
-                    avatar: vec![] 
-                }).await;
+            following_profiles.push(following);
+        }
 
-                let following = match following_result_id {
-                    Ok(id) => {
-                        let profile_result = db_repo.query_profile(&conn, id).await;
-                        match profile_result {
-                            Ok(profile) => profile,
-                            Err(_) => None
-                        }
-                    },
-                    Err(_) => None
-                }.unwrap();
-
-                following_profiles.push(following);
-            }
-
-            let follower_id = follower.id;
-            let insert_circle_result_id = db_repo.insert_circle(&conn, follower_id).await.unwrap();
-            let circle = db_repo.query_circle(&conn, insert_circle_result_id).await.unwrap().unwrap();
-            let circle_group = CircleGroupWithProfileQueryResult {
-                id: circle.id,
-                updated_at: circle.updated_at,
-                owner_id: circle.owner_id,
-                user_name: circle.user_name.clone(),
-                full_name: circle.full_name.clone(),
-                avatar: circle.avatar.clone()
-            };
-            
-            let mut circle_group_members = Vec::new();
-            for _ in [..11] {
-                let current_following = following_profiles.iter().nth(0).unwrap();
-                let insert_circle_member_id = db_repo.insert_circle_member(&conn, circle_group.id, current_following.id).await.unwrap();
-                let circle_member = db_repo.query_circle_member(&conn, insert_circle_member_id).await.unwrap().unwrap();
-                circle_group_members.push(CircleGroupMemberWithProfileQueryResult { 
-                    id: circle_member.id, 
-                    updated_at: circle_member.updated_at, 
-                    circle_group_id: circle_member.circle_group_id, 
-                    member_id: circle_member.member_id, 
-                    user_name: circle_member.user_name.clone(), 
-                    full_name: circle_member.full_name.clone(), 
-                    avatar: circle_member.avatar.clone()
-                });
-            }
-
-            self.fixtures = Some(Fixtures {
-                follower,
-                following_profiles,
-                circle_group,
-                circle_group_members,
-                conn
+        let follower_id = follower.id;
+        let insert_circle_result_id = db_repo.insert_circle(&conn, follower_id).await.unwrap();
+        let circle = db_repo.query_circle(&conn, insert_circle_result_id).await.unwrap().unwrap();
+        let circle_group = CircleGroupWithProfileQueryResult {
+            id: circle.id,
+            updated_at: circle.updated_at,
+            owner_id: circle.owner_id,
+            user_name: circle.user_name.clone(),
+            full_name: circle.full_name.clone(),
+            avatar: circle.avatar.clone()
+        };
+        
+        let mut circle_group_members = Vec::new();
+        for _ in [..11] {
+            let current_following = following_profiles.iter().nth(0).unwrap();
+            let insert_circle_member_id = db_repo.insert_circle_member(&conn, circle_group.id, current_following.id).await.unwrap();
+            let circle_member = db_repo.query_circle_member(&conn, insert_circle_member_id).await.unwrap().unwrap();
+            circle_group_members.push(CircleGroupMemberWithProfileQueryResult { 
+                id: circle_member.id, 
+                updated_at: circle_member.updated_at, 
+                circle_group_id: circle_member.circle_group_id, 
+                member_id: circle_member.member_id, 
+                user_name: circle_member.user_name.clone(), 
+                full_name: circle_member.full_name.clone(), 
+                avatar: circle_member.avatar.clone()
             });
+        }
+
+        Fixtures {
+            follower,
+            following_profiles,
+            circle_group,
+            circle_group_members,
+            conn
         }
     }
 
     lazy_static!{
-        static ref TEST_REPO: Arc<RwLock<CircleRepo>> = Arc::new(RwLock::new(CircleRepo { fixtures: None }));
+        static ref TEST_FIXTURES: Arc<RwLock<Option<Fixtures>>> = Arc::new(RwLock::new(None));
     }    
 
-    async fn set_repo() {
-        let repo = Arc::clone(&TEST_REPO);
-        let mut writeable_repo = repo.write().expect("Failed to get write lock on CircleRepo");
+    async fn set_fixtures() {
+        let fixtures = Arc::clone(&TEST_FIXTURES);
+        let mut writeable_fixtures = fixtures.write().expect("Failed to get write lock on CircleRepo");
  
-        match writeable_repo.fixtures.clone() {            
+        match writeable_fixtures.clone() {            
             Some(_) => (),
             None => {
-                let mut r = CircleRepo { fixtures: None };
                 let conn = get_conn_pool().await;
-                r.setup(conn).await;
-                writeable_repo.fixtures = r.fixtures.clone();
+                
+                *writeable_fixtures = Some(setup(conn).await);
             }
         }
-    }
-
-    #[async_trait]
-    impl InsertProfileFn for CircleRepo {
-        async fn insert_profile(&self, _: &Pool<Postgres>, _: ProfileCreate) -> Result<i64, sqlx::Error> {
-            Ok(self.fixtures.clone().unwrap().follower.id)
-        }
-    }
-
-    #[async_trait]
-    impl QueryProfileFn for CircleRepo {
-        async fn query_profile(&self, _: &Pool<Postgres>, _: i64) -> Result<Option<ProfileQueryResult>, sqlx::Error> {
-            Ok(Some(self.fixtures.clone().unwrap().follower))
-        }
-    }
+    }    
 
     mod test_mod_insert_new_circle_group {           
         use super::*;
+
+        struct CircleRepo;
+
+        #[async_trait]
+        impl InsertProfileFn for CircleRepo {
+            async fn insert_profile(&self, _: &Pool<Postgres>, _: ProfileCreate) -> Result<i64, sqlx::Error> {
+                Ok(Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap().follower.id)
+            }
+        }
+
+        #[async_trait]
+        impl QueryProfileFn for CircleRepo {
+            async fn query_profile(&self, _: &Pool<Postgres>, _: i64) -> Result<Option<ProfileQueryResult>, sqlx::Error> {
+                Ok(Some(Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap().follower))
+            }
+        }
 
         #[async_trait]
         impl InsertCircleFn for CircleRepo {
@@ -260,9 +258,9 @@ mod tests {
 
         #[tokio::test]
         async fn test_insert_new_circle_group () {
-            set_repo().await;
-            let db_repo = TEST_REPO.write().unwrap();
-            let fixtures = db_repo.fixtures.clone().unwrap();
+            set_fixtures().await;
+            let db_repo = CircleRepo;
+            let fixtures = Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap();
 
             let profile_id = db_repo.insert_profile(&fixtures.conn, ProfileCreate { 
                 user_name: "follower".to_string(), 
@@ -283,20 +281,49 @@ mod tests {
     mod test_mod_insert_new_circle_member {
         use super::*;
 
+        struct CircleMemberRepo;
+
         #[async_trait]
-        impl InsertCircleMemberFn for CircleRepo {
+        impl InsertProfileFn for CircleMemberRepo {
+            async fn insert_profile(&self, _: &Pool<Postgres>, params: ProfileCreate) -> Result<i64, sqlx::Error> {
+                if Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap().follower.user_name == params.user_name {
+                    Ok(Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap().follower.id)
+                } else {
+                    Ok(Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap().following_profiles.iter().find(|p| {
+                        p.user_name == params.user_name
+                    }).unwrap().id)
+                }                
+            }
+        }
+
+        #[async_trait]
+        impl InsertCircleFn for CircleMemberRepo {
+            async fn insert_circle(&self, _: &Pool<Postgres>, _: i64) -> Result<i64, sqlx::Error> {
+                Ok(Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap().circle_group.id)
+            }
+        }
+
+        #[async_trait]
+        impl InsertCircleMemberFn for CircleMemberRepo {
             async fn insert_circle_member(&self, conn: &Pool<Postgres>, circle_group_id: i64, new_member_id: i64) -> Result<i64, sqlx::Error> {
                 private_members::insert_circle_member_inner(conn, circle_group_id, new_member_id).await
             }
         }
 
+        #[async_trait]
+        impl QueryCircleMemberFn for CircleMemberRepo {
+            async fn query_circle_member(&self, conn: &Pool<Postgres>, id: i64) -> Result<Option<CircleGroupMemberWithProfileQueryResult>, sqlx::Error> {
+                private_members::query_circle_member_inner(conn, id).await
+            }
+        }
+
         #[tokio::test]
         async fn test_insert_new_circle_group_member () {
-            set_repo().await;
-            let db_repo = TEST_REPO.write().unwrap();
-            let fixtures = db_repo.fixtures.clone().unwrap();
+            set_fixtures().await;
+            let db_repo = CircleMemberRepo;
+            let fixtures = Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap();
 
-            let profile_id = db_repo.insert_profile(&fixtures.conn, ProfileCreate { 
+            let follower_id = db_repo.insert_profile(&fixtures.conn, ProfileCreate { 
                 user_name: "follower".to_string(), 
                 full_name: "Follower Guy".to_string(), 
                 description: "Follower's description".to_string(), 
@@ -304,11 +331,54 @@ mod tests {
                 main_url: Some("http://whatever.com".to_string()), 
                 avatar: vec![] 
             }).await.unwrap();
-            let profile = db_repo.query_profile(&fixtures.conn, profile_id).await.unwrap().unwrap();
+            let circle_group_id = db_repo.insert_circle(&fixtures.conn, follower_id).await.unwrap();
 
-            let circle_id = db_repo.insert_circle_member(&fixtures.conn, profile.id).await.unwrap();
+            let following_id = db_repo.insert_profile(&fixtures.conn, ProfileCreate { 
+                user_name: "following".to_string(), 
+                full_name: "following Guy".to_string(), 
+                description: "following's description".to_string(), 
+                region: Some("usa".to_string()), 
+                main_url: Some("http://whatever.com".to_string()), 
+                avatar: vec![] 
+            }).await.unwrap();
 
-            assert!(circle_id > 0);
+            let circle_member_id = db_repo.insert_circle_member(&fixtures.conn, circle_group_id, following_id).await.unwrap();
+
+            assert!(circle_member_id > 0);
+        }
+
+        #[tokio::test]
+        async fn test_insert_new_circle_group_member_and_verify_fields () {
+            set_fixtures().await;
+            let db_repo = CircleMemberRepo;
+            let fixtures = Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap();
+
+            let follower_id = db_repo.insert_profile(&fixtures.conn, ProfileCreate { 
+                user_name: "follower".to_string(), 
+                full_name: "Follower Guy".to_string(), 
+                description: "Follower's description".to_string(), 
+                region: Some("usa".to_string()), 
+                main_url: Some("http://whatever.com".to_string()), 
+                avatar: vec![] 
+            }).await.unwrap();
+            let circle_group_id = db_repo.insert_circle(&fixtures.conn, follower_id).await.unwrap();
+
+            let following_id = db_repo.insert_profile(&fixtures.conn, ProfileCreate { 
+                user_name: "following".to_string(), 
+                full_name: "following Guy".to_string(), 
+                description: "following's description".to_string(), 
+                region: Some("usa".to_string()), 
+                main_url: Some("http://whatever.com".to_string()), 
+                avatar: vec![] 
+            }).await.unwrap();
+
+            let circle_member_id = db_repo.insert_circle_member(&fixtures.conn, circle_group_id, following_id).await.unwrap();
+            let circle_member = db_repo.query_circle_member(&fixtures.conn, circle_member_id).await.unwrap().unwrap();
+
+            assert!(circle_member_id > 0);
+            assert!(circle_member.id == circle_member_id);
+            assert!(circle_member.circle_group_id == circle_group_id);
+            assert!(circle_member.member_id == following_id);
         }
     }
 }
