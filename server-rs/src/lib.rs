@@ -13,6 +13,10 @@ pub mod common {
             pub mod model;
             pub mod repo;
         }
+        pub mod circle_group {
+            pub mod model;
+            pub mod repo;
+        }
         pub mod base;
     }    
 }
