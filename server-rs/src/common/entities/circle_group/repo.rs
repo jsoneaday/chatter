@@ -238,14 +238,14 @@ mod tests {
         #[async_trait]
         impl InsertProfileFn for CircleRepo {
             async fn insert_profile(&self, _: &Pool<Postgres>, _: ProfileCreate) -> Result<i64, sqlx::Error> {
-                Ok(Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap().follower.id)
+                Ok(Arc::clone(&TEST_FIXTURES).read().unwrap().clone().unwrap().follower.id)
             }
         }
 
         #[async_trait]
         impl QueryProfileFn for CircleRepo {
             async fn query_profile(&self, _: &Pool<Postgres>, _: i64) -> Result<Option<ProfileQueryResult>, sqlx::Error> {
-                Ok(Some(Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap().follower))
+                Ok(Some(Arc::clone(&TEST_FIXTURES).read().unwrap().clone().unwrap().follower))
             }
         }
 
@@ -260,7 +260,7 @@ mod tests {
         async fn test_insert_new_circle_group () {
             set_fixtures().await;
             let db_repo = CircleRepo;
-            let fixtures = Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap();
+            let fixtures = Arc::clone(&TEST_FIXTURES).read().unwrap().clone().unwrap();
 
             let profile_id = db_repo.insert_profile(&fixtures.conn, ProfileCreate { 
                 user_name: "follower".to_string(), 
@@ -286,10 +286,10 @@ mod tests {
         #[async_trait]
         impl InsertProfileFn for CircleMemberRepo {
             async fn insert_profile(&self, _: &Pool<Postgres>, params: ProfileCreate) -> Result<i64, sqlx::Error> {
-                if Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap().follower.user_name == params.user_name {
-                    Ok(Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap().follower.id)
+                if Arc::clone(&TEST_FIXTURES).read().unwrap().clone().unwrap().follower.user_name == params.user_name {
+                    Ok(Arc::clone(&TEST_FIXTURES).read().unwrap().clone().unwrap().follower.id)
                 } else {
-                    Ok(Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap().following_profiles.iter().find(|p| {
+                    Ok(Arc::clone(&TEST_FIXTURES).read().unwrap().clone().unwrap().following_profiles.iter().find(|p| {
                         p.user_name == params.user_name
                     }).unwrap().id)
                 }                
@@ -299,7 +299,7 @@ mod tests {
         #[async_trait]
         impl InsertCircleFn for CircleMemberRepo {
             async fn insert_circle(&self, _: &Pool<Postgres>, _: i64) -> Result<i64, sqlx::Error> {
-                Ok(Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap().circle_group.id)
+                Ok(Arc::clone(&TEST_FIXTURES).read().unwrap().clone().unwrap().circle_group.id)
             }
         }
 
@@ -321,7 +321,7 @@ mod tests {
         async fn test_insert_new_circle_group_member () {
             set_fixtures().await;
             let db_repo = CircleMemberRepo;
-            let fixtures = Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap();
+            let fixtures = Arc::clone(&TEST_FIXTURES).read().unwrap().clone().unwrap();
 
             let follower_id = db_repo.insert_profile(&fixtures.conn, ProfileCreate { 
                 user_name: "follower".to_string(), 
@@ -351,7 +351,7 @@ mod tests {
         async fn test_insert_new_circle_group_member_and_verify_fields () {
             set_fixtures().await;
             let db_repo = CircleMemberRepo;
-            let fixtures = Arc::clone(&TEST_FIXTURES).write().unwrap().clone().unwrap();
+            let fixtures = Arc::clone(&TEST_FIXTURES).read().unwrap().clone().unwrap();
 
             let follower_id = db_repo.insert_profile(&fixtures.conn, ProfileCreate { 
                 user_name: "follower".to_string(), 
