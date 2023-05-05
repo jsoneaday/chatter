@@ -5,7 +5,6 @@ use super::model::{CircleGroupWithProfileQueryResult, CircleGroupMemberWithProfi
 
 mod private_members {    
     use crate::common::entities::circle_group::model::{CircleGroupWithProfileQueryResult, CircleGroupMemberWithProfileQueryResult};
-
     use super::*;
 
     pub async fn insert_circle_inner(conn: &Pool<Postgres>, circle_owner_id: i64) -> Result<i64, sqlx::Error> {
@@ -232,7 +231,6 @@ mod tests {
 
     mod test_mod_insert_new_circle_group {           
         use super::*;
-
         struct CircleRepo;
 
         #[async_trait]
