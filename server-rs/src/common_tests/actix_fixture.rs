@@ -34,7 +34,7 @@ pub async fn get_app_data() -> AppState {
     AppState {
         client: reqwest::Client::new(),
         conn: get_conn_pool().await,
-        db_repo: DbRepo{}
+        db_repo: DbRepo
     }
 }
 

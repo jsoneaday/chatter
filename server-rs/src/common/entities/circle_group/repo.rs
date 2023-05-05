@@ -129,7 +129,7 @@ mod tests {
     }
     
     async fn setup(conn: Pool<Postgres>) -> Fixtures {
-        let db_repo = DbRepo{};
+        let db_repo = DbRepo;
 
         let follower_result_id = db_repo.insert_profile(&conn, ProfileCreate { 
             user_name: "follower".to_string(), 

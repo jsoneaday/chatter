@@ -9,7 +9,6 @@ use chrono::{DateTime, Utc};
 
 mod private_members {
     use crate::common::entities::messages::model::MessageWithProfileQueryResult;
-
     use super::*;
 
     pub async fn insert_message_inner(conn: &Pool<Postgres>, user_id: i64, body: &str, broadcasting_msg_id: Option<i64>) -> Result<i64, sqlx::Error> {
@@ -354,7 +353,7 @@ mod tests {
     trait TestRepoSetup {
         async fn setup(&mut self) -> Fixtures {
             let conn = get_conn_pool().await;
-            let db_repo = DbRepo{};
+            let db_repo = DbRepo;
             let profile = db_repo.insert_profile(&conn, ProfileCreate { 
                 user_name: "tester".to_string(), 
                 full_name: "Dave Wave".to_string(), 
@@ -444,7 +443,7 @@ mod tests {
 
         async fn setup() -> QueryMsgFollowingFixtures {
             let conn = get_conn_pool().await;
-            let db_repo = DbRepo{};
+            let db_repo = DbRepo;
 
             let follower_id = db_repo.insert_profile(&conn, ProfileCreate { 
                 user_name: "follower".to_string(), 

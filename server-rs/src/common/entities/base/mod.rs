@@ -8,4 +8,4 @@ pub struct EntityId {
 }
 
 #[derive(Clone)]
-pub struct DbRepo{}
+pub struct DbRepo;

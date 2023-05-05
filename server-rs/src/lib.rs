@@ -69,7 +69,7 @@ pub async fn run() -> std::io::Result<()> {
                 AppState{
                     client: reqwest::Client::new(),
                     conn: conn.clone(),
-                    db_repo: DbRepo{}
+                    db_repo: DbRepo
                 }
             ))
             .route("/", web::get().to(get_root))
