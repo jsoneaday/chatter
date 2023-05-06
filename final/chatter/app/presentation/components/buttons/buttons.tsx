@@ -10,6 +10,7 @@ import {
   primaryLight,
   secondary,
   secondaryLight,
+  tertiary,
 } from "../../theme/colors";
 
 export interface ButtonProps {
@@ -102,12 +103,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     border: 1,
     borderWidth: 1,
-    borderColor: secondary(),
+    borderColor: tertiary(false, 0.5),
     borderRadius: 20,
-    paddingLeft: 16,
-    paddingRight: 12,
-    paddingTop: 3,
-    paddingBottom: 3,
-    maxWidth: 90,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
 });

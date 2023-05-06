@@ -17,6 +17,7 @@ import { useState } from "react";
 import PostMessageComponent from "./app/presentation/components/messages/postMessageComponent";
 import EditCircleComponent from "./app/presentation/components/messages/editCircleComponent";
 import PostMessageGroupSelector from "./app/presentation/components/messages/postMessageGroupSelector";
+import { MessageAccessibility } from "./app/presentation/components/icons/messageAccessibilityType";
 
 export type RootTabParamList = {
   Home: undefined;
@@ -33,6 +34,8 @@ export default function App() {
   const [showPostMessageComponent, setShowPostMessageComponent] =
     useState(false);
   const [showEditCircle, setShowEditCircle] = useState(false);
+  const [currentMessageAccessibility, setCurrentMessageAccessibility] =
+    useState<MessageAccessibility>(MessageAccessibility.Public);
 
   const togglePostMsgGroupSelector = () => {
     setShowPostMsgGroupSelector(!showPostMsgGroupSelector);
@@ -109,12 +112,14 @@ export default function App() {
         togglePostMsgGroupSelector={togglePostMsgGroupSelector}
         toggleSelf={togglePostMessageComponent}
         show={showPostMessageComponent}
+        messageAccessibility={currentMessageAccessibility}
       />
 
       <PostMessageGroupSelector
         show={showPostMsgGroupSelector}
         toggleSelf={togglePostMsgGroupSelector}
         toggleOuterFullSheet={toggleShowEditCircle}
+        setMessageAccessibility={setCurrentMessageAccessibility}
       />
 
       <EditCircleComponent

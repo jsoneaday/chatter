@@ -3,20 +3,20 @@ import { StyleSheet, View } from "react-native";
 import { primary, secondary } from "../../theme/colors";
 import { tertiary } from "../../theme/colors";
 
-export enum Accessor {
-  Public,
-  Circle,
+export enum MessageAccessibility {
+  Public = "Public",
+  Circle = "Chatter Circle",
 }
 
 interface MessageAccessibilityTypeProps {
-  type: Accessor;
+  type: MessageAccessibility;
 }
 
-export default function MessageAccessiblityType({
+export default function MessageAccessiblityTypeIcon({
   type,
 }: MessageAccessibilityTypeProps) {
   switch (type) {
-    case Accessor.Public:
+    case MessageAccessibility.Public:
       return (
         <View style={{ ...styles.container, backgroundColor: secondary() }}>
           <View
@@ -29,7 +29,7 @@ export default function MessageAccessiblityType({
           </View>
         </View>
       );
-    case Accessor.Circle:
+    case MessageAccessibility.Circle:
       return (
         <View style={{ ...styles.container, backgroundColor: tertiary() }}>
           <View

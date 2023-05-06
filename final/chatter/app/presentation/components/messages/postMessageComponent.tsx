@@ -20,19 +20,21 @@ import { Ionicons, Entypo } from "@expo/vector-icons";
 import { bodyFontStyle } from "../../theme/element-styles/textStyles";
 import KeyboardToolBar from "../toolBars/keyboardToolBar";
 import { MSG_URL } from "../../../domain/utils/api";
-import { ChatterGroups } from "./chatterGroups";
 import FullSheet from "../modals/fullSheet";
+import { MessageAccessibility } from "../icons/messageAccessibilityType";
 
 interface PostMessageButtonProps {
   togglePostMsgGroupSelector: () => void;
   toggleSelf: () => void;
   show: boolean;
+  messageAccessibility: MessageAccessibility;
 }
 
 export default function PostMessageComponent({
-  togglePostMsgGroupSelector: toggleHalfSheet,
+  togglePostMsgGroupSelector,
   toggleSelf,
   show,
+  messageAccessibility,
 }: PostMessageButtonProps) {
   const [showSubmitBtn, setShowSubmitBtn] = useState(true);
   const [keyboardBarStyle, setKeyboardBarStyle] = useState<
@@ -40,9 +42,6 @@ export default function PostMessageComponent({
   >({ width: "100%" });
   const [showKeyboardTabBar, setShowKeyboardTabBar] = useState(false);
   const [messageValue, setMessageValue] = useState("");
-  const [currentChatterGroup, setCurrentChatterGroup] = useState<ChatterGroups>(
-    ChatterGroups.Public
-  );
 
   useEffect(() => {
     const keyboardShow = Keyboard.addListener("keyboardDidShow", (e) => {
@@ -106,7 +105,7 @@ export default function PostMessageComponent({
   };
 
   const onPressDropDown = () => {
-    toggleHalfSheet();
+    togglePostMsgGroupSelector();
   };
 
   return (
@@ -133,7 +132,7 @@ export default function PostMessageComponent({
                     onPress={onPressDropDown}
                   >
                     <Text style={{ color: secondary() }}>
-                      {currentChatterGroup}
+                      {messageAccessibility}
                     </Text>
                     <Entypo
                       name="chevron-small-down"
