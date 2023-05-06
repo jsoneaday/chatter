@@ -11,6 +11,7 @@ import {
   labelFontStyle,
 } from "../../theme/element-styles/textStyles";
 import { RingedButton } from "../buttons/buttons";
+import { visibleBorder } from "../../theme/visibleBorder";
 
 interface PostMessageGroupSelectorProps {
   show: boolean;
@@ -31,7 +32,8 @@ export default function PostMessageGroupSelector({
         <SectionHeader style={{ marginBottom: 30 }}>
           Choose audience
         </SectionHeader>
-        <View>
+        {/* container width defaults generally aren't 100% */}
+        <View style={{ alignSelf: "stretch" }}>
           <PublicAccessor setMessageAccesibility={setMessageAccessibility} />
           <CircleGroupAccessor
             toggleOuterFullSheet={toggleOuterFullSheet}
@@ -54,7 +56,10 @@ function PublicAccessor({ setMessageAccesibility }: PublicAccessorProps) {
 
   return (
     <Pressable
-      style={{ ...styles.itemContainer, marginBottom: 30 }}
+      style={{
+        ...styles.itemContainer,
+        marginBottom: 30,
+      }}
       onPress={onPressPublicAccessor}
     >
       <MessageAccessiblityTypeIcon type={MessageAccessibility.Public} />
@@ -115,11 +120,12 @@ function CircleGroupAccessor({
 const styles = StyleSheet.create({
   halfSheetContainer: {
     alignItems: "center",
-    justifyContent: "flex-start",
-    paddingHorizontal: 15,
+    justifyContent: "center",
+    paddingVertical: 22,
+    paddingHorizontal: 32,
+    alignSelf: "stretch",
   },
   itemContainer: {
-    width: "60%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-start",

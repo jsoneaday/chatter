@@ -10,6 +10,7 @@ import { defaultDuration } from "../../common/animationUtils";
 import { modalBackgroundColor, primary } from "../../theme/colors";
 import { bodyFontStyle } from "../../theme/element-styles/textStyles";
 import DragPill from "../buttons/dragPill";
+import { visibleBorder } from "../../theme/visibleBorder";
 
 interface HalfSheetProps {
   show: boolean;
@@ -53,17 +54,13 @@ export default function HalfSheet({
       <Pressable
         onPress={toggleShow}
         style={{
-          position: "absolute",
-          width: "100%",
-          bottom: 0,
+          ...styles.container,
           height: containerHeight,
-          opacity: 0.5,
-          backgroundColor: modalBackgroundColor,
         }}
       />
       <Animated.View
         style={{
-          ...styles.container,
+          ...styles.animateContainer,
           height: halfSheetHeight,
         }}
       >
@@ -71,7 +68,7 @@ export default function HalfSheet({
           style={{
             width: "100%",
             alignItems: "center",
-            marginBottom: 20,
+            marginTop: 5,
           }}
         >
           <DragPill />
@@ -84,6 +81,13 @@ export default function HalfSheet({
 
 const styles = StyleSheet.create({
   container: {
+    position: "absolute",
+    width: "100%",
+    bottom: 0,
+    opacity: 0.5,
+    backgroundColor: modalBackgroundColor,
+  },
+  animateContainer: {
     ...(bodyFontStyle as object),
     alignItems: "center",
     justifyContent: "flex-start",
@@ -95,6 +99,5 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     borderColor: primary(true),
-    padding: 15,
   },
 });
