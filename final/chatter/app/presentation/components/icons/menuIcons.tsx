@@ -1,10 +1,7 @@
 import React from "react";
-import { Appearance } from "react-native";
 import { Ionicons, Feather, Entypo } from "@expo/vector-icons";
 import { notSelected, primary } from "../../theme/colors";
 import { IconProps } from "./iconPropType";
-
-const colorScheme = Appearance.getColorScheme();
 
 export function HomeIcon({ isSelected, size }: IconProps) {
   if (isSelected) {

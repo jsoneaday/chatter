@@ -17,12 +17,19 @@ import {
   SecondaryButton,
 } from "../buttons/buttons";
 import { Ionicons, Entypo } from "@expo/vector-icons";
-import { bodyFontStyle } from "../../theme/element-styles/textStyles";
+import {
+  bodyFontStyle,
+  headerFontStyle,
+} from "../../theme/element-styles/textStyles";
 import KeyboardToolBar from "../toolBars/keyboardToolBar";
 import { MSG_URL } from "../../../domain/utils/api";
 import FullSheet from "../modals/fullSheet";
 import { MessageAccessibility } from "../icons/messageAccessibilityType";
 import PostMessageGroupSelector from "./postMessageGroupSelector";
+import HalfSheet from "../modals/halfSheet";
+import { DeleteIcon, SaveDraftIcon } from "../icons/messageEarlyExitIcons";
+import Spacer from "../spacer";
+import BottomButton from "../buttons/bottomButtons";
 
 interface PostMessageButtonProps {
   toggleSelf: () => void;
@@ -43,6 +50,7 @@ export default function PostMessageComponent({
     useState(false);
   const [currentMessageAccessibility, setCurrentMessageAccessibility] =
     useState<MessageAccessibility>(MessageAccessibility.Public);
+  const [showEarlyExitSheet, setEarlyExitSheet] = useState(false);
 
   useEffect(() => {
     const keyboardShow = Keyboard.addListener("keyboardDidShow", (e) => {
@@ -67,6 +75,10 @@ export default function PostMessageComponent({
     };
   }, []);
 
+  const toggleEarlyExitSheet = () => {
+    setEarlyExitSheet(!showEarlyExitSheet);
+  };
+
   const togglePostMsgGroupSelector = () => {
     setShowPostMsgGroupSelector(!showPostMsgGroupSelector);
   };
@@ -76,7 +88,11 @@ export default function PostMessageComponent({
   };
 
   const onPressCancelMessage = () => {
-    toggleShowPostMessageDialog();
+    if (!messageValue) {
+      toggleShowPostMessageDialog();
+    } else {
+      toggleEarlyExitSheet();
+    }
   };
 
   const onPressSubmitMessage = async () => {
@@ -168,6 +184,11 @@ export default function PostMessageComponent({
         )}
       </FullSheet>
 
+      <EarlyExitDeleteOrSave
+        show={showEarlyExitSheet}
+        toggleSelf={toggleEarlyExitSheet}
+      />
+
       {showSubmitBtn && (
         <Pressable
           style={styles.submitBtnContainer}
@@ -183,6 +204,49 @@ export default function PostMessageComponent({
         setMessageAccessibility={setCurrentMessageAccessibility}
       />
     </>
+  );
+}
+
+interface EarlyExitDeleteOrSaveProps {
+  show: boolean;
+  toggleSelf: () => void;
+}
+
+function EarlyExitDeleteOrSave({
+  show,
+  toggleSelf,
+}: EarlyExitDeleteOrSaveProps) {
+  const onCancelEarlyExit = () => {
+    toggleSelf();
+  };
+
+  return (
+    <HalfSheet show={show} toggleShow={toggleSelf} sheetHeightDenom={5}>
+      {show && (
+        <>
+          <View style={styles.earlyExitContainer}>
+            <View style={styles.exitItem}>
+              <DeleteIcon size={25} />
+              <Spacer width={20} />
+              <Text style={{ ...styles.exitItemTxt, color: "red" }}>
+                Delete
+              </Text>
+            </View>
+            <View style={styles.exitItem}>
+              <SaveDraftIcon size={25} />
+              <Spacer width={20} />
+              <Text style={styles.exitItemTxt}>Save draft</Text>
+            </View>
+          </View>
+          <BottomButton
+            isInverted={true}
+            onPressBottomButton={onCancelEarlyExit}
+          >
+            Cancel
+          </BottomButton>
+        </>
+      )}
+    </HalfSheet>
   );
 }
 
@@ -222,5 +286,19 @@ const styles = StyleSheet.create({
     ...(bodyFontStyle as object),
     paddingLeft: 60,
     paddingRight: 10,
+  },
+  earlyExitContainer: {
+    justifyContent: "flex-start",
+    alignSelf: "stretch",
+    marginTop: 30,
+    paddingHorizontal: 30,
+  },
+  exitItem: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    marginBottom: 30,
+  },
+  exitItemTxt: {
+    ...bodyFontStyle,
   },
 });

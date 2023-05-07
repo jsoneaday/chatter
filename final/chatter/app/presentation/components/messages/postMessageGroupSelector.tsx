@@ -48,6 +48,7 @@ export default function PostMessageGroupSelector({
           </View>
         </View>
       </HalfSheet>
+
       <EditCircleComponent
         show={showEditCircle}
         toggleSelf={toggleShowEditCircle}

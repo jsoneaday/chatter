@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, View, useWindowDimensions } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Home from "./app/presentation/screens/home/home";
@@ -15,9 +15,6 @@ import Notifications from "./app/presentation/screens/notifications";
 import DirectMessage from "./app/presentation/screens/directmessage";
 import { useState } from "react";
 import PostMessageComponent from "./app/presentation/components/messages/postMessageComponent";
-import EditCircleComponent from "./app/presentation/components/messages/editCircleComponent";
-import PostMessageGroupSelector from "./app/presentation/components/messages/postMessageGroupSelector";
-import { MessageAccessibility } from "./app/presentation/components/icons/messageAccessibilityType";
 
 export type RootTabParamList = {
   Home: undefined;

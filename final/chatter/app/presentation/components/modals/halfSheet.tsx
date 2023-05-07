@@ -16,12 +16,14 @@ interface HalfSheetProps {
   show: boolean;
   toggleShow: () => void;
   children: ReactNode;
+  sheetHeightDenom?: number;
 }
 
 export default function HalfSheet({
   show,
   toggleShow,
   children,
+  sheetHeightDenom = 3,
 }: HalfSheetProps) {
   const [containerHeight, setContainerHeight] = useState(0);
   const halfSheetHeight = useRef(new Animated.Value(0)).current;
@@ -32,7 +34,7 @@ export default function HalfSheet({
       setContainerHeight(windowsDimension.height);
 
       Animated.timing(halfSheetHeight, {
-        toValue: (windowsDimension.height / 3) * 2,
+        toValue: (windowsDimension.height / sheetHeightDenom) * 2,
         duration: defaultDuration,
         useNativeDriver: false,
       }).start();
