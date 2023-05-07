@@ -22,6 +22,7 @@ import KeyboardToolBar from "../toolBars/keyboardToolBar";
 import { MSG_URL } from "../../../domain/utils/api";
 import FullSheet from "../modals/fullSheet";
 import { MessageAccessibility } from "../icons/messageAccessibilityType";
+import { visibleBorder } from "../../theme/visibleBorder";
 
 interface PostMessageButtonProps {
   togglePostMsgGroupSelector: () => void;
@@ -152,7 +153,7 @@ export default function PostMessageComponent({
                   onSubmitEditing={Keyboard.dismiss}
                   value={messageValue}
                   onChangeText={onChangeText}
-                ></TextInput>
+                />
               </View>
               <KeyboardToolBar
                 show={showKeyboardTabBar}
@@ -210,5 +211,6 @@ const styles = StyleSheet.create({
   txtInput: {
     ...(bodyFontStyle as object),
     paddingLeft: 60,
+    paddingRight: 10,
   },
 });

@@ -106,6 +106,6 @@ const styles = StyleSheet.create({
     borderColor: tertiary(false, 0.5),
     borderRadius: 20,
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 4,
   },
 });

@@ -45,12 +45,12 @@ export default function EditCircleComponent({
   toggleSelf,
 }: EditCircleComponentProps) {
   const [currentView, setCurrentView] = useState<JSX.Element>(
-    <TwitterCircle />
+    <ChatterCircle />
   );
 
   const onSelectedTabChanged = async (selectedTab: string) => {
     if (selectedTab == Tabs[0]) {
-      setCurrentView(<TwitterCircle />);
+      setCurrentView(<ChatterCircle />);
     } else {
       setCurrentView(<Recommended />);
     }
@@ -82,7 +82,7 @@ export default function EditCircleComponent({
   );
 }
 
-function TwitterCircle() {
+function ChatterCircle() {
   return (
     <View style={styles.childContainer}>
       <Disclaimer />
