@@ -11,37 +11,48 @@ import {
   labelFontStyle,
 } from "../../theme/element-styles/textStyles";
 import { RingedButton } from "../buttons/buttons";
-import { visibleBorder } from "../../theme/visibleBorder";
+import EditCircleComponent from "./editCircleComponent";
 
 interface PostMessageGroupSelectorProps {
   show: boolean;
   toggleSelf: () => void;
-  toggleOuterFullSheet: () => void;
   setMessageAccessibility: (accessibility: MessageAccessibility) => void;
 }
 
 export default function PostMessageGroupSelector({
   show,
   toggleSelf,
-  toggleOuterFullSheet,
   setMessageAccessibility,
 }: PostMessageGroupSelectorProps) {
+  const [showEditCircle, setShowEditCircle] = useState(false);
+
+  const toggleShowEditCircle = () => {
+    setShowEditCircle(!showEditCircle);
+    console.log("showOuterFullSheet", !showEditCircle);
+  };
+
   return (
-    <HalfSheet show={show} toggleShow={toggleSelf}>
-      <View style={styles.halfSheetContainer}>
-        <SectionHeader style={{ marginBottom: 30 }}>
-          Choose audience
-        </SectionHeader>
-        {/* container width defaults generally aren't 100% */}
-        <View style={{ alignSelf: "stretch" }}>
-          <PublicAccessor setMessageAccesibility={setMessageAccessibility} />
-          <CircleGroupAccessor
-            toggleOuterFullSheet={toggleOuterFullSheet}
-            setMessageAccessibility={setMessageAccessibility}
-          />
+    <>
+      <HalfSheet show={show} toggleShow={toggleSelf}>
+        <View style={styles.halfSheetContainer}>
+          <SectionHeader style={{ marginBottom: 30 }}>
+            Choose audience
+          </SectionHeader>
+          {/* container width defaults generally aren't 100% */}
+          <View style={{ alignSelf: "stretch" }}>
+            <PublicAccessor setMessageAccesibility={setMessageAccessibility} />
+            <CircleGroupAccessor
+              toggleOuterFullSheet={toggleShowEditCircle}
+              setMessageAccessibility={setMessageAccessibility}
+            />
+          </View>
         </View>
-      </View>
-    </HalfSheet>
+      </HalfSheet>
+      <EditCircleComponent
+        show={showEditCircle}
+        toggleSelf={toggleShowEditCircle}
+      />
+    </>
   );
 }
 

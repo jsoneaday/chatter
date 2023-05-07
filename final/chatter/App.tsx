@@ -29,28 +29,14 @@ export type RootTabParamList = {
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 export default function App() {
-  const [showPostMsgGroupSelector, setShowPostMsgGroupSelector] =
-    useState(false);
   const [showPostMessageComponent, setShowPostMessageComponent] =
     useState(false);
-  const [showEditCircle, setShowEditCircle] = useState(false);
-  const [currentMessageAccessibility, setCurrentMessageAccessibility] =
-    useState<MessageAccessibility>(MessageAccessibility.Public);
-
-  const togglePostMsgGroupSelector = () => {
-    setShowPostMsgGroupSelector(!showPostMsgGroupSelector);
-  };
 
   const togglePostMessageComponent = () => {
     console.log("start showInnerFullSheet", showPostMessageComponent);
     const currentShowInnerFullSheet = !showPostMessageComponent;
     setShowPostMessageComponent(currentShowInnerFullSheet);
     console.log("end showInnerFullSheet", currentShowInnerFullSheet);
-  };
-
-  const toggleShowEditCircle = () => {
-    setShowEditCircle(!showEditCircle);
-    console.log("showOuterFullSheet", !showEditCircle);
   };
 
   return (
@@ -109,22 +95,8 @@ export default function App() {
       </NavigationContainer>
 
       <PostMessageComponent
-        togglePostMsgGroupSelector={togglePostMsgGroupSelector}
         toggleSelf={togglePostMessageComponent}
         show={showPostMessageComponent}
-        messageAccessibility={currentMessageAccessibility}
-      />
-
-      <PostMessageGroupSelector
-        show={showPostMsgGroupSelector}
-        toggleSelf={togglePostMsgGroupSelector}
-        toggleOuterFullSheet={toggleShowEditCircle}
-        setMessageAccessibility={setCurrentMessageAccessibility}
-      />
-
-      <EditCircleComponent
-        show={showEditCircle}
-        toggleSelf={toggleShowEditCircle}
       />
     </>
   );

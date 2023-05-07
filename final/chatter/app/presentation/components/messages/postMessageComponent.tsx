@@ -22,20 +22,16 @@ import KeyboardToolBar from "../toolBars/keyboardToolBar";
 import { MSG_URL } from "../../../domain/utils/api";
 import FullSheet from "../modals/fullSheet";
 import { MessageAccessibility } from "../icons/messageAccessibilityType";
-import { visibleBorder } from "../../theme/visibleBorder";
+import PostMessageGroupSelector from "./postMessageGroupSelector";
 
 interface PostMessageButtonProps {
-  togglePostMsgGroupSelector: () => void;
   toggleSelf: () => void;
   show: boolean;
-  messageAccessibility: MessageAccessibility;
 }
 
 export default function PostMessageComponent({
-  togglePostMsgGroupSelector,
   toggleSelf,
   show,
-  messageAccessibility,
 }: PostMessageButtonProps) {
   const [showSubmitBtn, setShowSubmitBtn] = useState(true);
   const [keyboardBarStyle, setKeyboardBarStyle] = useState<
@@ -43,6 +39,10 @@ export default function PostMessageComponent({
   >({ width: "100%" });
   const [showKeyboardTabBar, setShowKeyboardTabBar] = useState(false);
   const [messageValue, setMessageValue] = useState("");
+  const [showPostMsgGroupSelector, setShowPostMsgGroupSelector] =
+    useState(false);
+  const [currentMessageAccessibility, setCurrentMessageAccessibility] =
+    useState<MessageAccessibility>(MessageAccessibility.Public);
 
   useEffect(() => {
     const keyboardShow = Keyboard.addListener("keyboardDidShow", (e) => {
@@ -66,6 +66,10 @@ export default function PostMessageComponent({
       keyboardDismiss.remove();
     };
   }, []);
+
+  const togglePostMsgGroupSelector = () => {
+    setShowPostMsgGroupSelector(!showPostMsgGroupSelector);
+  };
 
   const onChangeText = (text: string) => {
     setMessageValue(text);
@@ -133,7 +137,7 @@ export default function PostMessageComponent({
                     onPress={onPressDropDown}
                   >
                     <Text style={{ color: secondary() }}>
-                      {messageAccessibility}
+                      {currentMessageAccessibility}
                     </Text>
                     <Entypo
                       name="chevron-small-down"
@@ -172,6 +176,12 @@ export default function PostMessageComponent({
           <AntDesign name="pluscircle" size={50} color={secondary()} />
         </Pressable>
       )}
+
+      <PostMessageGroupSelector
+        show={showPostMsgGroupSelector}
+        toggleSelf={togglePostMsgGroupSelector}
+        setMessageAccessibility={setCurrentMessageAccessibility}
+      />
     </>
   );
 }
