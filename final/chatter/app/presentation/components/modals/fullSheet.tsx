@@ -24,14 +24,12 @@ export default function FullSheet({ children, show }: FullSheetProps) {
 
   useEffect(() => {
     if (show) {
-      console.log("show full sheet", show);
       Animated.timing(sheetContainerHeight, {
         toValue: windowDimension.height,
         duration: defaultDuration,
         useNativeDriver: false,
       }).start();
     } else {
-      console.log("hide full sheet", show);
       Animated.timing(sheetContainerHeight, {
         toValue: 0,
         duration: defaultDuration,

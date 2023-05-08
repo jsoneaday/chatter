@@ -30,10 +30,8 @@ export default function App() {
     useState(false);
 
   const togglePostMessageComponent = () => {
-    console.log("start showInnerFullSheet", showPostMessageComponent);
     const currentShowInnerFullSheet = !showPostMessageComponent;
     setShowPostMessageComponent(currentShowInnerFullSheet);
-    console.log("end showInnerFullSheet", currentShowInnerFullSheet);
   };
 
   return (

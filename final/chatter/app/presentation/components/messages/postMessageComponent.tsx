@@ -30,6 +30,9 @@ import HalfSheet from "../modals/halfSheet";
 import { DeleteIcon, SaveDraftIcon } from "../icons/messageEarlyExitIcons";
 import Spacer from "../spacer";
 import BottomButton from "../buttons/bottomButtons";
+import { asyncStorage } from "../../../domain/local/asyncStorage";
+
+const LAST_POST_MESSAGE_KEY = "LAST_POST_MESSAGE_KEY";
 
 interface PostMessageButtonProps {
   toggleSelf: () => void;
@@ -75,6 +78,17 @@ export default function PostMessageComponent({
     };
   }, []);
 
+  useEffect(() => {
+    if (show) {
+      console.log("show true");
+      asyncStorage.getItem(LAST_POST_MESSAGE_KEY).then((text) => {
+        if (text) {
+          setMessageValue(text);
+        }
+      });
+    }
+  }, [show]);
+
   const toggleEarlyExitSheet = () => {
     setEarlyExitSheet(!showEarlyExitSheet);
   };
@@ -89,7 +103,7 @@ export default function PostMessageComponent({
 
   const onPressCancelMessage = () => {
     if (!messageValue) {
-      toggleShowPostMessageDialog();
+      toggleShowPostMessageSheet();
     } else {
       toggleEarlyExitSheet();
     }
@@ -108,25 +122,28 @@ export default function PostMessageComponent({
     });
 
     if (result.ok) {
-      console.log("result", await result.json());
       setMessageValue("");
-      toggleShowPostMessageDialog();
+      toggleShowPostMessageSheet();
     } else {
       console.log("result", result.statusText);
     }
   };
 
   const onPressShowPostMessageDialog = () => {
-    toggleShowPostMessageDialog();
+    toggleShowPostMessageSheet();
   };
 
-  const toggleShowPostMessageDialog = () => {
+  const toggleShowPostMessageSheet = () => {
     setShowSubmitBtn(!showSubmitBtn);
     toggleSelf();
   };
 
   const onPressDropDown = () => {
     togglePostMsgGroupSelector();
+  };
+
+  const clearTextInput = () => {
+    setMessageValue("");
   };
 
   return (
@@ -187,6 +204,9 @@ export default function PostMessageComponent({
       <EarlyExitDeleteOrSave
         show={showEarlyExitSheet}
         toggleSelf={toggleEarlyExitSheet}
+        currentTxtValue={messageValue}
+        togglePostMsgSheet={toggleShowPostMessageSheet}
+        clearTextInput={clearTextInput}
       />
 
       {showSubmitBtn && (
@@ -210,14 +230,34 @@ export default function PostMessageComponent({
 interface EarlyExitDeleteOrSaveProps {
   show: boolean;
   toggleSelf: () => void;
+  currentTxtValue: string;
+  togglePostMsgSheet: () => void;
+  clearTextInput: () => void;
 }
 
 function EarlyExitDeleteOrSave({
   show,
   toggleSelf,
+  currentTxtValue,
+  togglePostMsgSheet,
+  clearTextInput,
 }: EarlyExitDeleteOrSaveProps) {
   const onCancelEarlyExit = () => {
     toggleSelf();
+  };
+
+  const onPressDelete = async () => {
+    await asyncStorage.deleteItem(LAST_POST_MESSAGE_KEY);
+    clearTextInput();
+    toggleSelf();
+    togglePostMsgSheet();
+  };
+
+  const onPressSaveDraft = async () => {
+    await asyncStorage.setItem(LAST_POST_MESSAGE_KEY, currentTxtValue);
+    clearTextInput();
+    toggleSelf();
+    togglePostMsgSheet();
   };
 
   return (
@@ -225,18 +265,18 @@ function EarlyExitDeleteOrSave({
       {show && (
         <>
           <View style={styles.earlyExitContainer}>
-            <View style={styles.exitItem}>
+            <Pressable onPress={onPressDelete} style={styles.exitItem}>
               <DeleteIcon size={25} />
               <Spacer width={20} />
               <Text style={{ ...styles.exitItemTxt, color: "red" }}>
                 Delete
               </Text>
-            </View>
-            <View style={styles.exitItem}>
+            </Pressable>
+            <Pressable onPress={onPressSaveDraft} style={styles.exitItem}>
               <SaveDraftIcon size={25} />
               <Spacer width={20} />
               <Text style={styles.exitItemTxt}>Save draft</Text>
-            </View>
+            </Pressable>
           </View>
           <BottomButton
             isInverted={true}

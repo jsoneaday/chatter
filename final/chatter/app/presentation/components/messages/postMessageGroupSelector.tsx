@@ -28,7 +28,6 @@ export default function PostMessageGroupSelector({
 
   const toggleShowEditCircle = () => {
     setShowEditCircle(!showEditCircle);
-    console.log("showOuterFullSheet", !showEditCircle);
   };
 
   return (

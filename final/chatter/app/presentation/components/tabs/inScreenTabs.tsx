@@ -39,12 +39,10 @@ export default function InScreenTabs({
 
   const onPressLeftTab = () => {
     setSelectedTab(availableTabs[0]);
-    console.log("set left");
   };
 
   const onPressRightTab = () => {
     setSelectedTab(availableTabs[1]);
-    console.log("set right");
   };
 
   return (
