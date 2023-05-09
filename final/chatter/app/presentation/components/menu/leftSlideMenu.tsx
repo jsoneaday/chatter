@@ -17,9 +17,9 @@ export default function LeftSlideMenu() {
       show={show}
       toggleShow={toggleShow}
       slideInFromSide={SlideInFromSide.Left}
-      maxWidth={windowDimensions.width / 0.1}
+      maxWidth={windowDimensions.width * 0.85}
     >
-      <Text>Hello</Text>
+      <Text style={{ fontSize: 40 }}>Hello</Text>
     </SlideInSheet>
   );
 }

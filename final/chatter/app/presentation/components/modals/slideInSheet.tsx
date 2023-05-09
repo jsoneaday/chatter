@@ -32,43 +32,57 @@ export default function SlideInSheet({
 
   useEffect(() => {
     if (show) {
+      console.log("width", maxWidth ? maxWidth : windowDimensions.width);
       Animated.timing(width, {
         toValue: maxWidth ? maxWidth : windowDimensions.width,
         duration: defaultDuration,
         useNativeDriver: false,
-      });
+      }).start();
     } else {
+      console.log("width", 0);
       Animated.timing(width, {
         toValue: 0,
         duration: defaultDuration,
         useNativeDriver: false,
-      });
+      }).start();
     }
   }, [show]);
 
   const getCorrectLeftRightCoordinate = () => {
     if (slideInFromSide === SlideInFromSide.Left) {
       return {
+        left: 0,
         right: width,
       };
     }
     return {
       left: width,
+      right: 0,
     };
   };
 
   return (
-    <Animated.View
-      style={{ ...styles.container, ...getCorrectLeftRightCoordinate() }}
-    >
-      <Pressable onPress={toggleShow}>{show && children}</Pressable>
+    <Animated.View style={{ ...styles.container, width }}>
+      {show && (
+        <Pressable onPress={toggleShow} style={styles.childContainer}>
+          {children}
+        </Pressable>
+      )}
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: "blue",
+    opacity: 0.5,
     height: "100%",
     position: "absolute",
+  },
+  childContainer: {
+    backgroundColor: "red",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
