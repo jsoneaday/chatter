@@ -46,7 +46,7 @@ export default function SlideInSheet({
     }
   }, [show]);
 
-  const getCorrectPosition = () => {
+  const getCorrectLeftRightCoordinate = () => {
     if (slideInFromSide === SlideInFromSide.Left) {
       return {
         right: width,
@@ -59,7 +59,7 @@ export default function SlideInSheet({
 
   return (
     <Animated.View
-      style={{ ...styles.container, ...getCorrectPosition(), zIndex: 1 }}
+      style={{ ...styles.container, ...getCorrectLeftRightCoordinate() }}
     >
       <Pressable onPress={toggleShow}>{show && children}</Pressable>
     </Animated.View>
@@ -69,5 +69,6 @@ export default function SlideInSheet({
 const styles = StyleSheet.create({
   container: {
     height: "100%",
+    position: "absolute",
   },
 });

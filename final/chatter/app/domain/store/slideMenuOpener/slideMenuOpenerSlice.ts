@@ -6,12 +6,12 @@ export const slideMenuOpenerSlice = createSlice({
   name: "slideMenuOpener",
   initialState,
   reducers: {
-    toggleMenuOpen: (state: any, action: PayloadAction<boolean>) => {
+    setMenuOpen: (state: any, action: PayloadAction<boolean>) => {
       state = action.payload;
       return state;
     },
   },
 });
 
-export const { toggleMenuOpen } = slideMenuOpenerSlice.actions;
+export const { setMenuOpen } = slideMenuOpenerSlice.actions;
 export default slideMenuOpenerSlice.reducer;

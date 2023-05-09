@@ -1,17 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 import SlideInSheet, { SlideInFromSide } from "../modals/slideInSheet";
-import { useWindowDimensions } from "react-native/types";
+import { useWindowDimensions } from "react-native";
+import { useSlideMenuOpener } from "../../../domain/store/slideMenuOpener/slideMenuOpenerHooks";
+import { Text } from "react-native";
 
-interface LeftSlideMenuProps {
-  show: boolean;
-  toggleShow: () => void;
-}
-
-export default function LeftSlideMenu({
-  show,
-  toggleShow,
-}: LeftSlideMenuProps) {
+export default function LeftSlideMenu() {
+  const [show, setShow] = useSlideMenuOpener();
   const windowDimensions = useWindowDimensions();
+
+  const toggleShow = () => {
+    setShow(!show);
+  };
 
   return (
     <SlideInSheet
@@ -20,7 +19,7 @@ export default function LeftSlideMenu({
       slideInFromSide={SlideInFromSide.Left}
       maxWidth={windowDimensions.width / 0.1}
     >
-      Hello
+      <Text>Hello</Text>
     </SlideInSheet>
   );
 }

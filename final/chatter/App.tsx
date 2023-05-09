@@ -16,6 +16,8 @@ import DirectMessage from "./app/presentation/screens/directmessage";
 import { useState } from "react";
 import PostMessageComponent from "./app/presentation/components/messages/postMessageComponent";
 import LeftSlideMenu from "./app/presentation/components/menu/leftSlideMenu";
+import { Provider as ReduxProvider } from "react-redux";
+import { store } from "./app/domain/store/store";
 
 export type RootTabParamList = {
   Home: undefined;
@@ -27,13 +29,8 @@ export type RootTabParamList = {
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 export default function App() {
-  const [showLeftSlideMenu, setLeftSlideMenu] = useState(false);
   const [showPostMessageComponent, setShowPostMessageComponent] =
     useState(false);
-
-  const toggleLeftSlideMenu = () => {
-    setLeftSlideMenu(!showLeftSlideMenu);
-  };
 
   const togglePostMessageComponent = () => {
     const currentShowInnerFullSheet = !showPostMessageComponent;
@@ -41,72 +38,67 @@ export default function App() {
   };
 
   return (
-    <>
-      <View style={{ zIndex: 1 }}>
-        <NavigationContainer>
-          <Tab.Navigator
-            sceneContainerStyle={{ backgroundColor: "lightgray" }}
-            screenOptions={({ route }) => ({
-              headerTitle: (props) => <Header />,
-              headerLeft: () => null,
-              headerStyle: {
-                ...styles.headerStyle,
-              },
-              tabBarShowLabel: false,
-              tabBarActiveTintColor: tertiary(),
-              tabBarInactiveTintColor: secondary(),
-            })}
-          >
-            <Tab.Screen
-              name="Home"
-              children={() => <Home />}
-              options={{
-                tabBarIcon: ({ focused, color, size }) => (
-                  <HomeIcon isSelected={focused} size={25} />
-                ),
-              }}
-            />
-            <Tab.Screen
-              name="Browse"
-              component={Browse}
-              options={{
-                tabBarIcon: ({ focused, color, size }) => (
-                  <BrowseIcon isSelected={focused} size={28} />
-                ),
-              }}
-            />
-            <Tab.Screen
-              name="Notification"
-              component={Notifications}
-              options={{
-                tabBarIcon: ({ focused, color, size }) => (
-                  <NotificationIcon isSelected={focused} size={26} />
-                ),
-              }}
-            />
-            <Tab.Screen
-              name="Dm"
-              component={DirectMessage}
-              options={{
-                tabBarIcon: ({ focused, color, size }) => (
-                  <DirectMessageIcon isSelected={focused} size={25} />
-                ),
-              }}
-            />
-          </Tab.Navigator>
-        </NavigationContainer>
-      </View>
+    <ReduxProvider store={store}>
+      <NavigationContainer>
+        <Tab.Navigator
+          sceneContainerStyle={{ backgroundColor: "lightgray" }}
+          screenOptions={({ route }) => ({
+            headerTitle: (props) => <Header />,
+            headerLeft: () => null,
+            headerStyle: {
+              ...styles.headerStyle,
+            },
+            tabBarShowLabel: false,
+            tabBarActiveTintColor: tertiary(),
+            tabBarInactiveTintColor: secondary(),
+          })}
+        >
+          <Tab.Screen
+            name="Home"
+            children={() => <Home />}
+            options={{
+              tabBarIcon: ({ focused, color, size }) => (
+                <HomeIcon isSelected={focused} size={25} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Browse"
+            component={Browse}
+            options={{
+              tabBarIcon: ({ focused, color, size }) => (
+                <BrowseIcon isSelected={focused} size={28} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Notification"
+            component={Notifications}
+            options={{
+              tabBarIcon: ({ focused, color, size }) => (
+                <NotificationIcon isSelected={focused} size={26} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Dm"
+            component={DirectMessage}
+            options={{
+              tabBarIcon: ({ focused, color, size }) => (
+                <DirectMessageIcon isSelected={focused} size={25} />
+              ),
+            }}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
 
-      <LeftSlideMenu
-        show={showLeftSlideMenu}
-        toggleShow={toggleLeftSlideMenu}
-      />
+      <LeftSlideMenu />
 
       <PostMessageComponent
         toggleSelf={togglePostMessageComponent}
         show={showPostMessageComponent}
       />
-    </>
+    </ReduxProvider>
   );
 }
 

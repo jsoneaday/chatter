@@ -1,12 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, Pressable, Platform } from "react-native";
-import { Config, Logo, Profile } from "../icons/headerIcons";
+import { Logo, Profile } from "../icons/headerIcons";
 import Spacer from "../spacer";
+import { useSlideMenuOpener } from "../../../domain/store/slideMenuOpener/slideMenuOpenerHooks";
 
 export default function Header() {
+  const [show, setShow] = useSlideMenuOpener();
+
+  const toggleSlideMenuOpener = () => {
+    setShow(!show);
+  };
+
   return (
     <View style={styles.container}>
-      <Pressable>
+      <Pressable onPress={toggleSlideMenuOpener}>
         <Profile size={30} />
       </Pressable>
       <View>
