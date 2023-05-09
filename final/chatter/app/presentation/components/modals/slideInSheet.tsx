@@ -5,7 +5,7 @@ import {
   StyleSheet,
   useWindowDimensions,
 } from "react-native";
-import { defaultDuration } from "../../common/animationUtils";
+import { horizontalSlideDuration } from "../../common/animationUtils";
 
 export enum SlideInFromSide {
   Left,
@@ -28,27 +28,23 @@ export default function SlideInSheet({
   maxWidth,
 }: SlideInSheetProps) {
   const windowDimensions = useWindowDimensions();
-  const width = useRef(new Animated.Value(-1 * windowDimensions.width)).current;
+  // right's normal starting value is screen width (or container width)
+  // left's normal starting value is 0
+  const right = useRef(new Animated.Value(windowDimensions.width)).current;
 
   useEffect(() => {
     if (show) {
-      console.log(
-        "maxWidth show",
-        maxWidth,
-        maxWidth ? maxWidth : windowDimensions.width
-      );
-      Animated.timing(width, {
+      Animated.timing(right, {
         toValue: maxWidth
           ? windowDimensions.width - maxWidth
           : windowDimensions.width,
-        duration: defaultDuration + 500,
+        duration: horizontalSlideDuration + 400,
         useNativeDriver: false,
       }).start();
     } else {
-      console.log("maxWidth no show", 0);
-      Animated.timing(width, {
+      Animated.timing(right, {
         toValue: windowDimensions.width,
-        duration: defaultDuration + 500,
+        duration: horizontalSlideDuration + 400,
         useNativeDriver: false,
       }).start();
     }
@@ -58,11 +54,11 @@ export default function SlideInSheet({
     if (slideInFromSide === SlideInFromSide.Left) {
       return {
         left: 0,
-        right: width,
+        right: right,
       };
     }
     return {
-      left: width,
+      left: right,
       right: 0,
     };
   };
@@ -71,9 +67,8 @@ export default function SlideInSheet({
     <Animated.View
       style={{
         ...styles.container,
-        zIndex: 1,
         width: maxWidth ? maxWidth : windowDimensions.width,
-        right: width,
+        right,
       }}
     >
       {show && (

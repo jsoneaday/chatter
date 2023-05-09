@@ -6,7 +6,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
-import { defaultDuration } from "../../common/animationUtils";
+import { verticalSlideDuration } from "../../common/animationUtils";
 import { modalBackgroundColor, primary } from "../../theme/colors";
 import { bodyFontStyle } from "../../theme/element-styles/textStyles";
 import DragPill from "../buttons/dragPill";
@@ -35,13 +35,13 @@ export default function HalfSheet({
 
       Animated.timing(halfSheetHeight, {
         toValue: (windowsDimension.height / sheetHeightDenom) * 2,
-        duration: defaultDuration,
+        duration: verticalSlideDuration,
         useNativeDriver: false,
       }).start();
     } else {
       Animated.timing(halfSheetHeight, {
         toValue: 0,
-        duration: defaultDuration,
+        duration: verticalSlideDuration,
         useNativeDriver: false,
       }).start();
 

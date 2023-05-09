@@ -1,6 +1,6 @@
 import React, { useRef, ReactNode, useEffect, useState } from "react";
 import { Animated, StyleSheet, View, useWindowDimensions } from "react-native";
-import { defaultDuration } from "../../common/animationUtils";
+import { verticalSlideDuration } from "../../common/animationUtils";
 import { containerStyle } from "../../theme/element-styles/screenStyles";
 
 const topLimiter = 60;
@@ -26,13 +26,13 @@ export default function FullSheet({ children, show }: FullSheetProps) {
     if (show) {
       Animated.timing(sheetContainerHeight, {
         toValue: windowDimension.height,
-        duration: defaultDuration,
+        duration: verticalSlideDuration,
         useNativeDriver: false,
       }).start();
     } else {
       Animated.timing(sheetContainerHeight, {
         toValue: 0,
-        duration: defaultDuration,
+        duration: verticalSlideDuration,
         useNativeDriver: false,
       }).start();
     }
