@@ -27,22 +27,28 @@ export default function SlideInSheet({
   children,
   maxWidth,
 }: SlideInSheetProps) {
-  const width = useRef(new Animated.Value(0)).current;
   const windowDimensions = useWindowDimensions();
+  const width = useRef(new Animated.Value(-1 * windowDimensions.width)).current;
 
   useEffect(() => {
     if (show) {
-      console.log("width", maxWidth ? maxWidth : windowDimensions.width);
+      console.log(
+        "maxWidth show",
+        maxWidth,
+        maxWidth ? maxWidth : windowDimensions.width
+      );
       Animated.timing(width, {
-        toValue: maxWidth ? maxWidth : windowDimensions.width,
-        duration: defaultDuration,
+        toValue: maxWidth
+          ? windowDimensions.width - maxWidth
+          : windowDimensions.width,
+        duration: defaultDuration + 500,
         useNativeDriver: false,
       }).start();
     } else {
-      console.log("width", 0);
+      console.log("maxWidth no show", 0);
       Animated.timing(width, {
-        toValue: 0,
-        duration: defaultDuration,
+        toValue: windowDimensions.width,
+        duration: defaultDuration + 500,
         useNativeDriver: false,
       }).start();
     }
@@ -62,7 +68,14 @@ export default function SlideInSheet({
   };
 
   return (
-    <Animated.View style={{ ...styles.container, width }}>
+    <Animated.View
+      style={{
+        ...styles.container,
+        zIndex: 1,
+        width: maxWidth ? maxWidth : windowDimensions.width,
+        right: width,
+      }}
+    >
       {show && (
         <Pressable onPress={toggleShow} style={styles.childContainer}>
           {children}
@@ -82,6 +95,7 @@ const styles = StyleSheet.create({
   childContainer: {
     backgroundColor: "red",
     height: "100%",
+    width: "100%",
     alignItems: "center",
     justifyContent: "center",
   },
