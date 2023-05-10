@@ -75,6 +75,7 @@ export default function AppNav() {
               ...styles.headerStyle,
               backgroundColor: primary(true),
             },
+            headerShadowVisible: false,
             tabBarShowLabel: false,
             tabBarActiveTintColor: tertiary(),
             tabBarInactiveTintColor: secondary(),
