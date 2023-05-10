@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./app/presentation/theme/assets/icon.svg",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "auto",
     "splash": {
       "image": "./app/presentation/theme/assets/splash.png",
       "resizeMode": "contain",

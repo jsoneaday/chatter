@@ -5,11 +5,12 @@ import {
   useWindowDimensions,
   StyleSheet,
   Platform,
+  View,
 } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import Home from "./app/presentation/screens/home/home";
 import Header from "./app/presentation/components/headers/screenHeader";
-import { secondary, tertiary } from "./app/presentation/theme/colors";
+import { primary, secondary, tertiary } from "./app/presentation/theme/colors";
 import {
   BrowseIcon,
   DirectMessageIcon,
@@ -66,16 +67,19 @@ export default function AppNav() {
     <Animated.View style={{ ...styles.container, left }}>
       <NavigationContainer>
         <Tab.Navigator
-          sceneContainerStyle={{ backgroundColor: "lightgray" }}
+          sceneContainerStyle={{ borderTopWidth: 0 }}
           screenOptions={({ route }) => ({
             headerTitle: (props) => <Header />,
             headerLeft: () => null,
             headerStyle: {
               ...styles.headerStyle,
+              backgroundColor: primary(true),
             },
             tabBarShowLabel: false,
             tabBarActiveTintColor: tertiary(),
             tabBarInactiveTintColor: secondary(),
+
+            tabBarStyle: { backgroundColor: primary(true) },
           })}
         >
           <Tab.Screen

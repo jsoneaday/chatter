@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { containerStyle } from "../../theme/element-styles/screenStyles";
 import InScreenTabs from "../../components/tabs/inScreenTabs";
 import { FlashList } from "@shopify/flash-list";
