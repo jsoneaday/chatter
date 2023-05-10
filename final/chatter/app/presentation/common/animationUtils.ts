@@ -1,2 +1,2 @@
 export const verticalSlideDuration = 300;
-export const horizontalSlideDuration = 500;
+export const horizontalSlideDuration = 300;

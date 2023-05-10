@@ -1,11 +1,13 @@
 import React from "react";
 import { View, StyleSheet, Text, Pressable } from "react-native";
 import Avatar from "../avatar";
-import { headerFontStyle } from "../../theme/element-styles/textStyles";
-import { visibleBorder } from "../../theme/visibleBorder";
-import { Profile } from "../icons/headerIcons";
+import {
+  headerFontStyle,
+  subHeaderFontStyle,
+} from "../../theme/element-styles/textStyles";
 import Spacer from "../spacer";
 import { ProfileMenuIcon } from "../icons/profileMenuIcon";
+import { primary } from "../../theme/colors";
 const profilePic = require("../../theme/assets/profile.jpeg");
 
 interface LeftSlideMenuItemsProps {
@@ -41,10 +43,10 @@ function ProfileInfo({ fullName, userName }: ProfileInfoProps) {
       <Text style={{ ...styles.profileTxt, fontWeight: "bold" }}>
         {fullName}
       </Text>
-      <Text style={styles.profileTxt}>{`@${userName}`}</Text>
+      <Text style={styles.profileTxt as object}>{`@${userName}`}</Text>
       <View style={styles.followersContainer}>
-        <Text>{`30 Following`}</Text>
-        <Text>{`987 Followers`}</Text>
+        <Text style={styles.followersTxt}>{`30 Following`}</Text>
+        <Text style={styles.followersTxt}>{`987 Followers`}</Text>
       </View>
     </View>
   );
@@ -75,13 +77,16 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   profileTxt: {
-    ...headerFontStyle,
+    ...headerFontStyle(),
     marginBottom: 7,
   },
   followersContainer: {
     width: "70%",
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  followersTxt: {
+    ...subHeaderFontStyle(),
   },
   menuItemsContainer: {
     justifyContent: "flex-start",
@@ -92,6 +97,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   menuItemTxt: {
+    color: primary(),
     fontSize: 20,
     fontWeight: "bold",
   },
