@@ -40,18 +40,6 @@ export function primary(isInverted: Boolean = false) {
   return colorScheme === "dark" ? dark.primary : light.primary;
 }
 
-export function primaryDark() {
-  return dark.primary;
-}
-
-export function primaryLight() {
-  return light.primary;
-}
-
-export function secondaryLight() {
-  return light.secondary;
-}
-
 export function secondary(isInverted: Boolean = false) {
   if (isInverted) {
     return colorScheme === "dark" ? light.secondary : dark.secondary;

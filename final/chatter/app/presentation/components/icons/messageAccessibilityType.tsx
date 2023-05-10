@@ -25,7 +25,7 @@ export default function MessageAccessiblityTypeIcon({
               borderRadius: 50,
             }}
           >
-            <Ionicons name="earth" size={35} color="black" />
+            <Ionicons name="earth" size={35} color={primary()} />
           </View>
         </View>
       );
@@ -38,7 +38,7 @@ export default function MessageAccessiblityTypeIcon({
               borderRadius: 50,
             }}
           >
-            <MaterialIcons name="person-add-alt" size={35} color="black" />
+            <MaterialIcons name="person-add-alt" size={35} color={primary()} />
           </View>
         </View>
       );

@@ -97,8 +97,11 @@ export default function PostMessageComponent({
     setShowPostMsgGroupSelector(!showPostMsgGroupSelector);
   };
 
-  const onChangeText = (text: string) => {
+  const onChangeText = async (text: string) => {
     setMessageValue(text);
+    if (!text || text.length === 0) {
+      await asyncStorage.deleteItem(LAST_POST_MESSAGE_KEY);
+    }
   };
 
   const onPressCancelMessage = () => {

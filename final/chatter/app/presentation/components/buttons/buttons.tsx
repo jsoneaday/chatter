@@ -5,13 +5,7 @@ import {
   Text,
 } from "react-native";
 import React, { ReactNode } from "react";
-import {
-  primaryDark,
-  primaryLight,
-  secondary,
-  secondaryLight,
-  tertiary,
-} from "../../theme/colors";
+import { primary, secondary, tertiary } from "../../theme/colors";
 
 export interface ButtonProps {
   children: ReactNode;
@@ -81,7 +75,7 @@ export function RingedButton({
 const styles = StyleSheet.create({
   primaryButtonStyle: {
     justifyContent: "center",
-    backgroundColor: secondaryLight(),
+    backgroundColor: secondary(),
     borderRadius: 20,
     paddingLeft: 15,
     paddingRight: 15,
@@ -89,12 +83,12 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   txtPrimaryFont: {
-    color: primaryDark(),
+    color: primary(true),
     fontSize: 14,
     textAlign: "center",
   },
   txtSecondaryFont: {
-    color: primaryLight(),
+    color: primary(),
     fontSize: 14,
   },
   dropDownButtonStyle: {
