@@ -6,6 +6,9 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { horizontalSlideDuration } from "../../common/animationUtils";
+import { modalBackgroundColor, primary } from "../../theme/colors";
+import { visibleBorder } from "../../theme/visibleBorder";
+import { bodyFontStyle } from "../../theme/element-styles/textStyles";
 
 export enum SlideInFromSide {
   Left,
@@ -38,13 +41,13 @@ export default function SlideInSheet({
         toValue: maxWidth
           ? windowDimensions.width - maxWidth
           : windowDimensions.width,
-        duration: horizontalSlideDuration + 400,
+        duration: horizontalSlideDuration,
         useNativeDriver: false,
       }).start();
     } else {
       Animated.timing(right, {
         toValue: windowDimensions.width,
-        duration: horizontalSlideDuration + 400,
+        duration: horizontalSlideDuration,
         useNativeDriver: false,
       }).start();
     }
@@ -64,31 +67,47 @@ export default function SlideInSheet({
   };
 
   return (
-    <Animated.View
-      style={{
-        ...styles.container,
-        width: maxWidth ? maxWidth : windowDimensions.width,
-        right,
-      }}
-    >
-      {show && (
-        <Pressable onPress={toggleShow} style={styles.childContainer}>
-          {children}
-        </Pressable>
-      )}
-    </Animated.View>
+    <>
+      <Pressable
+        style={{
+          ...styles.container,
+          width: show ? windowDimensions.width : 0,
+        }}
+        onPress={toggleShow}
+      />
+      <Animated.View
+        style={{
+          ...styles.animatedContainer,
+          width: maxWidth ? maxWidth : windowDimensions.width,
+          right,
+        }}
+      >
+        {show && (
+          <Pressable onPress={toggleShow} style={styles.childContainer}>
+            {children}
+          </Pressable>
+        )}
+      </Animated.View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "blue",
+    position: "absolute",
+    height: "100%",
+    bottom: 0,
     opacity: 0.5,
+    backgroundColor: modalBackgroundColor,
+  },
+  animatedContainer: {
+    ...(bodyFontStyle as object),
     height: "100%",
     position: "absolute",
+    backgroundColor: primary(true),
+    ...visibleBorder(),
   },
   childContainer: {
-    backgroundColor: "red",
     height: "100%",
     width: "100%",
     alignItems: "center",

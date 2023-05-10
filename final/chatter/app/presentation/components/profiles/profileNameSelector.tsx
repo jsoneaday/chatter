@@ -6,7 +6,6 @@ import {
   bodyFontStyle,
   subHeaderFontStyle,
 } from "../../theme/element-styles/textStyles";
-import { visibleBorder } from "../../theme/visibleBorder";
 const profilePic = require("../../theme/assets/profile.jpeg");
 
 export type ProfileNameDisplayData = {
@@ -19,7 +18,7 @@ interface ProfileNameDisplayProps {
   profile: ProfileNameDisplayData;
 }
 
-export default function ProfileNameDisplay({
+export default function ProfileNameSelector({
   profile,
 }: ProfileNameDisplayProps) {
   return (

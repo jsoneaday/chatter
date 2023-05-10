@@ -12,9 +12,9 @@ import BottomButton from "../buttons/bottomButtons";
 import SearchButton from "../buttons/searchButton";
 import { BrowseIcon } from "../icons/menuIcons";
 import { FlashList } from "@shopify/flash-list";
-import ProfileNameDisplay, {
+import ProfileNameSelector, {
   ProfileNameDisplayData,
-} from "../profiles/profileNameDisplay";
+} from "../profiles/profileNameSelector";
 
 const Tabs: [string, string] = ["Twitter Circle", "Recommended"];
 const potentialCircleProfiles: ProfileNameDisplayData[] = [
@@ -75,7 +75,7 @@ export default function EditCircleComponent({
               {currentView}
             </InScreenTabs>
           </View>
-          <BottomButton>Done</BottomButton>
+          <BottomButton onPressBottomButton={toggleSelf}>Done</BottomButton>
         </View>
       )}
     </FullSheet>
@@ -105,7 +105,7 @@ function Recommended() {
       </View>
       <View style={{ width: "100%", height: "100%" }}>
         <FlashList
-          renderItem={(item) => <ProfileNameDisplay profile={item.item} />}
+          renderItem={(item) => <ProfileNameSelector profile={item.item} />}
           estimatedItemSize={10}
           data={potentialCircleProfiles}
         />

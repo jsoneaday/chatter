@@ -62,7 +62,7 @@ export default function HalfSheet({
       />
       <Animated.View
         style={{
-          ...styles.animateContainer,
+          ...styles.animatedContainer,
           height: halfSheetHeight,
         }}
       >
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     backgroundColor: modalBackgroundColor,
   },
-  animateContainer: {
+  animatedContainer: {
     ...(bodyFontStyle as object),
     alignItems: "center",
     justifyContent: "flex-start",

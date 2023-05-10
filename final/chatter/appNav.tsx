@@ -41,14 +41,14 @@ export default function AppNav() {
       console.log("Navigator maxWidth show", windowDimensions.width);
       Animated.timing(left, {
         toValue: windowDimensions.width * 0.85,
-        duration: horizontalSlideDuration + 400,
+        duration: horizontalSlideDuration,
         useNativeDriver: false,
       }).start();
     } else {
       console.log("Navigator maxWidth no show", windowDimensions.width);
       Animated.timing(left, {
         toValue: 0,
-        duration: horizontalSlideDuration + 400,
+        duration: horizontalSlideDuration,
         useNativeDriver: false,
       }).start();
     }
