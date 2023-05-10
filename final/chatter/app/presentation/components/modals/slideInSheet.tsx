@@ -7,7 +7,6 @@ import {
 } from "react-native";
 import { horizontalSlideDuration } from "../../common/animationUtils";
 import { modalBackgroundColor, primary } from "../../theme/colors";
-import { visibleBorder } from "../../theme/visibleBorder";
 import { bodyFontStyle } from "../../theme/element-styles/textStyles";
 
 export enum SlideInFromSide {
@@ -105,7 +104,6 @@ const styles = StyleSheet.create({
     height: "100%",
     position: "absolute",
     backgroundColor: primary(true),
-    ...visibleBorder(),
   },
   childContainer: {
     height: "100%",

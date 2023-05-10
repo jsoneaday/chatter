@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useSlideMenuOpener } from "./app/domain/store/slideMenuOpener/slideMenuOpenerHooks";
 import {
   Animated,
@@ -21,6 +21,7 @@ import Notifications from "./app/presentation/screens/notifications";
 import DirectMessage from "./app/presentation/screens/directmessage";
 import { horizontalSlideDuration } from "./app/presentation/common/animationUtils";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import PostMessageComponent from "./app/presentation/components/messages/postMessageComponent";
 
 type RootTabParamList = {
   Home: undefined;
@@ -35,6 +36,13 @@ export default function AppNav() {
   const [showSliderMenu, setShowSliderMenu] = useSlideMenuOpener();
   const windowDimensions = useWindowDimensions();
   const left = useRef(new Animated.Value(windowDimensions.width)).current;
+  const [showPostMessageComponent, setShowPostMessageComponent] =
+    useState(false);
+
+  const togglePostMessageComponent = () => {
+    const currentShowInnerFullSheet = !showPostMessageComponent;
+    setShowPostMessageComponent(currentShowInnerFullSheet);
+  };
 
   useEffect(() => {
     if (showSliderMenu) {
@@ -55,14 +63,7 @@ export default function AppNav() {
   }, [showSliderMenu]);
 
   return (
-    <Animated.View
-      style={{
-        position: "absolute",
-        width: "100%",
-        height: "100%",
-        left,
-      }}
-    >
+    <Animated.View style={{ ...styles.container, left }}>
       <NavigationContainer>
         <Tab.Navigator
           sceneContainerStyle={{ backgroundColor: "lightgray" }}
@@ -115,11 +116,21 @@ export default function AppNav() {
           />
         </Tab.Navigator>
       </NavigationContainer>
+
+      <PostMessageComponent
+        toggleSelf={togglePostMessageComponent}
+        show={showPostMessageComponent}
+      />
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+  },
   headerStyle: {
     height: Platform.OS === "ios" ? 108 : 88,
   },
