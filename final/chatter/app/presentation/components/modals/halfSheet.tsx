@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     bottom: 0,
-    opacity: 0.5,
+    opacity: 0.25,
     backgroundColor: modalBackgroundColor,
   },
   animatedContainer: {

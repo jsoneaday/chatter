@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     height: "100%",
     marginTop: 105,
-    padding: 15,
+    padding: 10,
   },
   profileInfoContainer: {
     marginTop: 15,
