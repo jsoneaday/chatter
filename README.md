@@ -1,6 +1,4 @@
-# Chatter Twitter clone
-
-# Course: Build TypeScript and React Native Applications
+# Learn React Native Fast
 
 # By David Choi
 
