@@ -1,9 +1,8 @@
 # Chatter Twitter clone
 
-Course: Build TypeScript and React Native Applications
+# Course: Build TypeScript and React Native Applications
 
-By David Choi
+# By David Choi
 
-# Final app completion
-
-- The completed version of the app with all features
+Course Link https://www.udemy.com/course/draft/5413776/?referralCode=01CD6CBF56E84FAB644F
+Instructor Profile https://www.udemy.com/user/54ae9bd2352bb/
