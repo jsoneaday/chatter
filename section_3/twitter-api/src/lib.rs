@@ -48,6 +48,8 @@ use crate::common::app_state::AppState;
 use crate::routes::messages::message_route::{ create_message };
 
 pub async fn run() -> std::io::Result<()> {
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+    
     dotenv().ok();
     let port = env::var("PORT").unwrap().parse().unwrap();
     let host = env::var("HOST").unwrap();
@@ -55,8 +57,7 @@ pub async fn run() -> std::io::Result<()> {
     let app_data = web::Data::new(AppState {
                     client: reqwest::Client::new(),
                     db_repo,
-                });
-    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+                });    
 
     let result = HttpServer::new(move || {
         App::new()
