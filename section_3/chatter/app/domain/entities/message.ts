@@ -1,4 +1,4 @@
-import { MSGS_URL } from "../utils/api";
+import { MSGS_URL, MSG_URL } from "../utils/api";
 
 export default class MessageEntity {
   constructor(
@@ -9,6 +9,29 @@ export default class MessageEntity {
     updated_at?: Date,
     image?: Blob
   ) {}
+}
+
+export enum ApiMessageGroupType {
+  Public = 1,
+  Circle = 2,
+}
+
+export async function createMessage(
+  userId: bigint,
+  messageValue: string,
+  groupType: ApiMessageGroupType
+) {
+  return await fetch(MSG_URL, {
+    method: "post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userId,
+      body: messageValue,
+      groupType,
+    }),
+  });
 }
 
 export async function getMessagesByFollower(

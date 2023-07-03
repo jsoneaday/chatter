@@ -31,8 +31,13 @@ import { DeleteIcon, SaveDraftIcon } from "../icons/messageEarlyExitIcons";
 import Spacer from "../spacer";
 import BottomButton from "../buttons/bottomButtons";
 import { asyncStorage } from "../../../domain/local/asyncStorage";
+import {
+  ApiMessageGroupType,
+  createMessage,
+} from "../../../domain/entities/message";
+import { useProfile } from "../../../domain/store/profile/profileHooks";
 
-const LAST_POST_MESSAGE_KEY = "LAST_POST_MESSAGE_KEY";
+const LAST_POSTED_MESSAGE_KEY = "LAST_POSTED_MESSAGE_KEY";
 
 interface PostMessageButtonProps {
   toggleSelf: () => void;
@@ -54,6 +59,7 @@ export default function PostMessageComponent({
   const [currentMessageAccessibility, setCurrentMessageAccessibility] =
     useState<MessageAccessibility>(MessageAccessibility.Public);
   const [showEarlyExitSheet, setEarlyExitSheet] = useState(false);
+  const [profile, setProfile] = useProfile();
 
   useEffect(() => {
     const keyboardShow = Keyboard.addListener("keyboardDidShow", (e) => {
@@ -80,8 +86,7 @@ export default function PostMessageComponent({
 
   useEffect(() => {
     if (show) {
-      console.log("show true");
-      asyncStorage.getItem(LAST_POST_MESSAGE_KEY).then((text) => {
+      asyncStorage.getItem(LAST_POSTED_MESSAGE_KEY).then((text) => {
         if (text) {
           setMessageValue(text);
         }
@@ -100,7 +105,7 @@ export default function PostMessageComponent({
   const onChangeText = async (text: string) => {
     setMessageValue(text);
     if (!text || text.length === 0) {
-      await asyncStorage.deleteItem(LAST_POST_MESSAGE_KEY);
+      await asyncStorage.deleteItem(LAST_POSTED_MESSAGE_KEY);
     }
   };
 
@@ -113,22 +118,24 @@ export default function PostMessageComponent({
   };
 
   const onPressSubmitMessage = async () => {
-    const result = await fetch(`${MSG_URL}`, {
-      method: "post",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: 1,
-        body: messageValue,
-      }),
-    });
+    try {
+      const result = await createMessage(
+        profile!.id,
+        messageValue,
+        currentMessageAccessibility == MessageAccessibility.Public
+          ? ApiMessageGroupType.Public
+          : ApiMessageGroupType.Circle
+      );
 
-    if (result.ok) {
-      setMessageValue("");
-      toggleShowPostMessageSheet();
-    } else {
-      console.log("result", result.statusText);
+      if (result.ok) {
+        console.log("creating message: ", await result.json());
+        setMessageValue("");
+        toggleShowPostMessageSheet();
+      } else {
+        console.log("error creating message: ", result.status);
+      }
+    } catch (e) {
+      console.log("error creating message: ", e);
     }
   };
 
@@ -250,14 +257,14 @@ function EarlyExitDeleteOrSave({
   };
 
   const onPressDelete = async () => {
-    await asyncStorage.deleteItem(LAST_POST_MESSAGE_KEY);
+    await asyncStorage.deleteItem(LAST_POSTED_MESSAGE_KEY);
     clearTextInput();
     toggleSelf();
     togglePostMsgSheet();
   };
 
   const onPressSaveDraft = async () => {
-    await asyncStorage.setItem(LAST_POST_MESSAGE_KEY, currentTxtValue);
+    await asyncStorage.setItem(LAST_POSTED_MESSAGE_KEY, currentTxtValue);
     clearTextInput();
     toggleSelf();
     togglePostMsgSheet();
