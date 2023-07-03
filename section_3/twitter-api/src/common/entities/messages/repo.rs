@@ -169,7 +169,7 @@ mod private_members {
                             and m.updated_at < $2
                         order by m.updated_at desc 
                         limit $3
-            "
+                "
             )
             .bind(user_id)
             .bind(last_updated_at)
@@ -194,9 +194,13 @@ mod private_members {
                     &optional_matching_broadcast_messages,
                     following_messages
                 );
+                
                 Ok(final_message_list)
             }
-            Err(e) => Err(e),
+            Err(e) => {
+                println!("query_messages_inner error: {:?}", e);
+                Err(e)
+            },
         }
     }
 

@@ -48,7 +48,7 @@ use crate::common::app_state::AppState;
 use crate::routes::messages::message_route::{ create_message };
 
 pub async fn run() -> std::io::Result<()> {
-    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("debug"));
     
     dotenv().ok();
     let port = env::var("PORT").unwrap().parse().unwrap();

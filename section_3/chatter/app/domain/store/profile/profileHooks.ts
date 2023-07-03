@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from "../storeHooks";
 import { setUserProfile } from "./profileSlice";
 
 export function useProfile(): [
-  profile: Profile,
+  profile: Profile | undefined,
   setProfile: (profile: Profile) => void
 ] {
   const profile = useAppSelector((state: any) => state.profile);

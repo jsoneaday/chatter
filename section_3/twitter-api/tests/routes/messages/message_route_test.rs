@@ -11,9 +11,9 @@ use twitter_clone_api::{
     common_tests::actix_fixture::get_app,
     routes::messages::model::MessageResponder,
 };
-use twitter_clone_api::routes::messages::model::{ MessagePostJson, MessageGroupTypes, MessageResponders, MessageByFollowingQuery };
+use twitter_clone_api::routes::messages::model::{ MessagePostJson, MessageGroupTypes };
 use actix_web::{ test, web::Json };
-use chrono::Utc;
+
 
 #[tokio::test]
 pub async fn test_route_create_and_get_message() {

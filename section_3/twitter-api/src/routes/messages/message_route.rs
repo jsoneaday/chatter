@@ -43,17 +43,15 @@ pub async fn get_message<T: QueryMessageFn>(app_data: web::Data<AppState<T>>, pa
 }
 
 #[allow(unused)]
-pub async fn get_messages<T: QueryMessagesFn>(app_data: web::Data<AppState<T>>, path: Json<MessageByFollowingQuery>) -> Result<MessageResponders, UserError>  {
-    println!("start get_messages");
-    let page_size = match path.page_size {
+pub async fn get_messages<T: QueryMessagesFn>(app_data: web::Data<AppState<T>>, body: Json<MessageByFollowingQuery>) -> Result<MessageResponders, UserError>  {
+    let page_size = match body.page_size {
         Some(ps) => ps,
         None => 10
     };
     
     let mut messages_result = app_data.db_repo.query_messages(
-        path.follower_id, path.last_updated_at, page_size
+        body.follower_id, body.last_updated_at, page_size
     ).await;
-    println!("end get_messages");
     
     let mut msg_collection: Vec<MessageResponder> = vec![];
     match messages_result {
@@ -66,7 +64,10 @@ pub async fn get_messages<T: QueryMessagesFn>(app_data: web::Data<AppState<T>>, 
 
             Ok(MessageResponders(msg_collection))
         },
-        Err(e) => Err(e.into())
+        Err(e) => {
+            println!("route get_messages error: {:?}", e);
+            Err(e.into())
+        }
     }
 }
 
@@ -296,61 +297,26 @@ mod tests {
     }
 
     mod test_mod_get_messages_and_check_id {  
-        use chrono::{Utc, DateTime};
-        use fake::faker::{internet::en::Username, name::en::{FirstName, LastName}};
-        use fake::Fake;
+        use chrono::{Utc};
         use crate::{
-            routes::{messages::{message_route::get_messages, model::{MessageGroupTypes, MessageByFollowingQuery}}}, 
-            common::entities::messages::{repo::QueryMessagesFn, model::MessageWithFollowingAndBroadcastQueryResult}
+            routes::{messages::{model::{ MessageByFollowingQuery}, message_route::get_messages}}, 
+            common::entities::base::DbRepo
         };
         use super::*;
 
-        const ID: i64 = 22;
-        struct TestRepo;
-        
-        #[allow(unused)]
-        #[async_trait]
-        impl QueryMessagesFn for TestRepo {            
-            async fn query_messages(
-                &self, 
-                user_id: i64,
-                last_updated_at: DateTime<Utc>,
-                page_size: i16) -> Result<Vec<MessageWithFollowingAndBroadcastQueryResult>, sqlx::Error> {
-                Ok(vec![
-                    MessageWithFollowingAndBroadcastQueryResult {
-                        id: ID,
-                        updated_at: Utc::now(),
-                        body: None,
-                        likes: 1,
-                        image: None,
-                        msg_group_type: MessageGroupTypes::Public as i32,
-                        user_id: 0,
-                        user_name: Username().fake(),
-                        full_name: format!("{} {}", FirstName().fake::<String>(), LastName().fake::<String>()),
-                        avatar: None,
-                        broadcast_msg_id: None,
-                        broadcast_msg_updated_at: None,
-                        broadcast_msg_body: None,
-                        broadcast_msg_likes: None,
-                        broadcast_msg_image: None,
-                        broadcast_msg_user_id: None,
-                        broadcast_msg_user_name: None,
-                        broadcast_msg_full_name: None,
-                        broadcast_msg_avatar: None,
-                    }
-                ])
-            }
-        }
-
         #[tokio::test]
         async fn test_get_messages_and_check_id() {
-            let repo = TestRepo;
+            let repo = DbRepo::init().await;
             let app_data = get_app_data(repo).await;
 
-            let result = get_messages(app_data, Json(MessageByFollowingQuery { follower_id: 0, last_updated_at: Utc::now(), page_size: None })).await;
+            let result = get_messages(app_data, Json(MessageByFollowingQuery { follower_id: 1, last_updated_at: Utc::now(), page_size: None })).await;
 
-            assert!(!result.is_err());
-            assert!(result.ok().unwrap().0[0].id == ID);
+            match result {
+                Ok(messages) => assert!(messages.0.len() > 0),
+                Err(e) => {
+                    panic!("Failed to get_messages {:?}", e);
+                }
+            };                      
         }
     }
 }

@@ -1,3 +1,5 @@
+import { MSGS_URL } from "../utils/api";
+
 export default class MessageEntity {
   constructor(
     id: bigint,
@@ -7,4 +9,23 @@ export default class MessageEntity {
     updated_at?: Date,
     image?: Blob
   ) {}
+}
+
+export async function getMessagesByFollower(
+  followerId: bigint,
+  lastUpdatedAt: string,
+  pageSize: number = 10
+) {
+  // sample: followerId=233&lastUpdatedAt=2023-07-30T14:30:30Z
+  return await fetch(`${MSGS_URL}`, {
+    method: "post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      followerId,
+      lastUpdatedAt,
+      pageSize,
+    }),
+  });
 }

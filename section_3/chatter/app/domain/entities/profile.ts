@@ -4,7 +4,7 @@ import FollowEntity from "./follow";
 
 export default class Profile {
   constructor(
-    id: bigint,
+    public id: bigint,
     createdAt: Date,
     userName: string,
     fullName: string,
@@ -29,7 +29,7 @@ export class NewProfile {
 }
 
 export async function createProfile(profile: NewProfile) {
-  await fetch(`${PROFILE_URL}`, {
+  return await fetch(`${PROFILE_URL}`, {
     method: "post",
     headers,
     body: JSON.stringify(profile),
@@ -37,8 +37,7 @@ export async function createProfile(profile: NewProfile) {
 }
 
 export async function getProfile(userName: string) {
-  await fetch(`${PROFILE_URL}/${userName}`, {
+  return await fetch(`${PROFILE_URL}/username/${userName}`, {
     method: "get",
-    headers,
   });
 }
