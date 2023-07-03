@@ -24,9 +24,9 @@ export function BroadcastIcon({ isSelected, size }: IconProps) {
 
 export function LikeIcon({ isSelected, size }: IconProps) {
   if (isSelected) {
-    return <Ionicons name="heart-sharp" size={size} color="red" />;
+    return <Ionicons name="heart-sharp" size={size} color={primary()} />;
   }
-  return <Ionicons name="heart-outline" size={size} color="red" />;
+  return <Ionicons name="heart-outline" size={size} color={notSelected()} />;
 }
 
 export function ShareIcon({ isSelected, size }: IconProps) {

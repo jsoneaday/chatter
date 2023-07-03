@@ -50,9 +50,7 @@ export default function MessageItem({ messageModel }: MessageItemProps) {
           <DotsIcon size={18} />
         </View>
         <View style={styles.containerBody}>
-          <View style={{ flexDirection: "row" }}>
-            <Text style={styles.txtBody}>{messageModel.item.body}</Text>
-          </View>
+          <Text style={styles.txtBody}>{messageModel.item.body}</Text>
         </View>
         <View style={{ padding: 4 }}>
           <MessageItemToolbar />
@@ -75,8 +73,10 @@ const styles = StyleSheet.create({
     paddingTop: 2,
   },
   containerBody: {
+    flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "flex-start",
+    minHeight: 60,
   },
   containerBodyHeader: {
     flexDirection: "row",

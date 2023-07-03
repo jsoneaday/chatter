@@ -11,7 +11,6 @@ export function useProfile(): [
   const dispatch = useAppDispatch();
 
   function setProfile(profile: Profile) {
-    console.log("dispatch profile", profile);
     dispatch(setUserProfile(profile));
   }
 

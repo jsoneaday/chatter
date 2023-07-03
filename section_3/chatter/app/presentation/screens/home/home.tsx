@@ -19,12 +19,11 @@ export default function Home() {
   const [selectedChanged, setSelectedChanged] = useState(uuidv4());
 
   useEffect(() => {
-    console.log("useEffect");
     getProfile("jon")
       .then((profileResult) => {
         if (profileResult.ok) {
           profileResult.json().then((profileData) => {
-            console.log("profileData", profileData); // json must always be parsed before sending a log
+            // json must always be parsed before sending a log
             setProfile(profileData);
           });
         }
@@ -35,14 +34,11 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    console.log("selectedChanged", selectedChanged, profile);
     if (profile) {
-      getMessagesByFollower(profile.id, "2023-07-30T14:30:30Z", 10)
+      getMessagesByFollower(profile.id, new Date().toISOString(), 10)
         .then((messages) => {
-          console.log("messages", messages.status);
           if (messages.ok) {
             messages.json().then((messageObjects) => {
-              console.log("messageObjects", messageObjects);
               setMessageItems(messageObjects);
             });
           }
@@ -54,7 +50,6 @@ export default function Home() {
   }, [selectedChanged, profile]);
 
   const onSelectedHomeTabChanged = async (selectedTab: string) => {
-    console.log("onSelectedHomeTabChanged", profile);
     setSelectedChanged(uuidv4());
   };
 
@@ -66,7 +61,11 @@ export default function Home() {
       >
         <View style={styles.messagesContainer}>
           <FlashList
-            renderItem={(item) => <MessageItem messageModel={item} />}
+            renderItem={(item) => (
+              <View style={{ paddingTop: 20 }}>
+                <MessageItem messageModel={item} />
+              </View>
+            )}
             estimatedItemSize={10}
             data={messageItems}
           />
