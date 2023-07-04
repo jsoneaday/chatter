@@ -11,7 +11,7 @@ const profilePic = require("../../theme/assets/profile.jpeg");
 export type ProfileNameDisplayData = {
   fullName: string;
   userName: string;
-  avatar: Blob;
+  avatar?: Blob;
 };
 
 interface ProfileNameDisplayProps {

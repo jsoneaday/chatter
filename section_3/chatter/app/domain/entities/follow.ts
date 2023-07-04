@@ -1,3 +1,5 @@
+import { FOLLOW_URL } from "../utils/api";
+
 export default class FollowEntity {
   constructor(
     id: bigint,
@@ -5,4 +7,10 @@ export default class FollowEntity {
     followerId: number,
     followingId: number
   ) {}
+}
+
+export async function getFollowers(followingId: bigint) {
+  return await fetch(`${FOLLOW_URL}/${followingId}`, {
+    method: "get",
+  });
 }

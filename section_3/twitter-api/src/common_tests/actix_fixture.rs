@@ -96,7 +96,7 @@ pub async fn get_app() -> impl Service<Request, Response = ServiceResponse, Erro
                     .service(web::resource("/profile/{id}").route(web::get().to(get_profile::<DbRepo>)))
                     .service(web::resource("/profile/username/{user_name}").route(web::get().to(get_profile_by_user::<DbRepo>)))
                     .service(web::resource("/profile").route(web::post().to(create_profile::<DbRepo>)))
-                    .service(web::resource("/follow").route(web::get().to(get_followers::<DbRepo>)))
+                    .service(web::resource("/follow/{id}").route(web::get().to(get_followers::<DbRepo>)))
             )
     ).await
 }

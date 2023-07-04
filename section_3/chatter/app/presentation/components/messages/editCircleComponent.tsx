@@ -1,5 +1,5 @@
 import { StyleSheet, View, Text } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   bodyFontStyle,
   headerFontStyle,
@@ -15,25 +15,9 @@ import { FlashList } from "@shopify/flash-list";
 import ProfileNameSelector, {
   ProfileNameDisplayData,
 } from "../profiles/profileNameSelector";
+import { getFollowers } from "../../../domain/entities/follow";
 
 const Tabs: [string, string] = ["Twitter Circle", "Recommended"];
-const potentialCircleProfiles: ProfileNameDisplayData[] = [
-  {
-    fullName: "Dave Choi",
-    userName: "dave",
-    avatar: new Blob(),
-  },
-  {
-    fullName: "Jill Bill",
-    userName: "jill",
-    avatar: new Blob(),
-  },
-  {
-    fullName: "Hey Day",
-    userName: "hey",
-    avatar: new Blob(),
-  },
-];
 
 interface EditCircleComponentProps {
   show: boolean;
@@ -91,6 +75,47 @@ function ChatterCircle() {
 }
 
 function Recommended() {
+  const [potentialCircleProfiles, setPotentialCircleProfiles] =
+    useState<ProfileNameDisplayData[]>();
+
+  useEffect(() => {
+    getFollowers(BigInt(2))
+      .then((followersResult) => {
+        if (followersResult.ok) {
+          followersResult.json().then((followers) => {
+            setPotentialCircleProfiles(
+              followers.map(
+                (follower: {
+                  id: bigint;
+                  createdAt: Date;
+                  userName: string;
+                  fullName: string;
+                  description: string;
+                  region?: string;
+                  mainUrl?: string;
+                  avatar?: Blob;
+                }) => {
+                  return {
+                    fullName: follower.fullName,
+                    userName: follower.userName,
+                    avatar: follower.avatar,
+                  };
+                }
+              )
+            );
+          });
+        } else {
+          console.log(
+            "Failed to get followers status:",
+            followersResult.status
+          );
+        }
+      })
+      .catch((e) => {
+        console.log("Failed to get followers", e);
+      });
+  }, []);
+
   return (
     <View style={styles.childContainer}>
       <View style={styles.childItem}>
