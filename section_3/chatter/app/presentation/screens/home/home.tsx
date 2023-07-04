@@ -12,6 +12,7 @@ import { parseISO } from "date-fns";
 import { getProfile } from "../../../domain/entities/profile";
 import { useProfile } from "../../../domain/store/profile/profileHooks";
 import { getMessagesByFollower } from "../../../domain/entities/message";
+import { bottomBorder } from "../../theme/element-styles/dividerStyles";
 
 export default function Home() {
   const [messageItems, setMessageItems] = useState<MessageModel[]>([]);
@@ -62,7 +63,7 @@ export default function Home() {
         <View style={styles.messagesContainer}>
           <FlashList
             renderItem={(item) => (
-              <View style={{ paddingTop: 20 }}>
+              <View style={styles.messageItemContainer as object}>
                 <MessageItem messageModel={item} />
               </View>
             )}
@@ -80,5 +81,9 @@ const styles = StyleSheet.create({
     padding: 10,
     width: "100%",
     height: "100%",
+  },
+  messageItemContainer: {
+    ...bottomBorder,
+    paddingTop: 10,
   },
 });

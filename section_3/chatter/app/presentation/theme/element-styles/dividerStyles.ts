@@ -20,3 +20,9 @@ export const listBottomDividerStyle = {
   borderStyle: "solid",
   shadowOpacity: 0,
 };
+
+export const bottomBorder = {
+  borderBottomWidth: Platform.OS === "ios" ? 0.17 : 0.2,
+  borderColor: secondary(),
+  borderStyle: "solid",
+};

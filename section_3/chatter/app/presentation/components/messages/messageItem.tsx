@@ -9,7 +9,6 @@ import {
 import { parseISO, formatDistanceToNow } from "date-fns";
 import { tertiary } from "../../theme/colors";
 import Avatar from "../avatar";
-import Spacer from "../spacer";
 import MessageItemToolbar from "./messageItemToolbar";
 import { DotsIcon } from "../icons/menuItemToolbarIcons";
 const profile = require("../../theme/assets/profile.jpeg");
@@ -30,29 +29,31 @@ export default function MessageItem({ messageModel }: MessageItemProps) {
       <View style={styles.avatarContainer}>
         <Avatar imgFile={profile} size={50} />
       </View>
-      <Spacer width={10} />
       {/* top width sets following widths if wrapped */}
-      <View>
+      <View style={styles.contentContainer}>
         <View style={styles.containerBodyHeader}>
-          <Text style={styles.txtFullName}>
-            {messageModel.item.profile.fullName}
-          </Text>
-          <Text
-            numberOfLines={1}
-            style={styles.txtUserName}
-          >{` @${messageModel.item.profile.userName}`}</Text>
-          <View style={styles.updatedAtContainer}>
+          <View style={styles.containerBodyHeaderLeft}>
+            <Text style={styles.txtFullName}>
+              {messageModel.item.profile.fullName}
+            </Text>
             <Text
-              style={{ ...styles.txtUpdatedAt, fontSize: 4 }}
-            >{`\u2B22`}</Text>
-            <Text style={styles.txtUpdatedAt}>{` ${updatedAt}`}</Text>
+              style={styles.txtUserName}
+            >{`@${messageModel.item.profile.userName}`}</Text>
+            <View style={styles.updatedAtContainer}>
+              <Text
+                style={{ ...styles.txtUpdatedAt, fontSize: 6 }}
+              >{`\u2B22`}</Text>
+              <Text
+                style={{ ...styles.txtUpdatedAt, marginLeft: 5 }}
+              >{`${updatedAt}`}</Text>
+            </View>
           </View>
           <DotsIcon size={18} />
         </View>
         <View style={styles.containerBody}>
           <Text style={styles.txtBody}>{messageModel.item.body}</Text>
         </View>
-        <View style={{ padding: 4 }}>
+        <View style={styles.toolbarContainer}>
           <MessageItemToolbar />
         </View>
       </View>
@@ -71,6 +72,10 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     paddingTop: 2,
+    width: "15%",
+  },
+  contentContainer: {
+    width: "85%",
   },
   containerBody: {
     flexDirection: "row",
@@ -81,6 +86,11 @@ const styles = StyleSheet.create({
   containerBodyHeader: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+  },
+  containerBodyHeaderLeft: {
+    flexDirection: "row",
+    alignItems: "center",
     justifyContent: "flex-start",
   },
   updatedAtContainer: {
@@ -88,14 +98,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: 10,
   },
+  toolbarContainer: {
+    padding: 4,
+  },
   txtFullName: {
     ...subHeaderFontStyle(),
     fontWeight: "bold",
+    marginRight: 10,
   },
   txtUserName: {
     ...subHeaderFontStyle(),
-    width: 90,
     color: tertiary(),
+    marginRight: 5,
   },
   txtBody: {
     ...bodyFontStyle,
