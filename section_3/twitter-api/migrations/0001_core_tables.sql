@@ -29,6 +29,9 @@ create table follow (
 );
 
 insert into follow (follower_id, following_id) values (1, 2);
+insert into follow (follower_id, following_id) values (3, 2);
+insert into follow (follower_id, following_id) values (4, 2);
+insert into follow (follower_id, following_id) values (5, 2);
 insert into follow (follower_id, following_id) values (1, 3);
 insert into follow (follower_id, following_id) values (1, 4);
 insert into follow (follower_id, following_id) values (1, 5);

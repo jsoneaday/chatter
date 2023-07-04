@@ -3,8 +3,8 @@ use crate::{common::{
     entities::{
         profiles::{
             model::{ ProfileCreate, ProfileQueryResult },
-            repo::{ InsertProfileFn, QueryProfileFn, QueryProfileByUserFn },
-        },
+            repo::{ InsertProfileFn, QueryProfileFn, QueryProfileByUserFn, QueryFollowersFn },
+        }, base::EntityId,
     },
 }, routes::{errors::error_utils::UserError, output_id::OutputId}};
 use actix_web::{ web, web::Path };
@@ -66,6 +66,27 @@ pub async fn get_profile_by_user<T: QueryProfileByUserFn>(
     match result {
         Ok(profile) => Ok(convert(profile)),
         Err(e) => Err(e.into()),
+    }
+}
+
+pub async fn get_followers<T: QueryFollowersFn>(
+    app_data: web::Data<AppState<T>>,
+    path: Path<EntityId>
+) -> Result<Vec<ProfileResponder>, UserError> {
+    info!("start get_profile");
+    let result = app_data.db_repo.query_followers(path.id).await;
+
+    match result {
+        Ok(profiles) => {
+            let mut final_profiles: Vec<ProfileResponder> = Vec::new();
+            profiles
+                .iter()
+                .for_each(|profile| {
+                    final_profiles.push(convert(Some(profile.to_owned())).unwrap());
+                });
+            Ok(final_profiles)
+        },
+        Err(e) => Err(e.into())
     }
 }
 
@@ -295,6 +316,20 @@ mod tests {
 
             assert!(!get_result.is_err());
             assert!(get_result.ok().unwrap().unwrap().id == ID);
+        }
+    }
+
+    mod test_mod_get_followers {            
+        use crate::{common::entities::base::DbRepo};
+        use super::*;
+
+        #[tokio::test]
+        async fn test_get_followers() {
+            let app_data = get_app_data(DbRepo::init().await).await;
+
+            let get_result = get_followers(app_data, Path::from(EntityId { id: 2 })).await;
+
+            assert!(get_result.ok().unwrap().len() > 0);
         }
     }
 }

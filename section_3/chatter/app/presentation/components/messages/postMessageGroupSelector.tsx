@@ -39,8 +39,8 @@ export default function PostMessageGroupSelector({
           </SectionHeader>
           {/* container width defaults generally aren't 100% */}
           <View style={{ alignSelf: "stretch" }}>
-            <PublicAccessor setMessageAccesibility={setMessageAccessibility} />
-            <CircleGroupAccessor
+            <PublicGroup setMessageAccesibility={setMessageAccessibility} />
+            <CircleGroup
               toggleOuterFullSheet={toggleShowEditCircle}
               setMessageAccessibility={setMessageAccessibility}
             />
@@ -56,11 +56,11 @@ export default function PostMessageGroupSelector({
   );
 }
 
-interface PublicAccessorProps {
+interface PublicProps {
   setMessageAccesibility: (accessibility: MessageAccessibility) => void;
 }
 // controlled component
-function PublicAccessor({ setMessageAccesibility }: PublicAccessorProps) {
+function PublicGroup({ setMessageAccesibility }: PublicProps) {
   const onPressPublicAccessor = () => {
     setMessageAccesibility(MessageAccessibility.Public);
   };
@@ -81,16 +81,16 @@ function PublicAccessor({ setMessageAccesibility }: PublicAccessorProps) {
   );
 }
 
-interface CircleGroupAccessorProps {
+interface CircleGroupProps {
   toggleOuterFullSheet: () => void;
   setMessageAccessibility: (accessibility: MessageAccessibility) => void;
 }
 
 // not controlled component
-function CircleGroupAccessor({
+function CircleGroup({
   toggleOuterFullSheet,
   setMessageAccessibility,
-}: CircleGroupAccessorProps) {
+}: CircleGroupProps) {
   const [chatterCircleCount, setChatterCircleCount] = useState(0);
 
   const onPressEditCircleGroup = () => {

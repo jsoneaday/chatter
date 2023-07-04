@@ -40,7 +40,7 @@ export async function getMessagesByFollower(
   pageSize: number = 10
 ) {
   // sample: followerId=233&lastUpdatedAt=2023-07-30T14:30:30Z
-  return await fetch(`${MSGS_URL}`, {
+  return await fetch(MSGS_URL, {
     method: "post",
     headers: {
       "Content-Type": "application/json",

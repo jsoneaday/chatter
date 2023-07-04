@@ -93,6 +93,33 @@ mod private_members {
             .bind(user_name)
             .fetch_optional(conn).await
     }
+
+    /// get those following me
+    /// following_id: person being followed
+    pub async fn query_followers_inner(
+        conn: &Pool<Postgres>,        
+        following_id: i64 
+    ) -> Result<Vec<ProfileQueryResult>, sqlx::Error> {
+        sqlx
+            ::query_as::<_, ProfileQueryResult>(
+                r"
+                    select 
+                        p.id, 
+                        p.created_at, 
+                        p.updated_at, 
+                        p.user_name, 
+                        p.full_name, 
+                        p.description,
+                        p.region,
+                        p.main_url,
+                        p.avatar
+                    from profile p
+                    join follow f on p.id = f.follower_id
+                    where f.following_id = $1
+                ")
+            .bind(following_id)
+            .fetch_all(conn).await
+    }
 }
 
 #[automock]
@@ -194,6 +221,22 @@ impl FollowUserFn for DbRepo {
     }
 }
 
+#[automock]
+#[async_trait]
+pub trait QueryFollowersFn {
+    async fn query_followers(
+        &self,
+        following_id: i64
+    ) -> Result<Vec<ProfileQueryResult>, sqlx::Error>;
+}
+
+#[async_trait]
+impl QueryFollowersFn for DbRepo {
+    async fn query_followers(&self, following_id: i64) -> Result<Vec<ProfileQueryResult>, sqlx::Error> {
+        private_members::query_followers_inner(self.get_conn(), following_id).await
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{
@@ -205,6 +248,7 @@ mod tests {
         },
         common::entities::{
             messages::repo::{ InsertMessageFn, InsertResponseMessageFn },
+            profiles::repo::QueryFollowersFn,
             circle_group::repo::{ InsertCircleFn, InsertCircleMemberFn }, 
         },
     };
@@ -659,6 +703,23 @@ mod tests {
         #[test]
         fn test_insert_follow_user() {
             RT.block_on(test_insert_follow_user_body())
+        }
+    }
+
+    mod test_mod_query_followers {
+        use super::*;
+
+        async fn test_query_followers_body() {
+            let repo = DbRepo::init().await;
+
+            let followers = repo.query_followers(2).await;
+
+            assert!(followers.ok().unwrap().len() > 0);
+        }
+
+        #[test]
+        fn test_query_followers() {
+            RT.block_on(test_query_followers_body())
         }
     }
 }
