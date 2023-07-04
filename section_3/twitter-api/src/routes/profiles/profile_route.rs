@@ -13,7 +13,7 @@ use super::model::{
     ProfileQuery,
     ProfileByUserNameQuery,
     ProfileResponder,
-    ProfileCreateMultipart,
+    ProfileCreateMultipart, ProfileResponders,
 };
 
 #[allow(unused)]
@@ -72,7 +72,7 @@ pub async fn get_profile_by_user<T: QueryProfileByUserFn>(
 pub async fn get_followers<T: QueryFollowersFn>(
     app_data: web::Data<AppState<T>>,
     path: Path<EntityId>
-) -> Result<Vec<ProfileResponder>, UserError> {
+) -> Result<ProfileResponders, UserError> {
     info!("start get_profile");
     let result = app_data.db_repo.query_followers(path.id).await;
 
@@ -84,7 +84,7 @@ pub async fn get_followers<T: QueryFollowersFn>(
                 .for_each(|profile| {
                     final_profiles.push(convert(Some(profile.to_owned())).unwrap());
                 });
-            Ok(final_profiles)
+            Ok(ProfileResponders(final_profiles))
         },
         Err(e) => Err(e.into())
     }
@@ -329,7 +329,7 @@ mod tests {
 
             let get_result = get_followers(app_data, Path::from(EntityId { id: 2 })).await;
 
-            assert!(get_result.ok().unwrap().len() > 0);
+            assert!(get_result.ok().unwrap().0.len() > 0);
         }
     }
 }

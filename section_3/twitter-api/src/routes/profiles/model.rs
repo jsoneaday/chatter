@@ -192,3 +192,23 @@ impl Responder for ProfileResponder {
         }
     }
 }
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct  ProfileResponders(pub Vec<ProfileResponder>);
+
+impl Responder for ProfileResponders {
+    type Body = BoxBody;
+
+    fn respond_to(self, _: &HttpRequest) -> HttpResponse<Self::Body> {
+        let response = serde_json::to_string(&self);
+
+        match response {
+            Ok(str) => HttpResponse::Ok()
+                .content_type(ContentType::json())
+                .body(str),
+            Err(_) => HttpResponse::InternalServerError()
+                .content_type(ContentType::json())
+                .body("Failed to serialize ProfileResponders")
+        }
+    }
+}

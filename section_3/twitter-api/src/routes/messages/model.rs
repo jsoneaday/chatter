@@ -39,10 +39,6 @@ pub struct MessageResponder {
     pub profile: ProfileShort
 }
 
-#[derive(Deserialize, Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct MessageResponders(pub Vec<MessageResponder>);
-
 impl Responder for MessageResponder {
     type Body = BoxBody;
 
@@ -63,6 +59,10 @@ impl Responder for MessageResponder {
         }
     }
 }
+
+#[derive(Deserialize, Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct MessageResponders(pub Vec<MessageResponder>);
 
 impl Responder for MessageResponders {
     type Body = BoxBody;

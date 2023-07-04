@@ -42,7 +42,7 @@ use common::entities::{base::DbRepo};
 use dotenv::dotenv;
 use actix_web::{ web, App, HttpServer, Responder, middleware::Logger };
 use routes::messages::message_route::{get_message, get_messages};
-use routes::profiles::profile_route::{ create_profile, get_profile, get_profile_by_user };
+use routes::profiles::profile_route::{ create_profile, get_profile, get_profile_by_user, get_followers };
 use std::error::Error;
 use crate::common::app_state::AppState;
 use crate::routes::messages::message_route::{ create_message };
@@ -72,6 +72,7 @@ pub async fn run() -> std::io::Result<()> {
                     .service(web::resource("/profile/{id}").route(web::get().to(get_profile::<DbRepo>)))
                     .service(web::resource("/profile/username/{user_name}").route(web::get().to(get_profile_by_user::<DbRepo>)))
                     .service(web::resource("/profile").route(web::post().to(create_profile::<DbRepo>)))
+                    .service(web::resource("/follow").route(web::get().to(get_followers::<DbRepo>)))
             )
     })
     .bind((host, port))?
