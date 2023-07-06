@@ -24,7 +24,7 @@ async fn test_insert_message() {
         .unwrap();
 
     let message_id = db_repo
-        .insert_message(profile_id, BODY, PUBLIC_GROUP_TYPE, None).await
+        .insert_message(profile_id, BODY, PUBLIC_GROUP_TYPE, None, None).await
         .unwrap();
 
     assert!(message_id > 0);
@@ -48,7 +48,7 @@ async fn test_query_message() {
         .unwrap();
 
     let message_id = db_repo
-        .insert_message(profile_id, BODY, PUBLIC_GROUP_TYPE, None).await
+        .insert_message(profile_id, BODY, PUBLIC_GROUP_TYPE, None, None).await
         .unwrap();
     assert!(message_id > 0);
 

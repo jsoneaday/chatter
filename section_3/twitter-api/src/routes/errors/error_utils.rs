@@ -1,3 +1,5 @@
+use std::fmt;
+
 use actix_web::{ 
     http::{ header::ContentType, StatusCode },
     HttpResponse, 
@@ -50,3 +52,12 @@ impl Into<UserError> for sqlx::Error {
         UserError::convert_to_user_error(self)
     }
 }
+
+#[derive(Debug)]
+pub struct TwitterResponseError;
+impl fmt::Display for TwitterResponseError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self)
+    }
+}
+impl actix_web::ResponseError for TwitterResponseError {}

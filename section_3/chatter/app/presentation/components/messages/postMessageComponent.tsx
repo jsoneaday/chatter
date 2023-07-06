@@ -7,6 +7,8 @@ import {
   Keyboard,
   ViewStyle,
   StyleProp,
+  Image,
+  ImageSourcePropType,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { primary, secondary, tertiary } from "../../theme/colors";
@@ -17,12 +19,8 @@ import {
   SecondaryButton,
 } from "../buttons/buttons";
 import { Ionicons, Entypo } from "@expo/vector-icons";
-import {
-  bodyFontStyle,
-  headerFontStyle,
-} from "../../theme/element-styles/textStyles";
+import { bodyFontStyle } from "../../theme/element-styles/textStyles";
 import KeyboardToolBar from "../toolBars/keyboardToolBar";
-import { MSG_URL } from "../../../domain/utils/api";
 import FullSheet from "../modals/fullSheet";
 import { MessageAccessibility } from "../icons/messageAccessibilityType";
 import PostMessageGroupSelector from "./postMessageGroupSelector";
@@ -54,6 +52,8 @@ export default function PostMessageComponent({
   >({ width: "100%" });
   const [showKeyboardTabBar, setShowKeyboardTabBar] = useState(false);
   const [messageValue, setMessageValue] = useState("");
+  const [selectedImage, setSelectedImage] = useState<Blob | undefined>();
+  const [selectedImageUri, setSelectedImageUri] = useState<string>();
   const [showPostMsgGroupSelector, setShowPostMsgGroupSelector] =
     useState(false);
   const [currentMessageAccessibility, setCurrentMessageAccessibility] =
@@ -70,7 +70,7 @@ export default function PostMessageComponent({
         paddingVertical: 12,
         borderTopWidth: 1,
         borderColor: tertiary(),
-        top: e.endCoordinates.height + 92,
+        top: e.endCoordinates.height + 80,
       });
       setShowKeyboardTabBar(true);
     });
@@ -93,6 +93,24 @@ export default function PostMessageComponent({
       });
     }
   }, [show]);
+
+  const getImageFile = async (uri: string) => {
+    const blobResult = await fetch(uri);
+    console.log("getImageFile blobResult", blobResult);
+    if (blobResult.ok) {
+      const blob = await blobResult.blob();
+      setSelectedImage(blob);
+      setSelectedImageUri(uri);
+    } else {
+      setSelectedImage(undefined);
+      setSelectedImageUri("");
+    }
+  };
+
+  const emptySelectedImage = () => {
+    setSelectedImage(undefined);
+    setSelectedImageUri("");
+  };
 
   const toggleEarlyExitSheet = () => {
     setEarlyExitSheet(!showEarlyExitSheet);
@@ -119,18 +137,22 @@ export default function PostMessageComponent({
 
   const onPressSubmitMessage = async () => {
     try {
+      console.log("createMessage selectedImage", selectedImage);
       const result = await createMessage(
         profile!.id,
         messageValue,
         currentMessageAccessibility == MessageAccessibility.Public
           ? ApiMessageGroupType.Public
-          : ApiMessageGroupType.Circle
+          : ApiMessageGroupType.Circle,
+        selectedImage
       );
 
       if (result.ok) {
         console.log("creating message: ", await result.json());
         setMessageValue("");
         toggleShowPostMessageSheet();
+        setSelectedImage(undefined);
+        setSelectedImageUri("");
       } else {
         console.log("error creating message: ", result.status);
       }
@@ -190,7 +212,7 @@ export default function PostMessageComponent({
                   </RingedButton>
                 </View>
                 <TextInput
-                  style={{ ...styles.txtInput }}
+                  style={styles.txtInput}
                   autoFocus={true}
                   autoCapitalize="sentences"
                   maxLength={140}
@@ -201,10 +223,17 @@ export default function PostMessageComponent({
                   value={messageValue}
                   onChangeText={onChangeText}
                 />
+                {selectedImageUri ? (
+                  <Image
+                    source={{ uri: selectedImageUri }}
+                    style={styles.selectedImageStyle}
+                  />
+                ) : null}
               </View>
               <KeyboardToolBar
                 show={showKeyboardTabBar}
                 style={keyboardBarStyle}
+                getImageFile={getImageFile}
               />
             </View>
           </>
@@ -217,6 +246,7 @@ export default function PostMessageComponent({
         currentTxtValue={messageValue}
         togglePostMsgSheet={toggleShowPostMessageSheet}
         clearTextInput={clearTextInput}
+        emptySelectedImage={emptySelectedImage}
       />
 
       {showSubmitBtn && (
@@ -243,6 +273,7 @@ interface EarlyExitDeleteOrSaveProps {
   currentTxtValue: string;
   togglePostMsgSheet: () => void;
   clearTextInput: () => void;
+  emptySelectedImage: () => void;
 }
 
 function EarlyExitDeleteOrSave({
@@ -251,6 +282,7 @@ function EarlyExitDeleteOrSave({
   currentTxtValue,
   togglePostMsgSheet,
   clearTextInput,
+  emptySelectedImage,
 }: EarlyExitDeleteOrSaveProps) {
   const onCancelEarlyExit = () => {
     toggleSelf();
@@ -261,6 +293,7 @@ function EarlyExitDeleteOrSave({
     clearTextInput();
     toggleSelf();
     togglePostMsgSheet();
+    emptySelectedImage();
   };
 
   const onPressSaveDraft = async () => {
@@ -336,6 +369,13 @@ const styles = StyleSheet.create({
     ...(bodyFontStyle as object),
     paddingLeft: 60,
     paddingRight: 10,
+  },
+  selectedImageStyle: {
+    marginTop: 50,
+    marginLeft: 60,
+    marginRight: 10,
+    width: 340,
+    height: 340,
   },
   earlyExitContainer: {
     justifyContent: "flex-start",

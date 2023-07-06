@@ -17,17 +17,20 @@ mod private_members {
         user_id: i64,
         body: &str,
         group_type: i32,
-        broadcasting_msg_id: Option<i64>
+        broadcasting_msg_id: Option<i64>,
+        image: Option<Vec<u8>>
     ) -> Result<i64, sqlx::Error> {
+        println!("insert_message_inner has image {:?}", image);
         let mut tx = conn.begin().await.unwrap();
 
         let insert_msg_result = sqlx
             ::query_as::<_, EntityId>(
-                "insert into message (user_id, body, msg_group_type) values ($1, $2, $3) returning id"
+                "insert into message (user_id, body, msg_group_type, image) values ($1, $2, $3, $4) returning id"
             )
             .bind(user_id)
             .bind(body)
             .bind(group_type)
+            .bind(image)
             .fetch_one(&mut tx).await;
 
         let message_id_result = match insert_msg_result {
@@ -178,6 +181,7 @@ mod private_members {
 
         match following_messages_with_profiles_result {
             Ok(following_messages) => {
+                println!("query_messages_inner following_messages first {:?}", following_messages.get(0));
                 let following_messages_with_broadcasts = following_messages
                     .clone()
                     .into_iter()
@@ -255,7 +259,7 @@ mod private_members {
         match broadcasting_msg_result {
             Ok(broadcast_message) => { broadcast_message }
             Err(e) => {
-                println!("get_broadcasting_messages_of_messages: {}", e);
+                println!("get_broadcasting_message_of_message: {}", e);
                 None
             }
         }
@@ -339,7 +343,8 @@ pub trait InsertMessageFn {
         user_id: i64,
         body: &str,
         group_type: i32,
-        broadcasting_msg_id: Option<i64>
+        broadcasting_msg_id: Option<i64>,
+        image: Option<Vec<u8>>
     ) -> Result<i64, sqlx::Error>;
 }
 
@@ -350,14 +355,17 @@ impl InsertMessageFn for DbRepo {
         user_id: i64,
         body: &str,
         group_type: i32,
-        broadcasting_msg_id: Option<i64>
+        broadcasting_msg_id: Option<i64>,
+        image: Option<Vec<u8>>
     ) -> Result<i64, sqlx::Error> {
+        println!("insert_message has image {:?}", image);
         private_members::insert_message_inner(
             self.get_conn(),
             user_id,
             body,
             group_type,
-            broadcasting_msg_id
+            broadcasting_msg_id,
+            image
         ).await
     }
 }
@@ -478,7 +486,7 @@ mod tests {
         let profile = db_repo.insert_profile(profile_create.clone()).await;
         let profile_id = profile.unwrap();
         let original_msg_id = db_repo
-            .insert_message(profile_id, "Testing body 123", PUBLIC_GROUP_TYPE, None).await
+            .insert_message(profile_id, "Testing body 123", PUBLIC_GROUP_TYPE, None, None).await
             .unwrap();
 
         Fixtures {
@@ -530,11 +538,13 @@ mod tests {
         let mut mock_insert_message = MockInsertMessageFn::new();
         mock_insert_message
             .expect_insert_message()
-            .returning(|_, _, _, _| { Ok(get_fixtures().original_msg_id) });
+            .returning(|_, _, _, _, _| { Ok(get_fixtures().original_msg_id) });
         mock_insert_message
     }
 
     mod test_mod_insert_message {
+        use crate::common_tests::actix_fixture::get_profile_avatar;
+
         use super::*;
 
         async fn test_insert_message_body() {
@@ -553,16 +563,21 @@ mod tests {
                 }).await
                 .unwrap();
 
-            let original_msg_id = fixtures.db_repo
+            let image = get_profile_avatar();
+            let msg_id = fixtures.db_repo
                 .insert_message(
                     profile_id,
                     "Body of message that is being responded to.",
                     PUBLIC_GROUP_TYPE,
-                    None
+                    None,
+                    Some(image.clone())
                 ).await
                 .unwrap();
 
-            assert!(original_msg_id > 0);
+            assert!(msg_id > 0);
+            
+            let message = fixtures.db_repo.query_message(msg_id).await.unwrap().unwrap();
+            assert!(message.image.unwrap() == image);
         }
 
         #[test]
@@ -588,6 +603,7 @@ mod tests {
                     profile_id,
                     "Body of message that is being responded to.",
                     PUBLIC_GROUP_TYPE,
+                    None,
                     None
                 ).await
                 .unwrap();
@@ -629,6 +645,7 @@ mod tests {
                 profile_id,
                 "Body of message that is being responded to.",
                 PUBLIC_GROUP_TYPE,
+                None,
                 None
             ).await;
 
@@ -704,6 +721,7 @@ mod tests {
                         following_id,
                         format!("Message {}: 1", l).as_str(),
                         PUBLIC_GROUP_TYPE,
+                        None,
                         None
                     ).await
                     .unwrap();
@@ -718,6 +736,7 @@ mod tests {
                         following_id,
                         format!("Message {}: 2", l).as_str(),
                         PUBLIC_GROUP_TYPE,
+                        None,
                         None
                     ).await
                     .unwrap();
@@ -778,7 +797,7 @@ mod tests {
             let mut mock_insert_message = MockInsertMessageFn::new();
             mock_insert_message
                 .expect_insert_message()
-                .returning(move |user_id, body, _, _| {
+                .returning(move |user_id, body, _, _, _| {
                     Ok(
                         insert_message_fixtures
                             .following_users_messages.clone()
@@ -824,6 +843,7 @@ mod tests {
                         following_id,
                         format!("Message {}: 1", l).as_str(),
                         PUBLIC_GROUP_TYPE,
+                        None,
                         None
                     ).await
                     .unwrap();
@@ -833,6 +853,7 @@ mod tests {
                         following_id,
                         format!("Message {}: 2", l).as_str(),
                         PUBLIC_GROUP_TYPE,
+                        None,
                         None
                     ).await
                     .unwrap();

@@ -8,7 +8,6 @@ import MessageModel from "../../common/models/message";
 import "react-native-get-random-values";
 /// @ts-ignore
 import { v4 as uuidv4 } from "uuid";
-import { parseISO } from "date-fns";
 import { getProfile } from "../../../domain/entities/profile";
 import { useProfile } from "../../../domain/store/profile/profileHooks";
 import { getMessagesByFollower } from "../../../domain/entities/message";

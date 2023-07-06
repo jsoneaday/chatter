@@ -35,12 +35,16 @@ pub mod routes {
     pub mod errors {
         pub mod error_utils;
     }
+    pub mod utils {
+        pub mod multipart;
+    }
 }
 
 use std::env;
 use common::entities::{base::DbRepo};
 use dotenv::dotenv;
 use actix_web::{ web, App, HttpServer, Responder, middleware::Logger };
+use log::info;
 use routes::messages::message_route::{get_message, get_messages};
 use routes::profiles::profile_route::{ create_profile, get_profile, get_profile_by_user, get_followers };
 use std::error::Error;
@@ -58,7 +62,7 @@ pub async fn run() -> std::io::Result<()> {
                     client: reqwest::Client::new(),
                     db_repo,
                 });    
-
+    info!("RUST_BACKTRACE={}", std::env::var("RUST_BACKTRACE").unwrap());
     let result = HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())

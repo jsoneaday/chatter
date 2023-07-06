@@ -18,19 +18,24 @@ export enum ApiMessageGroupType {
 
 export async function createMessage(
   userId: bigint,
-  messageValue: string,
-  groupType: ApiMessageGroupType
+  body: string,
+  groupType: ApiMessageGroupType,
+  image?: Blob
 ) {
+  const formData = new FormData();
+  formData.append("userId", userId.toString());
+  formData.append("body", body.toString());
+  formData.append("groupType", groupType.toString());
+  if (image) {
+    formData.append("image", image);
+  }
+  console.log("createMessage formData", formData);
   return await fetch(MSG_URL, {
     method: "post",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": `multipart/form-data; boundary=${BigInt(Date.now())}`,
     },
-    body: JSON.stringify({
-      userId,
-      body: messageValue,
-      groupType,
-    }),
+    body: formData,
   });
 }
 

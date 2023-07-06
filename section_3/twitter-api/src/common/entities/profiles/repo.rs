@@ -365,6 +365,7 @@ mod tests {
                         following_profile_id,
                         &get_fake_message_body(Some(local_prefix.clone().to_string())),
                         PUBLIC_GROUP_TYPE,
+                        None,
                         None
                     ).await
                     .unwrap();
@@ -402,7 +403,8 @@ mod tests {
                         *following_pm.0,
                         &get_fake_message_body(Some(local_prefix.clone().to_string())),
                         PUBLIC_GROUP_TYPE,
-                        Some(*selected_message_id)
+                        Some(*selected_message_id),
+                        None
                     ).await;
                 }
             }

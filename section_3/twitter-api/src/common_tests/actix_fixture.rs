@@ -114,6 +114,52 @@ pub fn get_fake_message_body(prefix: Option<String>) -> String {
     body
 }
 
+pub fn get_message_create_multipart(
+    image: &Vec<u8>,
+    boundary: &str,
+    with_image: bool,
+    user_id: i64,
+    msg_body: &str
+) -> BytesMut {
+    let mut payload = actix_web::web::BytesMut::new();
+    payload.extend(format!("--{}\r\n", boundary).as_bytes());
+    payload.extend(
+        format!("Content-Disposition: form-data; name=\"user_id\"\r\n\r\n").as_bytes()
+    );
+    payload.extend(format!("{}\r\n", user_id).as_bytes());
+
+    payload.extend(format!("--{}\r\n", boundary).as_bytes());
+    payload.extend(
+        format!("Content-Disposition: form-data; name=\"body\"\r\n\r\n").as_bytes()
+    );
+    payload.extend(
+        format!("{}\r\n", msg_body).as_bytes()
+    );
+
+    payload.extend(format!("--{}\r\n", boundary).as_bytes());
+    payload.extend(
+        format!("Content-Disposition: form-data; name=\"group_type\"\r\n\r\n").as_bytes()
+    );
+    payload.extend(format!("{}\r\n", 1).as_bytes());
+
+    payload.extend(format!("--{}\r\n", boundary).as_bytes());
+    payload.extend(format!("Content-Disposition: form-data; name=\"broadcasting_msg_id\"\r\n\r\n").as_bytes());
+    payload.extend(format!("{}\r\n", 1).as_bytes());
+
+    payload.extend(format!("--{}\r\n", boundary).as_bytes());
+    if with_image == true {
+        payload.extend(
+            b"Content-Disposition: form-data; name=\"image\"; filename=\"profile.jpeg\"\r\n"
+        );
+        payload.extend(b"Content-Type: image/jpeg\r\n\r\n");
+        payload.extend(Bytes::from(image.clone()));
+        payload.extend(b"\r\n"); // warning: line breaks are very important!!!        
+    }
+    payload.extend(format!("--{}--\r\n", boundary).as_bytes()); // note the extra -- at the end of the boundary
+
+    payload
+}
+
 /// warning: line breaks are very important when ending any line!!!
 pub fn get_profile_create_multipart(
     avatar: &Vec<u8>,

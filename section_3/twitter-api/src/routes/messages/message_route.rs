@@ -5,20 +5,20 @@ use crate::routes::errors::error_utils::UserError;
 use crate::routes::output_id::OutputId;
 use crate::routes::profiles::model::ProfileShort;
 use actix_web::{web, web::{Path, Json}};
-use super::model::{MessageResponder, MessagePostJson, MessageQuery, MessageByFollowingQuery, MessageResponders};
+use super::model::{MessageResponder, MessageCreateMultipart, MessageQuery, MessageByFollowingQuery, MessageResponders};
 
 
 #[allow(unused)]
-pub async fn create_message<T: InsertMessageFn>(app_data: web::Data<AppState<T>>, params: Json<MessagePostJson>) -> Result<OutputId, UserError> {  
+pub async fn create_message<T: InsertMessageFn>(app_data: web::Data<AppState<T>>, params: MessageCreateMultipart) -> Result<OutputId, UserError> {  
     let max = 141; 
     let body = if params.body.len() < max {
         &params.body[..]
     } else {
         &params.body[..max]
     };
-
+    println!("create_message has image {:?}", params.image);
     let group_type = params.group_type.clone() as i32;
-    let result = app_data.db_repo.insert_message(params.user_id, body, group_type, params.broadcasting_msg_id).await;
+    let result = app_data.db_repo.insert_message(params.user_id, body, group_type, params.broadcasting_msg_id, params.image.clone()).await;
     match result {
         Ok(id) => Ok(OutputId { id }),
         Err(e) => Err(e.into())
@@ -43,7 +43,8 @@ pub async fn get_message<T: QueryMessageFn>(app_data: web::Data<AppState<T>>, pa
 }
 
 #[allow(unused)]
-pub async fn get_messages<T: QueryMessagesFn>(app_data: web::Data<AppState<T>>, body: Json<MessageByFollowingQuery>) -> Result<MessageResponders, UserError>  {
+pub async fn get_messages<T: QueryMessagesFn>(app_data: web::Data<AppState<T>>, body: Json<MessageByFollowingQuery>) 
+    -> Result<MessageResponders, UserError>  {
     let page_size = match body.page_size {
         Some(ps) => ps,
         None => 10
@@ -77,6 +78,7 @@ fn convert(message: &MessageWithFollowingAndBroadcastQueryResult) -> MessageResp
         updated_at: message.updated_at,
         body: message.body.clone(),
         likes: message.likes,
+        image: message.image.clone(),
         broadcasting_msg: match message.broadcast_msg_id {
             Some(id) => {
                 Some(Box::new(MessageResponder { 
@@ -84,6 +86,7 @@ fn convert(message: &MessageWithFollowingAndBroadcastQueryResult) -> MessageResp
                     updated_at: message.broadcast_msg_updated_at.unwrap(),
                     body: message.broadcast_msg_body.clone(),
                     likes: message.broadcast_msg_likes.unwrap(),
+                    image: message.broadcast_msg_image.clone(),
                     broadcasting_msg: None ,
                     profile: ProfileShort {
                         id: message.broadcast_msg_user_id.unwrap(),
@@ -107,8 +110,7 @@ fn convert(message: &MessageWithFollowingAndBroadcastQueryResult) -> MessageResp
 mod tests {
     use actix_web::web::Json;
     use async_trait::async_trait;
-    use crate::{common::entities::messages::repo::InsertMessageFn, routes::messages::{message_route::create_message, model::MessagePostJson}, common_tests::actix_fixture::{get_app_data, get_fake_message_body}};
-    
+    use crate::{common::entities::messages::repo::InsertMessageFn, routes::messages::{message_route::create_message, model::MessageCreateMultipart}, common_tests::actix_fixture::{get_app_data, get_fake_message_body}};
 
     mod test_mod_create_message_and_check_id {        
         use super::*;
@@ -124,7 +126,8 @@ mod tests {
                 user_id: i64,
                 body: &str,
                 group_type: i32,
-                broadcasting_msg_id: Option<i64>
+                broadcasting_msg_id: Option<i64>,
+                image: Option<Vec<u8>>
             ) -> Result<i64, sqlx::Error> {
                 Ok(ID)
             }
@@ -135,9 +138,15 @@ mod tests {
             let repo = TestRepo;
             let app_data = get_app_data(repo).await;
 
-            let result = create_message(app_data, Json(
-                MessagePostJson{ user_id: 0, body: get_fake_message_body(None), group_type: crate::routes::messages::model::MessageGroupTypes::Circle, broadcasting_msg_id: None }
-            )).await;
+            let result = create_message(app_data, 
+                MessageCreateMultipart{ 
+                    user_id: 0, 
+                    body: get_fake_message_body(None), 
+                    group_type: crate::routes::messages::model::MessageGroupTypes::Circle, 
+                    broadcasting_msg_id: None, 
+                    image: None 
+                }
+            ).await;
 
             assert!(!result.is_err());
             assert!(result.ok().unwrap().id == ID);
@@ -158,7 +167,8 @@ mod tests {
                 user_id: i64,
                 body: &str,
                 group_type: i32,
-                broadcasting_msg_id: Option<i64>
+                broadcasting_msg_id: Option<i64>,
+                image: Option<Vec<u8>>
             ) -> Result<i64, sqlx::Error> {
                 Err(sqlx::Error::PoolTimedOut)
             }
@@ -169,9 +179,16 @@ mod tests {
             let repo = TestRepo;
             let app_data = get_app_data(repo).await;
 
-            let result = create_message(app_data, Json(
-                MessagePostJson{ user_id: 0, body: get_fake_message_body(None), group_type: crate::routes::messages::model::MessageGroupTypes::Circle, broadcasting_msg_id: None }
-            )).await;
+            let result = create_message(
+                app_data,
+                MessageCreateMultipart{ 
+                    user_id: 0, 
+                    body: get_fake_message_body(None), 
+                    group_type: crate::routes::messages::model::MessageGroupTypes::Circle, 
+                    broadcasting_msg_id: None, 
+                    image: None 
+                }
+            ).await;
 
             assert!(result.is_err());
             assert!(result.err().unwrap() == UserError::InternalError);

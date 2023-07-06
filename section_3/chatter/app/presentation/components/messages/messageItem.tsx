@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, Image } from "react-native";
 import MessageModel from "../../common/models/message";
 import { ListRenderItemInfo } from "@shopify/flash-list";
 import {
@@ -19,6 +19,22 @@ interface MessageItemProps {
 
 export default function MessageItem({ messageModel }: MessageItemProps) {
   const [updatedAt, setUpdatedAt] = useState("");
+  const [image, setImage] = useState<string>("");
+
+  useEffect(() => {
+    console.log("messageModel.item", messageModel.item);
+    if (messageModel.item.image) {
+      const fileReaderInstance = new FileReader();
+      const imgBlob = messageModel.item.image;
+
+      fileReaderInstance.readAsDataURL(imgBlob);
+      fileReaderInstance.onload = () => {
+        setImage((fileReaderInstance.result as string) || "");
+        console.log("image ", image);
+      };
+    }
+  }, [messageModel]);
+
   useEffect(() => {
     const date = parseISO(messageModel.item.updatedAt);
     setUpdatedAt(formatDistanceToNow(date, { addSuffix: true }));
@@ -52,6 +68,9 @@ export default function MessageItem({ messageModel }: MessageItemProps) {
         </View>
         <View style={styles.containerBody}>
           <Text style={styles.txtBody}>{messageModel.item.body}</Text>
+          {image ? (
+            <Image source={{ uri: image }} style={styles.imageStyle} />
+          ) : null}
         </View>
         <View style={styles.toolbarContainer}>
           <MessageItemToolbar />
@@ -78,7 +97,7 @@ const styles = StyleSheet.create({
     width: "85%",
   },
   containerBody: {
-    flexDirection: "row",
+    flexDirection: "column",
     alignItems: "flex-start",
     justifyContent: "flex-start",
     minHeight: 60,
@@ -118,5 +137,10 @@ const styles = StyleSheet.create({
   },
   txtUpdatedAt: {
     color: tertiary(),
+  },
+  imageStyle: {
+    marginTop: 50,
+    width: 340,
+    height: 340,
   },
 });

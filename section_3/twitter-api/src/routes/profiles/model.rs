@@ -1,12 +1,15 @@
-use std::{ fmt, pin::Pin };
+use std::{ pin::Pin };
 use actix_http::body::BoxBody;
-use actix_multipart::{ Multipart, Field };
+use actix_multipart::{ Multipart };
 use actix_web::http::header::ContentType;
 use actix_web::{ FromRequest, HttpRequest, Responder, HttpResponse};
 use actix_web::dev::Payload;
 use chrono::{ Utc, DateTime };
-use futures::{ Future, TryStreamExt, StreamExt };
+use futures::{ Future, StreamExt };
 use serde::{ Serialize, Deserialize };
+
+use crate::routes::errors::error_utils::TwitterResponseError;
+use crate::routes::utils::multipart::read_string;
 
 
 #[derive(Deserialize)]
@@ -26,15 +29,6 @@ pub struct ProfileShort {
     pub user_name: String,
     pub full_name: String,
 }
-
-#[derive(Debug)]
-struct TwitterResponseError;
-impl fmt::Display for TwitterResponseError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self)
-    }
-}
-impl actix_web::ResponseError for TwitterResponseError {}
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -71,19 +65,19 @@ impl ProfileCreateMultipart {
 
             match field_name {
                 "user_name" => {
-                    user_name = Self::read_string(&mut field).await;
+                    user_name = read_string(&mut field).await;
                 }
                 "full_name" => {
-                    full_name = Self::read_string(&mut field).await;
+                    full_name = read_string(&mut field).await;
                 }
                 "description" => {
-                    description = Self::read_string(&mut field).await;
+                    description = read_string(&mut field).await;
                 }
                 "region" => {
-                    region = Self::read_string(&mut field).await;
+                    region = read_string(&mut field).await;
                 }
                 "main_url" => {
-                    main_url = Self::read_string(&mut field).await;                    
+                    main_url = read_string(&mut field).await;                    
                 }
                 "avatar" => {
                     let mut field_avatar = vec![];
@@ -108,36 +102,6 @@ impl ProfileCreateMultipart {
             })
         } else {
             Err(TwitterResponseError.into())
-        }
-    }
-
-    #[allow(unused)]
-    async fn read_string(field: &mut Field) -> Option<String> {
-        let bytes = field.try_next().await;
-
-        if let Ok(Some(bytes)) = bytes {
-            let result = String::from_utf8(bytes.to_vec());
-            if let Ok(val_str) = result {
-                Some(val_str)
-            } else {
-                println!("read_string error {}", result.err().unwrap().utf8_error());
-                None
-            }
-        } else {
-            println!("read_string error {:?}", bytes.err().unwrap());
-            None
-        }
-    }
-
-    #[allow(unused)]
-    async fn read_i64(field: &mut Field) -> Option<i64> {
-        let bytes = field.try_next().await;
-
-        if let Ok(Some(bytes)) = bytes {
-            let val_str = String::from_utf8_lossy(&bytes);
-            Some(val_str.parse::<i64>().unwrap())
-        } else {
-            None
         }
     }
 }
