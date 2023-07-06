@@ -20,7 +20,6 @@ mod private_members {
         broadcasting_msg_id: Option<i64>,
         image: Option<Vec<u8>>
     ) -> Result<i64, sqlx::Error> {
-        println!("insert_message_inner has image {:?}", image);
         let mut tx = conn.begin().await.unwrap();
 
         let insert_msg_result = sqlx
@@ -358,7 +357,6 @@ impl InsertMessageFn for DbRepo {
         broadcasting_msg_id: Option<i64>,
         image: Option<Vec<u8>>
     ) -> Result<i64, sqlx::Error> {
-        println!("insert_message has image {:?}", image);
         private_members::insert_message_inner(
             self.get_conn(),
             user_id,

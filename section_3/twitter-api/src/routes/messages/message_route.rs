@@ -5,6 +5,7 @@ use crate::routes::errors::error_utils::UserError;
 use crate::routes::output_id::OutputId;
 use crate::routes::profiles::model::ProfileShort;
 use actix_web::{web, web::{Path, Json}};
+use log::info;
 use super::model::{MessageResponder, MessageCreateMultipart, MessageQuery, MessageByFollowingQuery, MessageResponders};
 
 
@@ -16,7 +17,7 @@ pub async fn create_message<T: InsertMessageFn>(app_data: web::Data<AppState<T>>
     } else {
         &params.body[..max]
     };
-    println!("create_message has image {:?}", params.image);
+    println!("create_message image {}", params.image.is_some());
     let group_type = params.group_type.clone() as i32;
     let result = app_data.db_repo.insert_message(params.user_id, body, group_type, params.broadcasting_msg_id, params.image.clone()).await;
     match result {

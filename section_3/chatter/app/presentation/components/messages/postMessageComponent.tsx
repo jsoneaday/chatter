@@ -144,7 +144,7 @@ export default function PostMessageComponent({
         currentMessageAccessibility == MessageAccessibility.Public
           ? ApiMessageGroupType.Public
           : ApiMessageGroupType.Circle,
-        selectedImage
+        selectedImageUri
       );
 
       if (result.ok) {

@@ -1,7 +1,9 @@
 use actix_http::body::BoxBody;
+use actix_web::web::Bytes;
 use actix_web::{Responder, FromRequest, HttpResponse, HttpRequest, http::header::ContentType};
 use actix_web::dev::Payload;
 use actix_multipart::Multipart;
+use futures_util::TryStreamExt;
 use log::info;
 use serde::{Deserialize, Serialize};
 use serde_repr::*;
@@ -43,7 +45,7 @@ impl MessageCreateMultipart {
         let mut body: Option<String> = None;
         let mut group_type: Option<i32> = None;
         let mut broadcasting_msg_id: Option<i64> = None;
-        let mut image: Option<Vec<u8>> = None;
+        let mut image: Option<Bytes> = None;
         
         let mut find_fields_loop_count = 0;
         while let Some(field_result) = multipart.next().await {
@@ -57,32 +59,25 @@ impl MessageCreateMultipart {
             let mut field = field_result.unwrap();
             let content_disposition = field.content_disposition();
             let field_name = content_disposition.get_name().unwrap();
+            println!("field_name {}", field_name);
             match field_name {
-                "userId" => {
-                    println!("field_name {}", field_name);
+                "userId" | "user_id" => {
                     user_id = read_i64(&mut field).await;
                 }
                 "body" => {
-                    println!("field_name {}", field_name);
                     body = read_string(&mut field).await;
                 }
-                "groupType" => {
-                    println!("field_name {}", field_name);
+                "groupType" | "group_type" => {
                     group_type = read_i32(&mut field).await;
                 }
-                "broadcastingMsgId" => {
-                    println!("field_name {}", field_name);
+                "broadcastingMsgId" | "broadcasting_msg_id" => {
                     broadcasting_msg_id = read_i64(&mut field).await;
                 }
                 "image" => {
-                    println!("field_name {}", field_name);
-                    let mut field_avatar = vec![];
-                    while let Some(chunk) = field.next().await {
-                        let chunk = chunk.unwrap();
-                        field_avatar.extend_from_slice(&chunk);
+                    if let Ok(Some(bytes)) = field.try_next().await {
+                        println!("image found");
+                        image = Some(bytes);
                     }
-                    image = Some(field_avatar);
-                    info!("from_multipart image {:?}", image);
                 }
                 _ => (),
             }
@@ -102,9 +97,12 @@ impl MessageCreateMultipart {
                     _ => MessageGroupTypes::Public
                 },
                 broadcasting_msg_id,
-                image
+                image: if let Some(img) = image {
+                    Some(img.to_vec())
+                } else {
+                    None
+                }
             };
-            println!("MessageCreateMultipart object image {:?}", result.clone().image);
             Ok(result)
         } else {
             Err(TwitterResponseError.into())

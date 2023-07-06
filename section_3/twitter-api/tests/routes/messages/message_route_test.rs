@@ -30,7 +30,7 @@ pub async fn test_route_create_and_get_message() {
         .set_payload(profile_payload)
         .to_request();
     let profile_id_result = test::call_and_read_body_json::<_, _, OutputId>(&app, update_avatar_req).await;
-
+    println!("created profile");
     let msg_body: String = get_fake_message_body(None);
     let msg_payload = get_message_create_multipart(&avatar, &boundary, true, profile_id_result.id, &msg_body);
     let create_msg_req = test::TestRequest
@@ -40,7 +40,7 @@ pub async fn test_route_create_and_get_message() {
         .set_payload(msg_payload)
         .to_request();
     let msg_id_result = test::call_and_read_body_json::<_, _, OutputId>(&app, create_msg_req).await;
-
+    println!("created message");
     let get_msg_req = test::TestRequest::get().uri(&format!("/v1/msg/{}", msg_id_result.id)).to_request();
     let get_msg_body = test::call_and_read_body_json::<_, _, Option<MessageResponder>>(
         &app,

@@ -20,21 +20,26 @@ export async function createMessage(
   userId: bigint,
   body: string,
   groupType: ApiMessageGroupType,
-  image?: Blob
+  uri?: string
 ) {
   const formData = new FormData();
   formData.append("userId", userId.toString());
   formData.append("body", body.toString());
   formData.append("groupType", groupType.toString());
-  if (image) {
-    formData.append("image", image);
+  if (uri) {
+    const ext = uri.substring(uri.lastIndexOf(".") + 1);
+    formData.append("image", {
+      uri,
+      name: "media",
+      type: `image/${ext}`,
+    } as any);
   }
-  console.log("createMessage formData", formData);
+  console.log("createMessage uri", uri);
   return await fetch(MSG_URL, {
     method: "post",
-    headers: {
-      "Content-Type": `multipart/form-data; boundary=${BigInt(Date.now())}`,
-    },
+    // headers: {
+    //   "Content-Type": `multipart/form-data`,
+    // },
     body: formData,
   });
 }
