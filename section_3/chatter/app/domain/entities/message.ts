@@ -37,9 +37,6 @@ export async function createMessage(
   console.log("createMessage uri", uri);
   return await fetch(MSG_URL, {
     method: "post",
-    // headers: {
-    //   "Content-Type": `multipart/form-data`,
-    // },
     body: formData,
   });
 }

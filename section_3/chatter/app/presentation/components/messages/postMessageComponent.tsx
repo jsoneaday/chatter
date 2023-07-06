@@ -96,7 +96,6 @@ export default function PostMessageComponent({
 
   const getImageFile = async (uri: string) => {
     const blobResult = await fetch(uri);
-    console.log("getImageFile blobResult", blobResult);
     if (blobResult.ok) {
       const blob = await blobResult.blob();
       setSelectedImage(blob);
@@ -137,7 +136,6 @@ export default function PostMessageComponent({
 
   const onPressSubmitMessage = async () => {
     try {
-      console.log("createMessage selectedImage", selectedImage);
       const result = await createMessage(
         profile!.id,
         messageValue,

@@ -22,16 +22,19 @@ export default function MessageItem({ messageModel }: MessageItemProps) {
   const [image, setImage] = useState<string>("");
 
   useEffect(() => {
-    console.log("messageModel.item", messageModel.item);
     if (messageModel.item.image) {
-      const fileReaderInstance = new FileReader();
+      console.log(messageModel.item.id, "has image");
       const imgBlob = messageModel.item.image;
 
-      fileReaderInstance.readAsDataURL(imgBlob);
-      fileReaderInstance.onload = () => {
-        setImage((fileReaderInstance.result as string) || "");
-        console.log("image ", image);
-      };
+      let reader = new FileReader();
+      reader.addEventListener(
+        "load",
+        () => {
+          console.log("loaded");
+        },
+        false
+      );
+      reader.readAsDataURL(imgBlob);
     }
   }, [messageModel]);
 

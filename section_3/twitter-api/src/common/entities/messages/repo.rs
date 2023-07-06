@@ -180,7 +180,6 @@ mod private_members {
 
         match following_messages_with_profiles_result {
             Ok(following_messages) => {
-                println!("query_messages_inner following_messages first {:?}", following_messages.get(0));
                 let following_messages_with_broadcasts = following_messages
                     .clone()
                     .into_iter()

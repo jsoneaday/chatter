@@ -5,7 +5,6 @@ use crate::routes::errors::error_utils::UserError;
 use crate::routes::output_id::OutputId;
 use crate::routes::profiles::model::ProfileShort;
 use actix_web::{web, web::{Path, Json}};
-use log::info;
 use super::model::{MessageResponder, MessageCreateMultipart, MessageQuery, MessageByFollowingQuery, MessageResponders};
 
 
