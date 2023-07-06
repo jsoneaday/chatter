@@ -1,6 +1,6 @@
 use crate::common::entities::messages::model::{MessageWithFollowingAndBroadcastQueryResult};
 use crate::common::app_state::AppState;
-use crate::common::entities::messages::repo::{InsertMessageFn, QueryMessageFn, QueryMessagesFn};
+use crate::common::entities::messages::repo::{InsertMessageFn, QueryMessageFn, QueryMessagesFn, QueryMessageImageFn};
 use crate::routes::errors::error_utils::UserError;
 use crate::routes::output_id::OutputId;
 use crate::routes::profiles::model::ProfileShort;
@@ -21,6 +21,23 @@ pub async fn create_message<T: InsertMessageFn>(app_data: web::Data<AppState<T>>
     let result = app_data.db_repo.insert_message(params.user_id, body, group_type, params.broadcasting_msg_id, params.image.clone()).await;
     match result {
         Ok(id) => Ok(OutputId { id }),
+        Err(e) => Err(e.into())
+    }
+}
+
+#[allow(unused)]
+pub async fn get_message_image<T: QueryMessageImageFn>(app_data: web::Data<AppState<T>>, path: Path<MessageQuery>) -> Result<Option<web::Bytes>, UserError> {
+    let message_result = app_data.db_repo.query_message_image(path.id).await;
+
+    match message_result {
+        Ok(option_image) => {
+            match option_image {
+                Some(msg_image) => {
+                    Ok(Some(web::Bytes::from(msg_image.image)))
+                },
+                None => Ok(None)
+            }
+        },
         Err(e) => Err(e.into())
     }
 }

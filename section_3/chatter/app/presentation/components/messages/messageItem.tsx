@@ -31,6 +31,7 @@ export default function MessageItem({ messageModel }: MessageItemProps) {
         "load",
         () => {
           console.log("loaded");
+          setImage(reader.result as string);
         },
         false
       );

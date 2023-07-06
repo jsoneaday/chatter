@@ -37,11 +37,7 @@ export default function Home() {
     if (profile) {
       getMessagesByFollower(profile.id, new Date().toISOString(), 10)
         .then((messages) => {
-          if (messages.ok) {
-            messages.json().then((messageObjects) => {
-              setMessageItems(messageObjects);
-            });
-          }
+          setMessageItems(messages);
         })
         .catch((e) => {
           console.log("error getting messages", e);

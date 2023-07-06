@@ -16,6 +16,11 @@ pub struct MessageQueryResult {
 }
 
 #[derive(Deserialize, Serialize, FromRow, Clone, Debug)]
+pub struct MessageImage {
+    pub image: Vec<u8>
+}
+
+#[derive(Deserialize, Serialize, FromRow, Clone, Debug)]
 pub struct MessageWithProfileQueryResult {
     // messsage fields
     pub id: i64,

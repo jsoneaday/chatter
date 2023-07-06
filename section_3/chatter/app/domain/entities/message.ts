@@ -1,4 +1,5 @@
-import { MSGS_URL, MSG_URL } from "../utils/api";
+import MessageModel from "../../presentation/common/models/message";
+import { MSGS_URL, MSG_IMAGE_URL, MSG_URL } from "../utils/api";
 
 export default class MessageEntity {
   constructor(
@@ -47,7 +48,7 @@ export async function getMessagesByFollower(
   pageSize: number = 10
 ) {
   // sample: followerId=233&lastUpdatedAt=2023-07-30T14:30:30Z
-  return await fetch(MSGS_URL, {
+  const messageResponse = await fetch(MSGS_URL, {
     method: "post",
     headers: {
       "Content-Type": "application/json",
@@ -58,4 +59,23 @@ export async function getMessagesByFollower(
       pageSize,
     }),
   });
+
+  let allMessages: MessageModel[] = [];
+  if (messageResponse.ok) {
+    const messages = await messageResponse.json();
+    messages.forEach(async (msg: MessageModel) => {
+      const imageResponse = await fetch(`${MSG_IMAGE_URL}/${msg.id}`, {
+        method: "get",
+      });
+      if (imageResponse.ok) {
+        const image = await imageResponse.blob();
+        if (image) {
+          msg.image = image;
+        }
+      }
+    });
+    allMessages = [...allMessages, ...messages];
+  }
+
+  return allMessages;
 }

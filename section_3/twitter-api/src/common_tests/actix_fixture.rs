@@ -1,7 +1,7 @@
 use crate::{
     common::{ app_state::AppState, fs::file_utils::get_avatar_buffer, entities::{base::DbRepo}},
     routes::{
-        profiles::{ profile_route::{ create_profile, get_profile, get_profile_by_user, get_followers } }, messages::message_route::{create_message, get_message, get_messages},
+        profiles::{ profile_route::{ create_profile, get_profile, get_profile_by_user, get_followers } }, messages::message_route::{create_message, get_message, get_messages, get_message_image},
     },
 };
 use chrono::{ DateTime, Utc };
@@ -93,6 +93,7 @@ pub async fn get_app() -> impl Service<Request, Response = ServiceResponse, Erro
                     .service(web::resource("/msg/{id}").route(web::get().to(get_message::<DbRepo>)))
                     .service(web::resource("/msg").route(web::post().to(create_message::<DbRepo>)))
                     .service(web::resource("/msgs").route(web::post().to(get_messages::<DbRepo>)))
+                    .service(web::resource("/msg_image/{id}").route(web::get().to(get_message_image::<DbRepo>)))
                     .service(web::resource("/profile/{id}").route(web::get().to(get_profile::<DbRepo>)))
                     .service(web::resource("/profile/username/{user_name}").route(web::get().to(get_profile_by_user::<DbRepo>)))
                     .service(web::resource("/profile").route(web::post().to(create_profile::<DbRepo>)))

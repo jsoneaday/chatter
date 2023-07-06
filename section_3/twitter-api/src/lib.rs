@@ -49,7 +49,7 @@ use routes::messages::message_route::{get_message, get_messages};
 use routes::profiles::profile_route::{ create_profile, get_profile, get_profile_by_user, get_followers };
 use std::error::Error;
 use crate::common::app_state::AppState;
-use crate::routes::messages::message_route::{ create_message };
+use crate::routes::messages::message_route::{ create_message, get_message_image };
 
 pub async fn run() -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("debug"));
@@ -73,10 +73,11 @@ pub async fn run() -> std::io::Result<()> {
                     .service(web::resource("/msg/{id}").route(web::get().to(get_message::<DbRepo>)))
                     .service(web::resource("/msg").route(web::post().to(create_message::<DbRepo>)))
                     .service(web::resource("/msgs").route(web::post().to(get_messages::<DbRepo>)))
+                    .service(web::resource("/msg_image/{id}").route(web::get().to(get_message_image::<DbRepo>)))
                     .service(web::resource("/profile/{id}").route(web::get().to(get_profile::<DbRepo>)))
                     .service(web::resource("/profile/username/{user_name}").route(web::get().to(get_profile_by_user::<DbRepo>)))
                     .service(web::resource("/profile").route(web::post().to(create_profile::<DbRepo>)))
-                    .service(web::resource("/follow/{id}").route(web::get().to(get_followers::<DbRepo>)))
+                    .service(web::resource("/follow/{id}").route(web::get().to(get_followers::<DbRepo>)))                    
             )
     })
     .bind((host, port))?

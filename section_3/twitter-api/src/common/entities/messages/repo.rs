@@ -4,12 +4,12 @@ use sqlx::{ Pool, Postgres };
 use super::model::MessageWithFollowingAndBroadcastQueryResult;
 use async_trait::async_trait;
 use chrono::{ DateTime, Utc };
+use crate::common::entities::messages::model::{MessageWithProfileQueryResult, MessageImage};
 
 // 1. we create a single logical container where multiple related members can exist
 // 2. we create repeatable structure to our code
 // 3. we can hide some members even from our parent module
-mod private_members {
-    use crate::common::entities::messages::model::MessageWithProfileQueryResult;
+mod private_members {    
     use super::*;
 
     pub async fn insert_message_inner(
@@ -112,6 +112,16 @@ mod private_members {
         _ = tx.commit().await;
 
         Ok(msg_id)
+    }
+
+    pub async fn query_message_image_inner(
+        conn: &Pool<Postgres>,
+        id: i64
+    ) -> Result<Option<MessageImage>, sqlx::Error> {
+        sqlx::query_as::<_, MessageImage>("select image from message where id = $1")
+            .bind(id)
+            .fetch_optional(conn)
+            .await
     }
 
     pub async fn query_message_inner(
@@ -395,6 +405,25 @@ impl InsertResponseMessageFn for DbRepo {
             group_type,
             original_msg_id
         ).await
+    }
+}
+
+#[automock]
+#[async_trait]
+pub trait QueryMessageImageFn {
+    async fn query_message_image(
+        &self,
+        id: i64
+    ) -> Result<Option<MessageImage>, sqlx::Error>;
+}
+
+#[async_trait]
+impl QueryMessageImageFn for DbRepo {
+    async fn query_message_image(
+        &self,
+        id: i64
+    ) -> Result<Option<MessageImage>, sqlx::Error> {
+        private_members::query_message_image_inner(self.get_conn(), id).await
     }
 }
 
