@@ -37,7 +37,7 @@ export async function createMessage(
       type: `image/${ext}`,
     } as any);
   }
-  console.log("createMessage uri", uri);
+
   return await fetch(MSG_URL, {
     method: "post",
     body: formData,
@@ -68,6 +68,5 @@ export async function getMessagesByFollower(
     return messages;
   }
 
-  console.error("return allMessages");
   return allMessages;
 }

@@ -39,11 +39,6 @@ export default function MessageItem({ messageModel }: MessageItemProps) {
       )
         .then((response) => {
           setImage(response.uri);
-          console.log(
-            "Finished downloading id",
-            messageModel.item.id,
-            response.uri
-          );
         })
         .catch((error) => {
           console.error("failed to download message file", error);

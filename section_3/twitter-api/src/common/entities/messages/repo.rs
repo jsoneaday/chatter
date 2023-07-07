@@ -189,25 +189,64 @@ mod private_members {
             .fetch_all(conn).await;
 
         match following_messages_with_profiles_result {
-            Ok(following_messages) => {
-                let following_messages_with_broadcasts = following_messages
-                    .clone()
-                    .into_iter()
-                    .filter(|msg| {
-                        msg.broadcast_msg_id.is_some() && msg.broadcast_msg_id.unwrap() > 0
-                    })
-                    .collect::<Vec<MessageWithProfileQueryResult>>();
+            Ok(mut following_messages) => {                
+                let user_messages_with_profiles_result = sqlx
+                    ::query_as::<_, MessageWithProfileQueryResult>(
+                        r"
+                        select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.id as broadcast_msg_id                    
+                        from message m 
+                            join profile p on m.user_id = p.id
+                            left join message_broadcast mb on m.id = mb.main_msg_id
+                            where
+                                m.user_id = $1 
+                                and m.updated_at < $2
+                            order by m.updated_at desc 
+                            limit $3
+                        "
+                    )
+                    .bind(user_id)
+                    .bind(last_updated_at)
+                    .bind(page_size)
+                    .fetch_all(conn).await;
 
-                let optional_matching_broadcast_messages = get_broadcasting_messages_of_messages(
-                    conn,
-                    &following_messages_with_broadcasts
-                ).await;
-                let final_message_list = append_broadcast_msgs_to_msgs(
-                    &optional_matching_broadcast_messages,
-                    following_messages
-                );
-                
-                Ok(final_message_list)
+                match user_messages_with_profiles_result {
+                    Ok(mut users_messages) => {
+                        following_messages.append(&mut users_messages);
+                        following_messages.sort_by(|a, b| {
+                            b.updated_at.cmp(&a.updated_at)
+                        });
+                        let following_messages_len = following_messages.len();
+                        let new_page_size = if following_messages_len >= page_size as usize {
+                            page_size as usize
+                        } else {
+                            following_messages_len
+                        };
+                        following_messages = following_messages[..new_page_size].to_vec();
+
+                        let following_messages_with_broadcasts = following_messages
+                            .clone()
+                            .into_iter()
+                            .filter(|msg| {
+                                msg.broadcast_msg_id.is_some() && msg.broadcast_msg_id.unwrap() > 0
+                            })
+                            .collect::<Vec<MessageWithProfileQueryResult>>();
+
+                        let optional_matching_broadcast_messages = get_broadcasting_messages_of_messages(
+                            conn,
+                            &following_messages_with_broadcasts
+                        ).await;
+                        let final_message_list = append_broadcast_msgs_to_msgs(
+                            &optional_matching_broadcast_messages,
+                            following_messages
+                        );
+                        
+                        Ok(final_message_list)
+                    },
+                    Err(e) => {
+                        println!("query_messages_inner error: {:?}", e);
+                        Err(e)
+                    },
+                }
             }
             Err(e) => {
                 println!("query_messages_inner error: {:?}", e);
