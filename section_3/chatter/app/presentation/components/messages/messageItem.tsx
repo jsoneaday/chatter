@@ -12,6 +12,8 @@ import Avatar from "../avatar";
 import MessageItemToolbar from "./messageItemToolbar";
 import { DotsIcon } from "../icons/menuItemToolbarIcons";
 const profile = require("../../theme/assets/profile.jpeg");
+import * as FileSystem from "expo-file-system";
+import { MSG_IMAGE_URL } from "../../../domain/utils/api";
 
 interface MessageItemProps {
   messageModel: ListRenderItemInfo<MessageModel>;
@@ -22,11 +24,32 @@ export default function MessageItem({ messageModel }: MessageItemProps) {
   const [image, setImage] = useState<string>("");
 
   useEffect(() => {
-    if (messageModel.item.imageUri) {
-      console.log(messageModel.item.id, "has image");
-      setImage(messageModel.item.imageUri);
+    console.log(
+      "useEffect imageUri",
+      messageModel.item.id,
+      messageModel.item.hasImage
+    );
+    if (messageModel.item.hasImage) {
+      FileSystem.downloadAsync(
+        `${MSG_IMAGE_URL}/${messageModel.item.id}`,
+        FileSystem.documentDirectory + `msg${messageModel.item.id}.jpg`,
+        {
+          headers: { Accept: "image/jpeg" },
+        }
+      )
+        .then((response) => {
+          setImage(response.uri);
+          console.log(
+            "Finished downloading id",
+            messageModel.item.id,
+            response.uri
+          );
+        })
+        .catch((error) => {
+          console.error("failed to download message file", error);
+        });
     }
-  }, [messageModel]);
+  }, [messageModel.item.hasImage]);
 
   useEffect(() => {
     const date = parseISO(messageModel.item.updatedAt);

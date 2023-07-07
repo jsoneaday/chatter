@@ -11,8 +11,8 @@ export default class MessageModel {
       fullName: string;
       avatar?: Blob;
     },
+    public hasImage: boolean,
     public broadcastingMsg?: MessageModel,
-    public image?: Blob,
     public imageUri?: string
   ) {}
 }

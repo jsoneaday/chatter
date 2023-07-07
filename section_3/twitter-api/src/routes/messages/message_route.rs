@@ -102,7 +102,7 @@ fn convert(message: &MessageWithFollowingAndBroadcastQueryResult) -> MessageResp
         updated_at: message.updated_at,
         body: message.body.clone(),
         likes: message.likes,
-        image: message.image.clone(),
+        has_image: message.image.is_some(),
         broadcasting_msg: match message.broadcast_msg_id {
             Some(id) => {
                 Some(Box::new(MessageResponder { 
@@ -110,7 +110,7 @@ fn convert(message: &MessageWithFollowingAndBroadcastQueryResult) -> MessageResp
                     updated_at: message.broadcast_msg_updated_at.unwrap(),
                     body: message.broadcast_msg_body.clone(),
                     likes: message.broadcast_msg_likes.unwrap(),
-                    image: message.broadcast_msg_image.clone(),
+                    has_image: message.broadcast_msg_image.is_some(),
                     broadcasting_msg: None ,
                     profile: ProfileShort {
                         id: message.broadcast_msg_user_id.unwrap(),

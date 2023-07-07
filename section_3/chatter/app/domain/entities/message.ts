@@ -1,6 +1,5 @@
 import MessageModel from "../../presentation/common/models/message";
 import { MSGS_URL, MSG_IMAGE_URL, MSG_URL } from "../utils/api";
-import * as FileSystem from "expo-file-system";
 /// @ts-ignore
 import { v4 as uuidv4 } from "uuid";
 
@@ -66,28 +65,9 @@ export async function getMessagesByFollower(
   let allMessages: MessageModel[] = [];
   if (messageResponse.ok) {
     const messages: MessageModel[] = await messageResponse.json();
-    messages
-      .filter((messageItem) => {
-        return messageItem.image ? true : false;
-      })
-      .forEach(async (msg: MessageModel) => {
-        FileSystem.downloadAsync(
-          `${MSG_IMAGE_URL}/${msg.id}`,
-          FileSystem.documentDirectory + `test${msg.id}.jpg`,
-          {
-            headers: { Accept: "image/jpeg" },
-          }
-        )
-          .then((response) => {
-            console.log("Finished downloading to ", response.status);
-            msg.imageUri = response.uri;
-          })
-          .catch((error) => {
-            console.error("failed to download message file", error);
-          });
-      });
-    allMessages = [...allMessages, ...messages];
+    return messages;
   }
 
+  console.error("return allMessages");
   return allMessages;
 }
