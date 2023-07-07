@@ -17,6 +17,7 @@ export default function Home() {
   const [messageItems, setMessageItems] = useState<MessageModel[]>([]);
   const [profile, setProfile] = useProfile();
   const [selectedChanged, setSelectedChanged] = useState(uuidv4());
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     getProfile("jon")
@@ -34,19 +35,30 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    refreshMessagesByFollower();
+  }, [selectedChanged, profile]);
+
+  const refreshMessagesByFollower = async () => {
     if (profile) {
-      getMessagesByFollower(profile.id, new Date().toISOString(), 10)
+      await getMessagesByFollower(profile.id, new Date().toISOString(), 10)
         .then((messages) => {
           setMessageItems(messages);
+          setRefreshing(false);
         })
         .catch((e) => {
           console.log("error getting messages", e);
+          setRefreshing(false);
         });
     }
-  }, [selectedChanged, profile]);
+  };
 
   const onSelectedHomeTabChanged = async (selectedTab: string) => {
     setSelectedChanged(uuidv4());
+  };
+
+  const onRefreshList = async () => {
+    setRefreshing(true);
+    await refreshMessagesByFollower();
   };
 
   return (
@@ -64,6 +76,8 @@ export default function Home() {
             )}
             estimatedItemSize={10}
             data={messageItems}
+            refreshing={refreshing}
+            onRefresh={onRefreshList}
           />
         </View>
       </InScreenTabs>

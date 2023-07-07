@@ -8,7 +8,6 @@ import {
   ViewStyle,
   StyleProp,
   Image,
-  ImageSourcePropType,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { primary, secondary, tertiary } from "../../theme/colors";

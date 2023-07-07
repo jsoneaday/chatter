@@ -38,6 +38,7 @@ export default function MessageItem({ messageModel }: MessageItemProps) {
         }
       )
         .then((response) => {
+          console.log("update image", response.uri);
           setImage(response.uri);
         })
         .catch((error) => {
