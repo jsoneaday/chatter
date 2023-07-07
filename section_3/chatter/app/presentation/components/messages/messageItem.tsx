@@ -25,7 +25,7 @@ export default function MessageItem({ messageModel }: MessageItemProps) {
 
   useEffect(() => {
     console.log(
-      "useEffect imageUri",
+      "useEffect hasImage",
       messageModel.item.id,
       messageModel.item.hasImage
     );
@@ -45,7 +45,7 @@ export default function MessageItem({ messageModel }: MessageItemProps) {
           console.error("failed to download message file", error);
         });
     }
-  }, [messageModel.item.hasImage]);
+  }, [messageModel.item]);
 
   useEffect(() => {
     const date = parseISO(messageModel.item.updatedAt);

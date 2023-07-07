@@ -42,6 +42,7 @@ export default function Home() {
     if (profile) {
       await getMessagesByFollower(profile.id, new Date().toISOString(), 10)
         .then((messages) => {
+          console.log("refreshed messages");
           setMessageItems(messages);
           setRefreshing(false);
         })
