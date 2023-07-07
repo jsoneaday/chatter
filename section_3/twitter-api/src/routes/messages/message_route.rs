@@ -4,6 +4,8 @@ use crate::common::entities::messages::repo::{InsertMessageFn, QueryMessageFn, Q
 use crate::routes::errors::error_utils::UserError;
 use crate::routes::output_id::OutputId;
 use crate::routes::profiles::model::ProfileShort;
+use actix_web::HttpResponse;
+use actix_web::web::Bytes;
 use actix_web::{web, web::{Path, Json}};
 use super::model::{MessageResponder, MessageCreateMultipart, MessageQuery, MessageByFollowingQuery, MessageResponders};
 
@@ -26,19 +28,24 @@ pub async fn create_message<T: InsertMessageFn>(app_data: web::Data<AppState<T>>
 }
 
 #[allow(unused)]
-pub async fn get_message_image<T: QueryMessageImageFn>(app_data: web::Data<AppState<T>>, path: Path<MessageQuery>) -> Result<Option<web::Bytes>, UserError> {
+pub async fn get_message_image<T: QueryMessageImageFn>(app_data: web::Data<AppState<T>>, path: Path<MessageQuery>) -> actix_web::Result<actix_web::HttpResponse> {
     let message_result = app_data.db_repo.query_message_image(path.id).await;
 
     match message_result {
         Ok(option_image) => {
             match option_image {
                 Some(msg_image) => {
-                    Ok(Some(web::Bytes::from(msg_image.image)))
+                    let file_bytes: Bytes = Bytes::from(msg_image.image);
+
+                    // Return the file as a response
+                    Ok(HttpResponse::Ok()
+                        .content_type("image/jpeg") // Set the appropriate content type for your file
+                        .body(file_bytes))
                 },
-                None => Ok(None)
+                None => Ok(HttpResponse::NotFound().body("File not found"))
             }
         },
-        Err(e) => Err(e.into())
+        Err(e) => Ok(HttpResponse::NotFound().body("File not found"))
     }
 }
 

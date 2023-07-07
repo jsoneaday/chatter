@@ -22,6 +22,7 @@ export default function KeyboardToolBar({
     });
 
     if (!fileResult.canceled) {
+      console.log("fileResult", fileResult);
       getImageFile(fileResult.assets[0].uri);
     } else {
       alert("You did not select any image.");

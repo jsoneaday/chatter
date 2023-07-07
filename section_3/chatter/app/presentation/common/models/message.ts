@@ -12,6 +12,7 @@ export default class MessageModel {
       avatar?: Blob;
     },
     public broadcastingMsg?: MessageModel,
-    public image?: Blob
+    public image?: Blob,
+    public imageUri?: string
   ) {}
 }

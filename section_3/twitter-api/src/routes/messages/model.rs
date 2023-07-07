@@ -1,9 +1,7 @@
 use actix_http::body::BoxBody;
-use actix_web::web::Bytes;
 use actix_web::{Responder, FromRequest, HttpResponse, HttpRequest, http::header::ContentType};
 use actix_web::dev::Payload;
 use actix_multipart::Multipart;
-use futures_util::TryStreamExt;
 use log::info;
 use serde::{Deserialize, Serialize};
 use serde_repr::*;
@@ -45,7 +43,7 @@ impl MessageCreateMultipart {
         let mut body: Option<String> = None;
         let mut group_type: Option<i32> = None;
         let mut broadcasting_msg_id: Option<i64> = None;
-        let mut image: Option<Bytes> = None;
+        let mut image: Option<Vec<u8>> = None;
         
         let mut find_fields_loop_count = 0;
         while let Some(field_result) = multipart.next().await {
@@ -74,10 +72,12 @@ impl MessageCreateMultipart {
                     broadcasting_msg_id = read_i64(&mut field).await;
                 }
                 "image" => {
-                    if let Ok(Some(bytes)) = field.try_next().await {
-                        println!("image found");
-                        image = Some(bytes);
+                    let mut field_image = vec![];
+                    while let Some(chunk) = field.next().await {
+                        let chunk = chunk.unwrap();
+                        field_image.extend_from_slice(&chunk);
                     }
+                    image = Some(field_image);
                 }
                 _ => (),
             }

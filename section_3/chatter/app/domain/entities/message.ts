@@ -1,5 +1,8 @@
 import MessageModel from "../../presentation/common/models/message";
 import { MSGS_URL, MSG_IMAGE_URL, MSG_URL } from "../utils/api";
+import * as FileSystem from "expo-file-system";
+/// @ts-ignore
+import { v4 as uuidv4 } from "uuid";
 
 export default class MessageEntity {
   constructor(
@@ -62,18 +65,27 @@ export async function getMessagesByFollower(
 
   let allMessages: MessageModel[] = [];
   if (messageResponse.ok) {
-    const messages = await messageResponse.json();
-    messages.forEach(async (msg: MessageModel) => {
-      const imageResponse = await fetch(`${MSG_IMAGE_URL}/${msg.id}`, {
-        method: "get",
+    const messages: MessageModel[] = await messageResponse.json();
+    messages
+      .filter((messageItem) => {
+        return messageItem.image ? true : false;
+      })
+      .forEach(async (msg: MessageModel) => {
+        FileSystem.downloadAsync(
+          `${MSG_IMAGE_URL}/${msg.id}`,
+          FileSystem.documentDirectory + `test${msg.id}.jpg`,
+          {
+            headers: { Accept: "image/jpeg" },
+          }
+        )
+          .then((response) => {
+            console.log("Finished downloading to ", response.status);
+            msg.imageUri = response.uri;
+          })
+          .catch((error) => {
+            console.error("failed to download message file", error);
+          });
       });
-      if (imageResponse.ok) {
-        const image = await imageResponse.blob();
-        if (image) {
-          msg.image = image;
-        }
-      }
-    });
     allMessages = [...allMessages, ...messages];
   }
 
