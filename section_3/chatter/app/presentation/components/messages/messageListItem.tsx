@@ -37,7 +37,7 @@ export default function MessageListItem({
     if (messageModel.item.hasImage) {
       FileSystem.downloadAsync(
         `${MSG_IMAGE_URL}/${messageModel.item.id}`,
-        FileSystem.documentDirectory + `msg${messageModel.item.id}.jpg`,
+        FileSystem.cacheDirectory + `msg${messageModel.item.id}.jpg`,
         {
           headers: { Accept: "image/jpeg" },
         }

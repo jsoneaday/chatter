@@ -30,7 +30,6 @@ export default function MessageList({ navigation }: MessageListProps) {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    console.log("navigation", navigation);
     getProfile("jon")
       .then((profileResult) => {
         if (profileResult.ok) {
