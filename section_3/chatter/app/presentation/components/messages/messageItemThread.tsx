@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Text, Image } from "react-native";
 import MessageModel from "../../common/models/message";
-import { ListRenderItemInfo } from "@shopify/flash-list";
 import {
   bodyFontStyle,
   subHeaderFontStyle,
@@ -9,64 +8,45 @@ import {
 import { parseISO, formatDistanceToNow } from "date-fns";
 import { tertiary } from "../../theme/colors";
 import Avatar from "../avatar";
-import MessageItemToolbar from "./messageItemToolbar";
+import MessageListItemToolbar from "./messageListItemToolbar";
 import { DotsIcon } from "../icons/menuItemToolbarIcons";
 const profile = require("../../theme/assets/profile.jpeg");
-import * as FileSystem from "expo-file-system";
-import { MSG_IMAGE_URL } from "../../../domain/utils/api";
+import { StackScreenProps } from "@react-navigation/stack";
+import { RootStackParamList } from "../../screens/home/home";
 
-interface MessageItemProps {
-  messageModel: ListRenderItemInfo<MessageModel>;
+export interface MessageItemThreadProps {
+  message: MessageModel;
+  imageUri: string;
 }
 
-export default function MessageItem({ messageModel }: MessageItemProps) {
+export type MessageItemThreadNavProps = StackScreenProps<
+  RootStackParamList,
+  "MessageItemThread"
+>;
+
+export default function MessageItemThread({
+  route,
+}: MessageItemThreadNavProps) {
   const [updatedAt, setUpdatedAt] = useState("");
-  const [image, setImage] = useState<string>("");
+  const { message, imageUri } = route.params;
 
   useEffect(() => {
-    console.log(
-      "useEffect hasImage",
-      messageModel.item.id,
-      messageModel.item.hasImage
-    );
-    if (messageModel.item.hasImage) {
-      FileSystem.downloadAsync(
-        `${MSG_IMAGE_URL}/${messageModel.item.id}`,
-        FileSystem.documentDirectory + `msg${messageModel.item.id}.jpg`,
-        {
-          headers: { Accept: "image/jpeg" },
-        }
-      )
-        .then((response) => {
-          console.log("update image", response.uri);
-          setImage(response.uri);
-        })
-        .catch((error) => {
-          console.error("failed to download message file", error);
-        });
-    }
-  }, [messageModel.item]);
-
-  useEffect(() => {
-    const date = parseISO(messageModel.item.updatedAt);
+    const date = parseISO(message.updatedAt);
     setUpdatedAt(formatDistanceToNow(date, { addSuffix: true }));
-  }, [messageModel]);
+  }, [message]);
 
   return (
     <View style={styles.container}>
-      <View style={styles.avatarContainer}>
-        <Avatar imgFile={profile} size={50} />
-      </View>
-      {/* top width sets following widths if wrapped */}
-      <View style={styles.contentContainer}>
+      <View style={styles.headerContainer}>
+        <View style={styles.avatarContainer}>
+          <Avatar imgFile={profile} size={50} />
+        </View>
         <View style={styles.containerBodyHeader}>
           <View style={styles.containerBodyHeaderLeft}>
-            <Text style={styles.txtFullName}>
-              {messageModel.item.profile.fullName}
-            </Text>
+            <Text style={styles.txtFullName}>{message.profile.fullName}</Text>
             <Text
               style={styles.txtUserName}
-            >{`@${messageModel.item.profile.userName}`}</Text>
+            >{`@${message.profile.userName}`}</Text>
             <View style={styles.updatedAtContainer}>
               <Text
                 style={{ ...styles.txtUpdatedAt, fontSize: 6 }}
@@ -78,14 +58,17 @@ export default function MessageItem({ messageModel }: MessageItemProps) {
           </View>
           <DotsIcon size={18} />
         </View>
+      </View>
+      {/* top width sets following widths if wrapped */}
+      <View style={styles.contentContainer}>
         <View style={styles.containerBody}>
-          <Text style={styles.txtBody}>{messageModel.item.body}</Text>
-          {image ? (
-            <Image source={{ uri: image }} style={styles.imageStyle} />
+          <Text style={styles.txtBody}>{message.body}</Text>
+          {imageUri ? (
+            <Image source={{ uri: imageUri }} style={styles.imageStyle} />
           ) : null}
         </View>
         <View style={styles.toolbarContainer}>
-          <MessageItemToolbar />
+          <MessageListItemToolbar />
         </View>
       </View>
     </View>
@@ -94,12 +77,17 @@ export default function MessageItem({ messageModel }: MessageItemProps) {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
+    flexDirection: "column",
     alignItems: "flex-start",
     justifyContent: "flex-start",
     paddingRight: 10,
     paddingLeft: 4,
     paddingVertical: 5,
+  },
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
   },
   avatarContainer: {
     paddingTop: 2,
@@ -113,6 +101,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "flex-start",
     minHeight: 60,
+    marginBottom: 5,
   },
   containerBodyHeader: {
     flexDirection: "row",

@@ -9,7 +9,7 @@ import {
 
 const size = 21;
 
-export default function MessageItemToolbar() {
+export default function MessageListItemToolbar() {
   return (
     <View style={styles.container}>
       <ResponseIcon size={size} />

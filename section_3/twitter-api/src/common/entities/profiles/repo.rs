@@ -376,7 +376,6 @@ mod tests {
                 following_profile_message_ids
             );
         }
-        println!("log: following_profiles_and_messages {:?}", following_profiles_and_messages);
 
         for following_pm in following_profiles_and_messages.iter() {
             let not_current_profile_ids: Vec<i64> = following_profiles_and_messages

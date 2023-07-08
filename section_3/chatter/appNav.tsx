@@ -23,6 +23,7 @@ import DirectMessage from "./app/presentation/screens/directmessage";
 import { horizontalSlideDuration } from "./app/presentation/common/animationUtils";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import PostMessageComponent from "./app/presentation/components/messages/postMessageComponent";
+import { headerStyle } from "./app/presentation/theme/element-styles/screenHeaderStyles";
 
 type RootTabParamList = {
   Home: undefined;
@@ -70,7 +71,7 @@ export default function AppNav() {
             headerTitle: (props) => <Header />,
             headerLeft: () => null,
             headerStyle: {
-              ...styles.headerStyle,
+              ...headerStyle,
               backgroundColor: primary(true),
             },
             headerShadowVisible: false,
@@ -133,9 +134,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     height: "100%",
-  },
-  headerStyle: {
-    height: Platform.OS === "ios" ? 108 : 88,
   },
   menuIcon: {
     width: 35,
