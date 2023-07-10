@@ -1,5 +1,11 @@
 import { primary, secondary } from "../colors";
 
+export const screenHeaderFontStyle = (isInverted: boolean = false) => ({
+  color: primary(isInverted),
+  fontSize: 22,
+  fontWeight: "bold",
+});
+
 export const headerFontStyle = (isInverted: boolean = false) => ({
   color: primary(isInverted),
   fontSize: 18,

@@ -1,15 +1,8 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useSlideMenuOpener } from "./app/domain/store/slideMenuOpener/slideMenuOpenerHooks";
-import {
-  Animated,
-  useWindowDimensions,
-  StyleSheet,
-  Platform,
-  View,
-} from "react-native";
+import { Animated, useWindowDimensions, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import Home from "./app/presentation/screens/home/home";
-import Header from "./app/presentation/components/headers/screenHeader";
 import { primary, secondary, tertiary } from "./app/presentation/theme/colors";
 import {
   BrowseIcon,
@@ -68,7 +61,6 @@ export default function AppNav() {
         <Tab.Navigator
           sceneContainerStyle={{ borderTopWidth: 0 }}
           screenOptions={({ route }) => ({
-            headerTitle: (props) => <Header />,
             headerLeft: () => null,
             headerStyle: {
               ...headerStyle,
@@ -78,7 +70,6 @@ export default function AppNav() {
             tabBarShowLabel: false,
             tabBarActiveTintColor: tertiary(),
             tabBarInactiveTintColor: secondary(),
-
             tabBarStyle: { backgroundColor: primary(true) },
           })}
         >
@@ -86,6 +77,7 @@ export default function AppNav() {
             name="Home"
             children={() => <Home />}
             options={{
+              headerShown: false,
               tabBarIcon: ({ focused, color, size }) => (
                 <HomeIcon isSelected={focused} size={25} />
               ),
