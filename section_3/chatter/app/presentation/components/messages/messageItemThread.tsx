@@ -6,13 +6,14 @@ import {
   subHeaderFontStyle,
 } from "../../theme/element-styles/textStyles";
 import { parseISO, formatDistanceToNow } from "date-fns";
-import { tertiary } from "../../theme/colors";
+import { primary, tertiary } from "../../theme/colors";
 import Avatar from "../avatar";
 import MessageListItemToolbar from "./messageListItemToolbar";
 import { DotsIcon } from "../icons/menuItemToolbarIcons";
 const profile = require("../../theme/assets/profile.jpeg");
 import { StackScreenProps } from "@react-navigation/stack";
 import { RootStackParamList } from "../../screens/home/home";
+import { visibleBorder } from "../../theme/visibleBorder";
 
 export interface MessageItemThreadProps {
   message: MessageModel;
@@ -47,14 +48,6 @@ export default function MessageItemThread({
             <Text
               style={styles.txtUserName}
             >{`@${message.profile.userName}`}</Text>
-            <View style={styles.updatedAtContainer}>
-              <Text
-                style={{ ...styles.txtUpdatedAt, fontSize: 6 }}
-              >{`\u2B22`}</Text>
-              <Text
-                style={{ ...styles.txtUpdatedAt, marginLeft: 5 }}
-              >{`${updatedAt}`}</Text>
-            </View>
           </View>
           <DotsIcon size={18} />
         </View>
@@ -67,6 +60,11 @@ export default function MessageItemThread({
             <Image source={{ uri: imageUri }} style={styles.imageStyle} />
           ) : null}
         </View>
+        <View style={styles.updatedAtContainer}>
+          <Text
+            style={{ ...styles.txtUpdatedAt, marginLeft: 5 }}
+          >{`${updatedAt}`}</Text>
+        </View>
         <View style={styles.toolbarContainer}>
           <MessageListItemToolbar />
         </View>
@@ -77,46 +75,55 @@ export default function MessageItemThread({
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: primary(true),
     flexDirection: "column",
     alignItems: "flex-start",
     justifyContent: "flex-start",
-    paddingRight: 10,
-    paddingLeft: 4,
+    paddingRight: 15,
+    paddingLeft: 15,
+    paddingTop: 10,
     paddingVertical: 5,
+    width: "100%",
+    height: "100%",
   },
   headerContainer: {
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "flex-start",
+    width: "100%",
   },
   avatarContainer: {
     paddingTop: 2,
     width: "15%",
   },
   contentContainer: {
-    width: "85%",
+    width: "100%",
+    paddingTop: 10,
+    paddingBottom: 10,
   },
   containerBody: {
     flexDirection: "column",
     alignItems: "flex-start",
     justifyContent: "flex-start",
     minHeight: 60,
-    marginBottom: 5,
+    marginBottom: 10,
   },
   containerBodyHeader: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
+    width: "82%",
   },
   containerBodyHeaderLeft: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: "column",
+    alignItems: "flex-start",
     justifyContent: "flex-start",
   },
   updatedAtContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginRight: 10,
+    marginBottom: 5,
   },
   toolbarContainer: {
     padding: 4,
@@ -133,7 +140,6 @@ const styles = StyleSheet.create({
   },
   txtBody: {
     ...bodyFontStyle,
-    flex: 1,
     flexWrap: "wrap",
   },
   txtUpdatedAt: {
@@ -141,7 +147,7 @@ const styles = StyleSheet.create({
   },
   imageStyle: {
     marginTop: 50,
-    width: 340,
-    height: 340,
+    width: "100%",
+    minHeight: 400,
   },
 });

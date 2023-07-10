@@ -38,7 +38,7 @@ export default function Home() {
         name="MessageItemThread"
         component={MessageItemThread}
         options={{
-          headerTitle: (props) => (
+          headerTitle: () => (
             <NavigationHeader
               style={{ ...(screenHeaderFontStyle() as object) }}
             >
