@@ -36,6 +36,12 @@ import { useProfile } from "../../../domain/store/profile/profileHooks";
 
 const LAST_POSTED_MESSAGE_KEY = "LAST_POSTED_MESSAGE_KEY";
 
+export enum TypeOfPost {
+  NewPost,
+  Response,
+  Resend,
+}
+
 interface PostMessageButtonProps {
   toggleSelf: () => void;
   show: boolean;

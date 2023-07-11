@@ -10,26 +10,38 @@ import { primary, tertiary } from "../../theme/colors";
 import Avatar from "../avatar";
 import MessageListItemToolbar from "./messageListItemToolbar";
 import { DotsIcon } from "../icons/menuItemToolbarIcons";
-const profile = require("../../theme/assets/profile.jpeg");
-import { StackScreenProps } from "@react-navigation/stack";
+const profileImg = require("../../theme/assets/profile.jpeg");
+import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack";
 import { RootStackParamList } from "../../screens/home/home";
 import { bottomBorder } from "../../theme/element-styles/dividerStyles";
+import MessageList from "./messageList";
+import { useNavigation } from "@react-navigation/native";
+import { useProfile } from "../../../domain/store/profile/profileHooks";
 
 export interface MessageItemThreadProps {
   message: MessageModel;
   imageUri: string;
 }
 
-export type MessageItemThreadNavProps = StackScreenProps<
+type MessageItemThreadRouteProps = StackScreenProps<
   RootStackParamList,
   "MessageItemThread"
 >;
 
 export default function MessageItemThread({
   route,
-}: MessageItemThreadNavProps) {
+}: MessageItemThreadRouteProps) {
   const [updatedAt, setUpdatedAt] = useState("");
   const { message, imageUri } = route.params;
+  const [profile] = useProfile();
+  const navigation =
+    useNavigation<
+      StackNavigationProp<
+        RootStackParamList,
+        keyof RootStackParamList,
+        undefined
+      >
+    >();
 
   useEffect(() => {
     const date = parseISO(message.updatedAt);
@@ -40,7 +52,7 @@ export default function MessageItemThread({
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <View style={styles.avatarContainer}>
-          <Avatar imgFile={profile} size={50} />
+          <Avatar imgFile={profileImg} size={50} />
         </View>
         <View style={styles.containerBodyHeader}>
           <View style={styles.containerBodyHeaderLeft}>
@@ -68,6 +80,14 @@ export default function MessageItemThread({
         <View style={styles.toolbarContainer}>
           <MessageListItemToolbar />
         </View>
+      </View>
+      <View>
+        {/* <MessageList
+          navigation={navigation}
+          messageItems={messageItems}
+          onRefreshList={onRefreshList}
+          isRefreshing={isRefreshing}
+        /> */}
       </View>
     </View>
   );

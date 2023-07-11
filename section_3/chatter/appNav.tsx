@@ -17,6 +17,7 @@ import { horizontalSlideDuration } from "./app/presentation/common/animationUtil
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import PostMessageComponent from "./app/presentation/components/messages/postMessageComponent";
 import { headerStyle } from "./app/presentation/theme/element-styles/screenHeaderStyles";
+import { usePostMessageSheetOpener } from "./app/domain/store/postMessageSheetOpener/postMessageSheetOpenerHooks";
 
 type RootTabParamList = {
   Home: undefined;
@@ -32,11 +33,10 @@ export default function AppNav() {
   const windowDimensions = useWindowDimensions();
   const left = useRef(new Animated.Value(windowDimensions.width)).current;
   const [showPostMessageComponent, setShowPostMessageComponent] =
-    useState(false);
+    usePostMessageSheetOpener();
 
   const togglePostMessageComponent = () => {
-    const currentShowInnerFullSheet = !showPostMessageComponent;
-    setShowPostMessageComponent(currentShowInnerFullSheet);
+    setShowPostMessageComponent(!showPostMessageComponent);
   };
 
   useEffect(() => {

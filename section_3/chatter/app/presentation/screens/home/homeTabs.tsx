@@ -11,7 +11,6 @@ import { RootStackParamList } from "./home";
 import MessageList from "../../components/messages/messageList";
 import MessageModel from "../../common/models/message";
 import { useProfile } from "../../../domain/store/profile/profileHooks";
-import { getProfile } from "../../../domain/entities/profile";
 import { getMessagesByFollower } from "../../../domain/entities/message";
 
 interface HomeTabsProps {
@@ -25,23 +24,8 @@ interface HomeTabsProps {
 export default function HomeTabs({ navigation }: HomeTabsProps) {
   const [selectedChanged, setSelectedChanged] = useState(uuidv4());
   const [messageItems, setMessageItems] = useState<MessageModel[]>([]);
-  const [profile, setProfile] = useProfile();
+  const [profile] = useProfile();
   const [isRefreshing, setIsRefreshing] = useState(false);
-
-  useEffect(() => {
-    getProfile("jon")
-      .then((profileResult) => {
-        if (profileResult.ok) {
-          profileResult.json().then((profileData) => {
-            // json must always be parsed before sending a log
-            setProfile(profileData);
-          });
-        }
-      })
-      .catch((e) => {
-        console.log("failed to get user profile", e);
-      });
-  }, []);
 
   useEffect(() => {
     refreshMessagesByFollower();

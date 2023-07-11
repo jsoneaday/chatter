@@ -2,6 +2,7 @@ import React, { useRef, ReactNode, useEffect, useState } from "react";
 import { Animated, StyleSheet, View, useWindowDimensions } from "react-native";
 import { verticalSlideDuration } from "../../common/animationUtils";
 import { containerStyle } from "../../theme/element-styles/screenStyles";
+import { usePostMessageSheetOpener } from "../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerHooks";
 
 const topLimiter = 60;
 
@@ -24,12 +25,14 @@ export default function FullSheet({ children, show }: FullSheetProps) {
 
   useEffect(() => {
     if (show) {
+      console.log("fullSheet show", show);
       Animated.timing(sheetContainerHeight, {
         toValue: windowDimension.height,
         duration: verticalSlideDuration,
         useNativeDriver: false,
       }).start();
     } else {
+      console.log("fullSheet hide", show);
       Animated.timing(sheetContainerHeight, {
         toValue: 0,
         duration: verticalSlideDuration,

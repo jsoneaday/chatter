@@ -1,17 +1,24 @@
 import React from "react";
-import { Appearance } from "react-native";
+import { Pressable } from "react-native";
 import { Ionicons, Feather, Entypo, MaterialIcons } from "@expo/vector-icons";
 import { notSelected, primary } from "../../theme/colors";
 import { IconProps } from "./iconPropType";
-
-const colorScheme = Appearance.getColorScheme();
+import { usePostMessageSheetOpener } from "../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerHooks";
 
 export function ResponseIcon({ isSelected, size }: IconProps) {
-  if (isSelected) {
-    return <Ionicons name="chatbubble-outline" size={size} color={primary()} />;
-  }
+  const [show, setShow] = usePostMessageSheetOpener();
+  const onPressPostMessageSheetOpen = () => {
+    setShow(!show);
+  };
+
   return (
-    <Ionicons name="chatbubble-outline" size={size} color={notSelected()} />
+    <Pressable onPress={onPressPostMessageSheetOpen}>
+      <Ionicons
+        name="chatbubble-outline"
+        size={size}
+        color={isSelected ? primary() : notSelected()}
+      />
+    </Pressable>
   );
 }
 
