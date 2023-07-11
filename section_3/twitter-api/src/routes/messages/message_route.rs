@@ -1,6 +1,6 @@
-use crate::common::entities::messages::model::{MessageWithFollowingAndBroadcastQueryResult};
+use crate::common::entities::messages::model::MessageWithFollowingAndBroadcastQueryResult;
 use crate::common::app_state::AppState;
-use crate::common::entities::messages::repo::{InsertMessageFn, QueryMessageFn, QueryMessagesFn, QueryMessageImageFn};
+use crate::common::entities::messages::repo::{InsertMessageFn, QueryMessageFn, QueryMessagesFn, QueryMessageImageFn, InsertResponseMessageFn};
 use crate::routes::errors::error_utils::UserError;
 use crate::routes::output_id::OutputId;
 use crate::routes::profiles::model::ProfileShort;
@@ -8,7 +8,6 @@ use actix_web::HttpResponse;
 use actix_web::web::Bytes;
 use actix_web::{web, web::{Path, Json}};
 use super::model::{MessageResponder, MessageCreateMultipart, MessageQuery, MessageByFollowingQuery, MessageResponders};
-
 
 #[allow(unused)]
 pub async fn create_message<T: InsertMessageFn>(app_data: web::Data<AppState<T>>, params: MessageCreateMultipart) -> Result<OutputId, UserError> {  
@@ -18,9 +17,26 @@ pub async fn create_message<T: InsertMessageFn>(app_data: web::Data<AppState<T>>
     } else {
         &params.body[..max]
     };
-    println!("create_message image {}", params.image.is_some());
+    
     let group_type = params.group_type.clone() as i32;
     let result = app_data.db_repo.insert_message(params.user_id, body, group_type, params.broadcasting_msg_id, params.image.clone()).await;
+    match result {
+        Ok(id) => Ok(OutputId { id }),
+        Err(e) => Err(e.into())
+    }
+}
+
+#[allow(unused)]
+pub async fn create_response_message<T: InsertResponseMessageFn>(app_data: web::Data<AppState<T>>, params: MessageCreateMultipart) -> Result<OutputId, UserError> {  
+    let max = 141; 
+    let body = if params.body.len() < max {
+        &params.body[..]
+    } else {
+        &params.body[..max]
+    };
+    
+    let group_type = params.group_type.clone() as i32;
+    let result = app_data.db_repo.insert_response_message(params.user_id, body, group_type, params.broadcasting_msg_id.unwrap()).await;
     match result {
         Ok(id) => Ok(OutputId { id }),
         Err(e) => Err(e.into())
@@ -177,6 +193,48 @@ mod tests {
         }
     }
 
+    mod test_mod_create_response_message_and_check_id {        
+        use crate::{common::entities::messages::repo::InsertResponseMessageFn, routes::messages::message_route::create_response_message};
+
+        use super::*;
+
+        const ID: i64 = 22;
+        struct TestRepo;
+        
+        #[allow(unused)]
+        #[async_trait]
+        impl InsertResponseMessageFn for TestRepo {            
+            async fn insert_response_message(
+                &self,
+                user_id: i64,
+                body: &str,
+                group_type: i32,
+                original_msg_id: i64
+            ) -> Result<i64, sqlx::Error> {
+                Ok(ID)
+            }
+        }
+
+        #[tokio::test]
+        async fn test_create_message_and_check_id() {
+            let repo = TestRepo;
+            let app_data = get_app_data(repo).await;
+
+            let result = create_response_message(app_data, 
+                MessageCreateMultipart{ 
+                    user_id: 0, 
+                    body: get_fake_message_body(None), 
+                    group_type: crate::routes::messages::model::MessageGroupTypes::Circle, 
+                    broadcasting_msg_id: Some(1), 
+                    image: None 
+                }
+            ).await;
+
+            assert!(!result.is_err());
+            assert!(result.ok().unwrap().id == ID);
+        }
+    }
+
     mod test_mod_create_message_failure_returns_correct_error {      
         use crate::routes::errors::error_utils::UserError;
         use super::*;
@@ -252,7 +310,7 @@ mod tests {
         use fake::faker::{internet::en::Username, name::en::{FirstName, LastName}};
         use fake::Fake;
         use crate::{
-            routes::{messages::{message_route::get_message, model::{MessageQuery, MessageGroupTypes}}}, 
+            routes::messages::{message_route::get_message, model::{MessageQuery, MessageGroupTypes}}, 
             common::entities::messages::{repo::QueryMessageFn, model::MessageWithFollowingAndBroadcastQueryResult}
         };
         use super::*;
@@ -338,9 +396,9 @@ mod tests {
     }
 
     mod test_mod_get_messages_and_check_id {  
-        use chrono::{Utc};
+        use chrono::Utc;
         use crate::{
-            routes::{messages::{model::{ MessageByFollowingQuery}, message_route::get_messages}}, 
+            routes::messages::{model::MessageByFollowingQuery, message_route::get_messages}, 
             common::entities::base::DbRepo
         };
         use super::*;

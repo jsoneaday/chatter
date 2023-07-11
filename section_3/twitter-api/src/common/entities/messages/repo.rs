@@ -1,4 +1,4 @@
-use crate::common::entities::{ base::{ EntityId, DbRepo, DbConnGetter } };
+use crate::common::entities::base::{ EntityId, DbRepo, DbConnGetter };
 use mockall::automock;
 use sqlx::{ Pool, Postgres };
 use super::model::MessageWithFollowingAndBroadcastQueryResult;
@@ -515,11 +515,10 @@ mod tests {
     use lazy_static::lazy_static;
     use crate::{
         common_tests::actix_fixture::PUBLIC_GROUP_TYPE,
-        common::entities::{profiles::{
+        common::entities::profiles::{
                 repo::{ InsertProfileFn, QueryProfileFn, MockInsertProfileFn },
                 model::ProfileCreate,
-            }
-        }
+            }        
     };
     use super::*;
 
@@ -714,13 +713,13 @@ mod tests {
                 None
             ).await;
 
-            let response_msg = fixtures.db_repo.insert_response_message(
+            let response_msg_id = fixtures.db_repo.insert_response_message(
                 profile_id,
                 "Body of response message",
                 PUBLIC_GROUP_TYPE,
                 original_msg_id.unwrap()
             ).await;
-            assert!(response_msg.unwrap() > 0);
+            assert!(response_msg_id.unwrap() > 0);
         }
 
         #[test]
