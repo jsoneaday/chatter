@@ -48,10 +48,9 @@ export default function PostMessageComponent({
   const [showSubmitBtn, setShowSubmitBtn] = useState(true);
   const [keyboardBarStyle, setKeyboardBarStyle] = useState<
     StyleProp<ViewStyle>
-  >({ width: "100%" });
+  >({ width: "100%", zIndex: 100 });
   const [showKeyboardTabBar, setShowKeyboardTabBar] = useState(false);
   const [messageValue, setMessageValue] = useState("");
-  const [selectedImage, setSelectedImage] = useState<Blob | undefined>();
   const [selectedImageUri, setSelectedImageUri] = useState<string>();
   const [showPostMsgGroupSelector, setShowPostMsgGroupSelector] =
     useState(false);
@@ -97,16 +96,13 @@ export default function PostMessageComponent({
     const blobResult = await fetch(uri);
     if (blobResult.ok) {
       const blob = await blobResult.blob();
-      setSelectedImage(blob);
       setSelectedImageUri(uri);
     } else {
-      setSelectedImage(undefined);
       setSelectedImageUri("");
     }
   };
 
   const emptySelectedImage = () => {
-    setSelectedImage(undefined);
     setSelectedImageUri("");
   };
 
@@ -148,7 +144,6 @@ export default function PostMessageComponent({
         console.log("creating message: ", await result.json());
         setMessageValue("");
         toggleShowPostMessageSheet();
-        setSelectedImage(undefined);
         setSelectedImageUri("");
       } else {
         console.log("error creating message: ", result.status);
