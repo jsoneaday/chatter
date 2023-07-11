@@ -1,5 +1,10 @@
 import MessageModel from "../../presentation/common/models/message";
-import { MSGS_URL, MSG_IMAGE_URL, MSG_URL } from "../utils/api";
+import {
+  MSGS_URL,
+  MSG_IMAGE_URL,
+  MSG_RESPONSE_URL,
+  MSG_URL,
+} from "../utils/api";
 /// @ts-ignore
 import { v4 as uuidv4 } from "uuid";
 
@@ -23,6 +28,7 @@ export async function createMessage(
   userId: bigint,
   body: string,
   groupType: ApiMessageGroupType,
+  // todo: add optional broadcasting_msg_id
   uri?: string
 ) {
   const formData = new FormData();
@@ -39,6 +45,33 @@ export async function createMessage(
   }
 
   return await fetch(MSG_URL, {
+    method: "post",
+    body: formData,
+  });
+}
+
+export async function createMessageResponse(
+  userId: bigint,
+  body: string,
+  groupType: ApiMessageGroupType,
+  originalMsgId: bigint,
+  uri?: string
+) {
+  const formData = new FormData();
+  formData.append("userId", userId.toString());
+  formData.append("body", body.toString());
+  formData.append("groupType", groupType.toString());
+  formData.append("originalMsgId", originalMsgId.toString());
+  if (uri) {
+    const ext = uri.substring(uri.lastIndexOf(".") + 1);
+    formData.append("image", {
+      uri,
+      name: "media",
+      type: `image/${ext}`,
+    } as any);
+  }
+
+  return await fetch(MSG_RESPONSE_URL, {
     method: "post",
     body: formData,
   });

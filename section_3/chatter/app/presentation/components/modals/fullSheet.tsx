@@ -2,7 +2,6 @@ import React, { useRef, ReactNode, useEffect, useState } from "react";
 import { Animated, StyleSheet, View, useWindowDimensions } from "react-native";
 import { verticalSlideDuration } from "../../common/animationUtils";
 import { containerStyle } from "../../theme/element-styles/screenStyles";
-import { usePostMessageSheetOpener } from "../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerHooks";
 
 const topLimiter = 60;
 

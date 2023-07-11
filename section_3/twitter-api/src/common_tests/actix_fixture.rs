@@ -1,12 +1,13 @@
 use crate::{
-    common::{ app_state::AppState, fs::file_utils::get_avatar_buffer, entities::{base::DbRepo}},
+    common::{ app_state::AppState, fs::file_utils::get_avatar_buffer, entities::base::DbRepo},
     routes::{
-        profiles::{ profile_route::{ create_profile, get_profile, get_profile_by_user, get_followers } }, messages::message_route::{create_message, get_message, get_messages, get_message_image},
+        profiles::profile_route::{ create_profile, get_profile, get_profile_by_user, get_followers }, 
+        messages::message_route::{create_message, get_message, get_messages, get_message_image, create_response_message},
     },
 };
 use chrono::{ DateTime, Utc };
 use serde::Deserialize;
-use sqlx::{ FromRow };
+use sqlx::FromRow;
 use actix_web::{ App, web::{ self, BytesMut, Bytes }, Error, test, dev::{ Service, ServiceResponse } };
 use actix_http::Request;
 use fake::{
@@ -19,7 +20,7 @@ use fake::{
 };
 use fake::faker::lorem::en::Sentence;
 use fake::faker::company::en::CompanyName;
-use std::{ ops::Range };
+use std::ops::Range;
 
 pub const PUBLIC_GROUP_TYPE: i32 = 1;
 pub const CIRCLE_GROUP_TYPE: i32 = 2;
@@ -92,6 +93,7 @@ pub async fn get_app() -> impl Service<Request, Response = ServiceResponse, Erro
                 web::scope("/v1")
                     .service(web::resource("/msg/{id}").route(web::get().to(get_message::<DbRepo>)))
                     .service(web::resource("/msg").route(web::post().to(create_message::<DbRepo>)))
+                    .service(web::resource("/msg_response").route(web::post().to(create_response_message::<DbRepo>)))
                     .service(web::resource("/msgs").route(web::post().to(get_messages::<DbRepo>)))
                     .service(web::resource("/msg_image/{id}").route(web::get().to(get_message_image::<DbRepo>)))
                     .service(web::resource("/profile/{id}").route(web::get().to(get_profile::<DbRepo>)))
@@ -145,6 +147,52 @@ pub fn get_message_create_multipart(
 
     payload.extend(format!("--{}\r\n", boundary).as_bytes());
     payload.extend(format!("Content-Disposition: form-data; name=\"broadcasting_msg_id\"\r\n\r\n").as_bytes());
+    payload.extend(format!("{}\r\n", 1).as_bytes());
+
+    payload.extend(format!("--{}\r\n", boundary).as_bytes());
+    if with_image == true {
+        payload.extend(
+            b"Content-Disposition: form-data; name=\"image\"; filename=\"profile.jpeg\"\r\n"
+        );
+        payload.extend(b"Content-Type: image/jpeg\r\n\r\n");
+        payload.extend(Bytes::from(image.clone()));
+        payload.extend(b"\r\n"); // warning: line breaks are very important!!!        
+    }
+    payload.extend(format!("--{}--\r\n", boundary).as_bytes()); // note the extra -- at the end of the boundary
+
+    payload
+}
+
+pub fn get_message_create_response_multipart(
+    image: &Vec<u8>,
+    boundary: &str,
+    with_image: bool,
+    user_id: i64,
+    msg_body: &str
+) -> BytesMut {
+    let mut payload = actix_web::web::BytesMut::new();
+    payload.extend(format!("--{}\r\n", boundary).as_bytes());
+    payload.extend(
+        format!("Content-Disposition: form-data; name=\"user_id\"\r\n\r\n").as_bytes()
+    );
+    payload.extend(format!("{}\r\n", user_id).as_bytes());
+
+    payload.extend(format!("--{}\r\n", boundary).as_bytes());
+    payload.extend(
+        format!("Content-Disposition: form-data; name=\"body\"\r\n\r\n").as_bytes()
+    );
+    payload.extend(
+        format!("{}\r\n", msg_body).as_bytes()
+    );
+
+    payload.extend(format!("--{}\r\n", boundary).as_bytes());
+    payload.extend(
+        format!("Content-Disposition: form-data; name=\"group_type\"\r\n\r\n").as_bytes()
+    );
+    payload.extend(format!("{}\r\n", 1).as_bytes());
+
+    payload.extend(format!("--{}\r\n", boundary).as_bytes());
+    payload.extend(format!("Content-Disposition: form-data; name=\"original_msg_id\"\r\n\r\n").as_bytes());
     payload.extend(format!("{}\r\n", 1).as_bytes());
 
     payload.extend(format!("--{}\r\n", boundary).as_bytes());

@@ -4,11 +4,22 @@ import { Ionicons, Feather, Entypo, MaterialIcons } from "@expo/vector-icons";
 import { notSelected, primary } from "../../theme/colors";
 import { IconProps } from "./iconPropType";
 import { usePostMessageSheetOpener } from "../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerHooks";
+import { TypeOfPost } from "../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerSlice";
 
-export function ResponseIcon({ isSelected, size }: IconProps) {
+export function ResponseIcon({
+  isSelected,
+  size,
+  msgId,
+}: IconProps & { msgId: bigint }) {
   const [show, setShow] = usePostMessageSheetOpener();
   const onPressPostMessageSheetOpen = () => {
-    setShow(!show);
+    const showUpdated = {
+      show: !show.show,
+      typeOfPost: TypeOfPost.Response,
+      broadcastingMsgOrOriginalMsgId: msgId,
+    };
+    setShow(showUpdated);
+    console.log("ResponseIcon", showUpdated);
   };
 
   return (

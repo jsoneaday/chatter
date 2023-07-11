@@ -29,6 +29,7 @@ export default function Home() {
           profileResult.json().then((profileData) => {
             // json must always be parsed before sending a log
             setProfile(profileData);
+            console.log("profile is set", profileData);
           });
         }
       })

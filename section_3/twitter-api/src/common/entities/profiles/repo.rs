@@ -244,7 +244,7 @@ mod tests {
             PUBLIC_GROUP_TYPE,
             get_fake_message_body,
             FixtureError,
-            MessageResponse,
+            MessageResponse, get_profile_avatar,
         },
         common::entities::{
             messages::repo::{ InsertMessageFn, InsertResponseMessageFn },
@@ -425,7 +425,8 @@ mod tests {
                         *following_pm.0,
                         &get_fake_message_body(Some(local_prefix.clone().to_string())),
                         PUBLIC_GROUP_TYPE,
-                        *selected_message_id
+                        *selected_message_id,
+                        Some(get_profile_avatar())
                     ).await;
                 }
             }

@@ -98,7 +98,7 @@ export default function MessageListItem({
           </View>
         </Pressable>
         <View style={styles.toolbarContainer}>
-          <MessageListItemToolbar />
+          <MessageListItemToolbar currentMsgId={messageModel.item.id} />
         </View>
       </View>
     </View>

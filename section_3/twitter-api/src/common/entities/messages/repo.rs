@@ -68,17 +68,19 @@ mod private_members {
         user_id: i64,
         body: &str,
         group_type: i32,
-        original_msg_id: i64
+        original_msg_id: i64,
+        image: Option<Vec<u8>>
     ) -> Result<i64, sqlx::Error> {
         let mut tx = conn.begin().await.unwrap();
 
         let insert_result = sqlx
             ::query_as::<_, EntityId>(
-                "insert into message (user_id, body, msg_group_type) values ($1, $2, $3) returning id"
+                "insert into message (user_id, body, msg_group_type, image) values ($1, $2, $3, $4) returning id"
             )
             .bind(user_id)
             .bind(body)
             .bind(group_type)
+            .bind(image)
             .fetch_one(&mut tx).await;
         let msg_id_result = match insert_result {
             Ok(r) => Ok(r.id),
@@ -424,7 +426,8 @@ pub trait InsertResponseMessageFn {
         user_id: i64,
         body: &str,
         group_type: i32,
-        original_msg_id: i64
+        original_msg_id: i64,
+        image: Option<Vec<u8>>
     ) -> Result<i64, sqlx::Error>;
 }
 
@@ -435,14 +438,16 @@ impl InsertResponseMessageFn for DbRepo {
         user_id: i64,
         body: &str,
         group_type: i32,
-        original_msg_id: i64
+        original_msg_id: i64,
+        image: Option<Vec<u8>>
     ) -> Result<i64, sqlx::Error> {
         private_members::insert_response_message_inner(
             self.get_conn(),
             user_id,
             body,
             group_type,
-            original_msg_id
+            original_msg_id,
+            image
         ).await
     }
 }
@@ -687,6 +692,8 @@ mod tests {
     }
 
     mod test_mod_insert_response_message {
+        use crate::common_tests::actix_fixture::get_profile_avatar;
+
         use super::*;
 
         async fn test_insert_response_message_body() {
@@ -717,7 +724,8 @@ mod tests {
                 profile_id,
                 "Body of response message",
                 PUBLIC_GROUP_TYPE,
-                original_msg_id.unwrap()
+                original_msg_id.unwrap(),
+                Some(get_profile_avatar())
             ).await;
             assert!(response_msg_id.unwrap() > 0);
         }

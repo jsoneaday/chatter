@@ -78,7 +78,7 @@ export default function MessageItemThread({
           >{`${updatedAt}`}</Text>
         </View>
         <View style={styles.toolbarContainer}>
-          <MessageListItemToolbar />
+          <MessageListItemToolbar currentMsgId={message.id} />
         </View>
       </View>
       <View>

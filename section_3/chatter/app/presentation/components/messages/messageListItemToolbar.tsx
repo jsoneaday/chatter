@@ -9,10 +9,16 @@ import {
 
 const size = 21;
 
-export default function MessageListItemToolbar() {
+export interface MessageListItemToolbarProps {
+  currentMsgId: bigint;
+}
+
+export default function MessageListItemToolbar({
+  currentMsgId,
+}: MessageListItemToolbarProps) {
   return (
     <View style={styles.container}>
-      <ResponseIcon size={size} />
+      <ResponseIcon size={size} msgId={currentMsgId} />
       <BroadcastIcon size={size} />
       <LikeIcon size={size} />
       <ShareIcon size={size} />

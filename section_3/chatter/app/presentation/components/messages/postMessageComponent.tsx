@@ -31,17 +31,13 @@ import { asyncStorage } from "../../../domain/local/asyncStorage";
 import {
   ApiMessageGroupType,
   createMessage,
+  createMessageResponse,
 } from "../../../domain/entities/message";
 import { useProfile } from "../../../domain/store/profile/profileHooks";
 import { usePostMessageSheetOpener } from "../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerHooks";
+import { TypeOfPost } from "../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerSlice";
 
 const LAST_POSTED_MESSAGE_KEY = "LAST_POSTED_MESSAGE_KEY";
-
-export enum TypeOfPost {
-  NewPost,
-  Response,
-  Resend,
-}
 
 export default function PostMessageComponent() {
   const [showPostMessageSheet, setShowPostMessageSheet] =
@@ -57,7 +53,7 @@ export default function PostMessageComponent() {
   const [currentMessageAccessibility, setCurrentMessageAccessibility] =
     useState<MessageAccessibility>(MessageAccessibility.Public);
   const [showEarlyExitSheet, setEarlyExitSheet] = useState(false);
-  const [profile, setProfile] = useProfile();
+  const [profile] = useProfile();
 
   useEffect(() => {
     const keyboardShow = Keyboard.addListener("keyboardDidShow", (e) => {
@@ -83,14 +79,14 @@ export default function PostMessageComponent() {
   }, []);
 
   useEffect(() => {
-    if (showPostMessageSheet) {
+    if (showPostMessageSheet.show) {
       asyncStorage.getItem(LAST_POSTED_MESSAGE_KEY).then((text) => {
         if (text) {
           setMessageValue(text);
         }
       });
     }
-  }, [showPostMessageSheet]);
+  }, [showPostMessageSheet.show]);
 
   const getImageFile = async (uri: string) => {
     const blobResult = await fetch(uri);
@@ -129,23 +125,55 @@ export default function PostMessageComponent() {
   };
 
   const onPressSubmitMessage = async () => {
+    console.log("current showPostMessageSheet", showPostMessageSheet);
     try {
-      const result = await createMessage(
-        profile!.id,
-        messageValue,
-        currentMessageAccessibility == MessageAccessibility.Public
-          ? ApiMessageGroupType.Public
-          : ApiMessageGroupType.Circle,
-        selectedImageUri
-      );
+      if (showPostMessageSheet.typeOfPost == TypeOfPost.NewPost) {
+        console.log("start createMessage");
+        const result = await createMessage(
+          profile!.id,
+          messageValue,
+          currentMessageAccessibility == MessageAccessibility.Public
+            ? ApiMessageGroupType.Public
+            : ApiMessageGroupType.Circle,
+          selectedImageUri
+        );
 
-      if (result.ok) {
-        console.log("creating message: ", await result.json());
-        setMessageValue("");
-        toggleShowPostMessageSheet();
-        setSelectedImageUri("");
+        if (result.ok) {
+          console.log("created message: ", await result.json());
+          setMessageValue("");
+          toggleShowPostMessageSheet();
+          setSelectedImageUri("");
+        } else {
+          console.log("error creating message: ", result.status);
+        }
+      } else if (showPostMessageSheet.typeOfPost == TypeOfPost.Response) {
+        console.log("start createMessageResponse");
+        if (!showPostMessageSheet.broadcastingMsgOrOriginalMsgId) {
+          throw new Error(
+            "Failed to create response message. Original message id is missing."
+          );
+        }
+
+        const result = await createMessageResponse(
+          profile!.id,
+          messageValue,
+          currentMessageAccessibility == MessageAccessibility.Public
+            ? ApiMessageGroupType.Public
+            : ApiMessageGroupType.Circle,
+          showPostMessageSheet.broadcastingMsgOrOriginalMsgId,
+          selectedImageUri
+        );
+
+        if (result.ok) {
+          console.log("created response message: ", await result.json());
+          setMessageValue("");
+          toggleShowPostMessageSheet();
+          setSelectedImageUri("");
+        } else {
+          console.log("error creating response message: ", result.status);
+        }
       } else {
-        console.log("error creating message: ", result.status);
+        throw new Error("Not implemented");
       }
     } catch (e) {
       console.log("error creating message: ", e);
@@ -157,7 +185,10 @@ export default function PostMessageComponent() {
   };
 
   const toggleShowPostMessageSheet = () => {
-    setShowPostMessageSheet(!showPostMessageSheet);
+    setShowPostMessageSheet({
+      show: !showPostMessageSheet.show,
+      typeOfPost: TypeOfPost.NewPost,
+    });
   };
 
   const onPressDropDown = () => {
@@ -170,7 +201,7 @@ export default function PostMessageComponent() {
 
   return (
     <>
-      <FullSheet show={showPostMessageSheet}>
+      <FullSheet show={showPostMessageSheet.show}>
         <>
           <View style={styles.header}>
             <SecondaryButton onPress={onPressCancelMessage}>
@@ -237,7 +268,7 @@ export default function PostMessageComponent() {
         emptySelectedImage={emptySelectedImage}
       />
 
-      {!showPostMessageSheet && (
+      {!showPostMessageSheet.show && (
         <Pressable
           style={styles.submitBtnContainer}
           onPress={onPressShowPostMessageDialog}

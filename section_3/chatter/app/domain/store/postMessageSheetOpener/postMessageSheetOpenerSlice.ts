@@ -1,14 +1,32 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-let initialState: boolean = false;
+export enum TypeOfPost {
+  NewPost,
+  Response,
+  Resend,
+}
+
+export type PostMessageOpenerState = {
+  show: boolean;
+  typeOfPost: TypeOfPost;
+  broadcastingMsgOrOriginalMsgId?: bigint;
+};
+
+let initialState: PostMessageOpenerState = {
+  show: false,
+  typeOfPost: TypeOfPost.NewPost,
+};
 
 export const postMessageSheetOpenerSlice = createSlice({
   name: "postMessageSheetOpener",
   initialState,
   reducers: {
-    setPostMessageSheetOpen: (state: any, action: PayloadAction<boolean>) => {
+    setPostMessageSheetOpen: (
+      state: any,
+      action: PayloadAction<PostMessageOpenerState>
+    ) => {
       state = action.payload;
-      console.log("postMessageSheetOpener state", state);
+      console.log("setPostMessageSheetOpen", state);
       return state;
     },
   },

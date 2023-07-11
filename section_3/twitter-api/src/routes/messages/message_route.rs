@@ -7,7 +7,9 @@ use crate::routes::profiles::model::ProfileShort;
 use actix_web::HttpResponse;
 use actix_web::web::Bytes;
 use actix_web::{web, web::{Path, Json}};
-use super::model::{MessageResponder, MessageCreateMultipart, MessageQuery, MessageByFollowingQuery, MessageResponders};
+use super::model::{MessageResponder, MessageQuery, MessageByFollowingQuery, MessageResponders};
+use super::model_create_msg::MessageCreateMultipart;
+use super::model_create_response_msg::MessageCreateResponseMultipart;
 
 #[allow(unused)]
 pub async fn create_message<T: InsertMessageFn>(app_data: web::Data<AppState<T>>, params: MessageCreateMultipart) -> Result<OutputId, UserError> {  
@@ -27,7 +29,7 @@ pub async fn create_message<T: InsertMessageFn>(app_data: web::Data<AppState<T>>
 }
 
 #[allow(unused)]
-pub async fn create_response_message<T: InsertResponseMessageFn>(app_data: web::Data<AppState<T>>, params: MessageCreateMultipart) -> Result<OutputId, UserError> {  
+pub async fn create_response_message<T: InsertResponseMessageFn>(app_data: web::Data<AppState<T>>, params: MessageCreateResponseMultipart) -> Result<OutputId, UserError> {  
     let max = 141; 
     let body = if params.body.len() < max {
         &params.body[..]
@@ -36,7 +38,7 @@ pub async fn create_response_message<T: InsertResponseMessageFn>(app_data: web::
     };
     
     let group_type = params.group_type.clone() as i32;
-    let result = app_data.db_repo.insert_response_message(params.user_id, body, group_type, params.broadcasting_msg_id.unwrap()).await;
+    let result = app_data.db_repo.insert_response_message(params.user_id, body, group_type, params.original_msg_id, params.image).await;
     match result {
         Ok(id) => Ok(OutputId { id }),
         Err(e) => Err(e.into())
@@ -150,7 +152,7 @@ fn convert(message: &MessageWithFollowingAndBroadcastQueryResult) -> MessageResp
 mod tests {
     use actix_web::web::Json;
     use async_trait::async_trait;
-    use crate::{common::entities::messages::repo::InsertMessageFn, routes::messages::{message_route::create_message, model::MessageCreateMultipart}, common_tests::actix_fixture::{get_app_data, get_fake_message_body}};
+    use crate::{common::entities::messages::repo::InsertMessageFn, routes::messages::{message_route::create_message, model_create_msg::MessageCreateMultipart}, common_tests::actix_fixture::{get_app_data, get_fake_message_body}};
 
     mod test_mod_create_message_and_check_id {        
         use super::*;
@@ -194,7 +196,7 @@ mod tests {
     }
 
     mod test_mod_create_response_message_and_check_id {        
-        use crate::{common::entities::messages::repo::InsertResponseMessageFn, routes::messages::message_route::create_response_message};
+        use crate::{common::entities::messages::repo::InsertResponseMessageFn, routes::messages::{message_route::create_response_message, model_create_response_msg::MessageCreateResponseMultipart}};
 
         use super::*;
 
@@ -209,7 +211,8 @@ mod tests {
                 user_id: i64,
                 body: &str,
                 group_type: i32,
-                original_msg_id: i64
+                original_msg_id: i64,
+                image: Option<Vec<u8>>
             ) -> Result<i64, sqlx::Error> {
                 Ok(ID)
             }
@@ -221,11 +224,11 @@ mod tests {
             let app_data = get_app_data(repo).await;
 
             let result = create_response_message(app_data, 
-                MessageCreateMultipart{ 
+                MessageCreateResponseMultipart{ 
                     user_id: 0, 
                     body: get_fake_message_body(None), 
                     group_type: crate::routes::messages::model::MessageGroupTypes::Circle, 
-                    broadcasting_msg_id: Some(1), 
+                    original_msg_id: 1, 
                     image: None 
                 }
             ).await;

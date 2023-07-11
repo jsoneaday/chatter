@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Serialize, Deserialize};
-use sqlx::{FromRow};
+use sqlx::FromRow;
 
 
 #[derive(Deserialize, Serialize, FromRow, Clone, Debug)]
