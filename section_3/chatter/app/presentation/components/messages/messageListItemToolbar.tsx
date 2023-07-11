@@ -6,14 +6,10 @@ import {
   ResponseIcon,
   ShareIcon,
 } from "../icons/menuItemToolbarIcons";
-import { usePostMessageSheetOpener } from "../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerHooks";
 
 const size = 21;
 
 export default function MessageListItemToolbar() {
-  const [showPostMessageComponent, setShowPostMessageComponent] =
-    usePostMessageSheetOpener();
-
   return (
     <View style={styles.container}>
       <ResponseIcon size={size} />

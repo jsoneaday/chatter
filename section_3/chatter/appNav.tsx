@@ -32,12 +32,6 @@ export default function AppNav() {
   const [showSliderMenu, setShowSliderMenu] = useSlideMenuOpener();
   const windowDimensions = useWindowDimensions();
   const left = useRef(new Animated.Value(windowDimensions.width)).current;
-  const [showPostMessageComponent, setShowPostMessageComponent] =
-    usePostMessageSheetOpener();
-
-  const togglePostMessageComponent = () => {
-    setShowPostMessageComponent(!showPostMessageComponent);
-  };
 
   useEffect(() => {
     if (showSliderMenu) {
@@ -113,10 +107,7 @@ export default function AppNav() {
         </Tab.Navigator>
       </NavigationContainer>
 
-      <PostMessageComponent
-        toggleSelf={togglePostMessageComponent}
-        show={showPostMessageComponent}
-      />
+      <PostMessageComponent />
     </Animated.View>
   );
 }

@@ -33,6 +33,7 @@ import {
   createMessage,
 } from "../../../domain/entities/message";
 import { useProfile } from "../../../domain/store/profile/profileHooks";
+import { usePostMessageSheetOpener } from "../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerHooks";
 
 const LAST_POSTED_MESSAGE_KEY = "LAST_POSTED_MESSAGE_KEY";
 
@@ -42,16 +43,9 @@ export enum TypeOfPost {
   Resend,
 }
 
-interface PostMessageButtonProps {
-  toggleSelf: () => void;
-  show: boolean;
-}
-
-export default function PostMessageComponent({
-  toggleSelf,
-  show,
-}: PostMessageButtonProps) {
-  const [showSubmitBtn, setShowSubmitBtn] = useState(true);
+export default function PostMessageComponent() {
+  const [showPostMessageSheet, setShowPostMessageSheet] =
+    usePostMessageSheetOpener();
   const [keyboardBarStyle, setKeyboardBarStyle] = useState<
     StyleProp<ViewStyle>
   >({ width: "100%", zIndex: 100 });
@@ -89,19 +83,18 @@ export default function PostMessageComponent({
   }, []);
 
   useEffect(() => {
-    if (show) {
+    if (showPostMessageSheet) {
       asyncStorage.getItem(LAST_POSTED_MESSAGE_KEY).then((text) => {
         if (text) {
           setMessageValue(text);
         }
       });
     }
-  }, [show]);
+  }, [showPostMessageSheet]);
 
   const getImageFile = async (uri: string) => {
     const blobResult = await fetch(uri);
     if (blobResult.ok) {
-      const blob = await blobResult.blob();
       setSelectedImageUri(uri);
     } else {
       setSelectedImageUri("");
@@ -164,8 +157,7 @@ export default function PostMessageComponent({
   };
 
   const toggleShowPostMessageSheet = () => {
-    setShowSubmitBtn(!showSubmitBtn);
-    toggleSelf();
+    setShowPostMessageSheet(!showPostMessageSheet);
   };
 
   const onPressDropDown = () => {
@@ -178,64 +170,62 @@ export default function PostMessageComponent({
 
   return (
     <>
-      <FullSheet show={show}>
-        {!showSubmitBtn && (
-          <>
-            <View style={styles.header}>
-              <SecondaryButton onPress={onPressCancelMessage}>
-                Cancel
-              </SecondaryButton>
-              <PrimaryButton onPress={onPressSubmitMessage}>Chat</PrimaryButton>
-            </View>
-            <View style={styles.body}>
-              <View style={{ width: "100%" }}>
-                <View style={styles.bodyTop}>
-                  <Ionicons
-                    name="person-circle-outline"
-                    size={38}
-                    color={primary()}
-                  />
-                  <RingedButton
-                    containerStyle={{ marginLeft: 8 }}
-                    onPress={onPressDropDown}
-                  >
-                    <Text style={{ color: secondary() }}>
-                      {currentMessageAccessibility}
-                    </Text>
-                    <Entypo
-                      name="chevron-small-down"
-                      size={20}
-                      color={secondary()}
-                    />
-                  </RingedButton>
-                </View>
-                <TextInput
-                  style={styles.txtInput}
-                  autoFocus={true}
-                  autoCapitalize="sentences"
-                  maxLength={140}
-                  multiline={true}
-                  placeholder="What's happening"
-                  placeholderTextColor={primary()}
-                  onSubmitEditing={Keyboard.dismiss}
-                  value={messageValue}
-                  onChangeText={onChangeText}
+      <FullSheet show={showPostMessageSheet}>
+        <>
+          <View style={styles.header}>
+            <SecondaryButton onPress={onPressCancelMessage}>
+              Cancel
+            </SecondaryButton>
+            <PrimaryButton onPress={onPressSubmitMessage}>Chat</PrimaryButton>
+          </View>
+          <View style={styles.body}>
+            <View style={{ width: "100%" }}>
+              <View style={styles.bodyTop}>
+                <Ionicons
+                  name="person-circle-outline"
+                  size={38}
+                  color={primary()}
                 />
-                {selectedImageUri ? (
-                  <Image
-                    source={{ uri: selectedImageUri }}
-                    style={styles.selectedImageStyle}
+                <RingedButton
+                  containerStyle={{ marginLeft: 8 }}
+                  onPress={onPressDropDown}
+                >
+                  <Text style={{ color: secondary() }}>
+                    {currentMessageAccessibility}
+                  </Text>
+                  <Entypo
+                    name="chevron-small-down"
+                    size={20}
+                    color={secondary()}
                   />
-                ) : null}
+                </RingedButton>
               </View>
-              <KeyboardToolBar
-                show={showKeyboardTabBar}
-                style={keyboardBarStyle}
-                getImageFile={getImageFile}
+              <TextInput
+                style={styles.txtInput}
+                autoFocus={true}
+                autoCapitalize="sentences"
+                maxLength={140}
+                multiline={true}
+                placeholder="What's happening"
+                placeholderTextColor={primary()}
+                onSubmitEditing={Keyboard.dismiss}
+                value={messageValue}
+                onChangeText={onChangeText}
               />
+              {selectedImageUri ? (
+                <Image
+                  source={{ uri: selectedImageUri }}
+                  style={styles.selectedImageStyle}
+                />
+              ) : null}
             </View>
-          </>
-        )}
+            <KeyboardToolBar
+              show={showKeyboardTabBar}
+              style={keyboardBarStyle}
+              getImageFile={getImageFile}
+            />
+          </View>
+        </>
       </FullSheet>
 
       <EarlyExitDeleteOrSave
@@ -247,12 +237,17 @@ export default function PostMessageComponent({
         emptySelectedImage={emptySelectedImage}
       />
 
-      {showSubmitBtn && (
+      {!showPostMessageSheet && (
         <Pressable
           style={styles.submitBtnContainer}
           onPress={onPressShowPostMessageDialog}
         >
-          <AntDesign name="pluscircle" size={50} color={secondary()} />
+          <AntDesign
+            name="pluscircle"
+            size={50}
+            color={secondary()}
+            style={{ zIndex: 2 }}
+          />
         </Pressable>
       )}
 
@@ -347,9 +342,13 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     paddingRight: 15,
     paddingBottom: 15,
-    width: "100%",
+    borderRadius: 50,
+    width: 50,
+    height: 50,
     position: "absolute",
-    bottom: 80,
+    right: 30,
+    bottom: 100,
+    zIndex: 1,
   },
   body: {
     flexDirection: "column",
