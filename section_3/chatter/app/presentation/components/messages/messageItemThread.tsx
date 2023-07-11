@@ -13,7 +13,7 @@ import { DotsIcon } from "../icons/menuItemToolbarIcons";
 const profile = require("../../theme/assets/profile.jpeg");
 import { StackScreenProps } from "@react-navigation/stack";
 import { RootStackParamList } from "../../screens/home/home";
-import { visibleBorder } from "../../theme/visibleBorder";
+import { bottomBorder } from "../../theme/element-styles/dividerStyles";
 
 export interface MessageItemThreadProps {
   message: MessageModel;
@@ -60,7 +60,7 @@ export default function MessageItemThread({
             <Image source={{ uri: imageUri }} style={styles.imageStyle} />
           ) : null}
         </View>
-        <View style={styles.updatedAtContainer}>
+        <View style={styles.updatedAtContainer as object}>
           <Text
             style={{ ...styles.txtUpdatedAt, marginLeft: 5 }}
           >{`${updatedAt}`}</Text>
@@ -123,7 +123,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginRight: 10,
-    marginBottom: 5,
+    marginBottom: 8,
+    paddingBottom: 8,
+    ...bottomBorder,
   },
   toolbarContainer: {
     padding: 4,

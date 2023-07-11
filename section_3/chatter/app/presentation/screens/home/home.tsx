@@ -1,5 +1,5 @@
 import { createStackNavigator } from "@react-navigation/stack";
-import MessageList from "./messageList";
+import HomeTabs from "./homeTabs";
 import MessageItemThread, {
   MessageItemThreadProps,
 } from "../../components/messages/messageItemThread";
@@ -29,7 +29,7 @@ export default function Home() {
     >
       <Stack.Screen
         name="MessageList"
-        component={MessageList}
+        component={HomeTabs}
         options={{
           headerTitle: (props) => <Header />,
         }}

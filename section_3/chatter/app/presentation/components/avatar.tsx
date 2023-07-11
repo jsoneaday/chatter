@@ -7,6 +7,7 @@ import {
   ViewStyle,
   ImageSourcePropType,
 } from "react-native";
+import { primary } from "../theme/colors";
 
 interface AvatarProps {
   id?: string;
@@ -39,7 +40,7 @@ export default function Avatar({
 const styles = StyleSheet.create({
   container: {
     borderWidth: 2,
-    borderColor: "black",
+    borderColor: primary(),
     overflow: "hidden",
   },
   img: {
