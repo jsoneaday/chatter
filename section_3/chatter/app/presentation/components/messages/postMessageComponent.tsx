@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   selectedImageStyle: {
-    marginTop: 50,
+    marginTop: 20,
     marginLeft: 60,
     marginRight: 10,
     width: 340,

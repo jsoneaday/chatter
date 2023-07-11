@@ -164,12 +164,14 @@ mod private_members {
         }
     }
 
+    /// Gets user's messages and the messages of those users that this user follows
     pub async fn query_messages_inner(
         conn: &Pool<Postgres>,
         user_id: i64,
         last_updated_at: DateTime<Utc>,
         page_size: i16
     ) -> Result<Vec<MessageWithFollowingAndBroadcastQueryResult>, sqlx::Error> {
+        // get messages of users this user is following
         let following_messages_with_profiles_result = sqlx
             ::query_as::<_, MessageWithProfileQueryResult>(
                 r"
@@ -192,6 +194,7 @@ mod private_members {
 
         match following_messages_with_profiles_result {
             Ok(mut following_messages) => {                
+                // get all of this user's own messages and the broadcasting id if it is a resend
                 let user_messages_with_profiles_result = sqlx
                     ::query_as::<_, MessageWithProfileQueryResult>(
                         r"
@@ -252,6 +255,63 @@ mod private_members {
             }
             Err(e) => {
                 println!("query_messages_inner error: {:?}", e);
+                Err(e)
+            },
+        }
+    }
+
+    /// original_msg_id: the message being responded to
+    pub async fn query_response_messages_inner(
+        conn: &Pool<Postgres>,
+        original_msg_id: i64,
+        last_updated_at: DateTime<Utc>,
+        page_size: i16
+    ) -> Result<Vec<MessageWithFollowingAndBroadcastQueryResult>, sqlx::Error> {
+        // get responses
+        let message_result = sqlx
+            ::query_as::<_, MessageWithProfileQueryResult>(
+                r"
+                select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.id as broadcast_msg_id                    
+                from message m 
+                    join profile p on m.user_id = p.id
+                    join message_response mr on m.id = mr.responding_msg_id
+                    left join message_broadcast mb on m.id = mb.main_msg_id
+                where
+                    mr.original_msg_id = $1
+                    and m.updated_at < $2
+                order by m.updated_at desc 
+                limit $3
+                "
+            )
+            .bind(original_msg_id)
+            .bind(last_updated_at)
+            .bind(page_size)
+            .fetch_all(conn).await;
+
+        match message_result {
+            Ok(messages) => {
+                // get any resends
+                let following_messages_with_broadcasts = messages
+                    .clone()
+                    .into_iter()
+                    .filter(|msg| {
+                        msg.broadcast_msg_id.is_some() && msg.broadcast_msg_id.unwrap() > 0
+                    })
+                    .collect::<Vec<MessageWithProfileQueryResult>>();
+
+                let optional_matching_broadcast_messages = get_broadcasting_messages_of_messages(
+                    conn,
+                    &following_messages_with_broadcasts
+                ).await;
+                let final_message_list = append_broadcast_msgs_to_msgs(
+                    &optional_matching_broadcast_messages,
+                    messages
+                );
+                
+                Ok(final_message_list)
+            },
+            Err(e) => {
+                println!("query_response_messages_inner error: {:?}", e);
                 Err(e)
             },
         }
@@ -513,13 +573,36 @@ impl QueryMessagesFn for DbRepo {
     }
 }
 
+#[automock]
+#[async_trait]
+pub trait QueryResponseMessagesFn {
+    async fn query_response_messages(
+        &self,
+        original_msg_id: i64,
+        last_updated_at: DateTime<Utc>,
+        page_size: i16
+    ) -> Result<Vec<MessageWithFollowingAndBroadcastQueryResult>, sqlx::Error>;
+}
+
+#[async_trait]
+impl QueryResponseMessagesFn for DbRepo {
+    async fn query_response_messages(
+        &self,
+        original_msg_id: i64,
+        last_updated_at: DateTime<Utc>,
+        page_size: i16
+    ) -> Result<Vec<MessageWithFollowingAndBroadcastQueryResult>, sqlx::Error> {
+        private_members::query_response_messages_inner(self.get_conn(), original_msg_id, last_updated_at, page_size).await
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::sync::{ Arc, RwLock };
     use fake::{ faker::name::en::{ Name, FirstName, LastName }, Fake };
     use lazy_static::lazy_static;
     use crate::{
-        common_tests::actix_fixture::PUBLIC_GROUP_TYPE,
+        common_tests::actix_fixture::{PUBLIC_GROUP_TYPE, get_profile_avatar},
         common::entities::profiles::{
                 repo::{ InsertProfileFn, QueryProfileFn, MockInsertProfileFn },
                 model::ProfileCreate,
@@ -530,6 +613,7 @@ mod tests {
     #[derive(Clone)]
     struct Fixtures {
         pub original_msg_id: i64,
+        pub original_msg_responses: Vec<i64>,
         pub profile_id: i64,
         pub profile_create: ProfileCreate,
         pub db_repo: DbRepo
@@ -554,12 +638,31 @@ mod tests {
         };
         let profile = db_repo.insert_profile(profile_create.clone()).await;
         let profile_id = profile.unwrap();
+
         let original_msg_id = db_repo
             .insert_message(profile_id, "Testing body 123", PUBLIC_GROUP_TYPE, None, None).await
             .unwrap();
 
+        let response_a_id = db_repo
+            .insert_response_message(
+                profile_id,
+                "Body of response message a",
+                PUBLIC_GROUP_TYPE,
+                original_msg_id,
+                Some(get_profile_avatar())
+            ).await.unwrap();
+        let response_b_id = db_repo
+            .insert_response_message(
+                profile_id,
+                "Body of response message b",
+                PUBLIC_GROUP_TYPE,
+                original_msg_id,
+                Some(get_profile_avatar())
+            ).await.unwrap();
+
         Fixtures {
             original_msg_id,
+            original_msg_responses: vec![response_a_id, response_b_id],
             profile_id,
             profile_create,
             db_repo,
@@ -608,6 +711,22 @@ mod tests {
         mock_insert_message
             .expect_insert_message()
             .returning(|_, _, _, _, _| { Ok(get_fixtures().original_msg_id) });
+        mock_insert_message
+    }
+
+    fn get_insert_response_message_mock_a() -> MockInsertResponseMessageFn {
+        let mut mock_insert_message = MockInsertResponseMessageFn::new();
+        mock_insert_message
+            .expect_insert_response_message()
+            .returning(|_, _, _, _, _| { Ok(*get_fixtures().original_msg_responses.get(0).unwrap()) });
+        mock_insert_message
+    }
+
+    fn get_insert_response_message_mock_b() -> MockInsertResponseMessageFn {
+        let mut mock_insert_message = MockInsertResponseMessageFn::new();
+        mock_insert_message
+            .expect_insert_response_message()
+            .returning(|_, _, _, _, _| { Ok(*get_fixtures().original_msg_responses.get(1).unwrap()) });
         mock_insert_message
     }
 
@@ -661,7 +780,7 @@ mod tests {
         async fn test_query_message_body() {
             let fixtures = get_fixtures();
             let mock_insert_profile = get_insert_profile_mock();
-            let mock_insert_message = get_insert_message_mock();
+            let mock_insert_message = get_insert_message_mock();            
 
             let profile_id = mock_insert_profile
                 .insert_profile(fixtures.profile_create.clone()).await
@@ -688,6 +807,49 @@ mod tests {
         #[test]
         fn test_query_message() {
             RT.block_on(test_query_message_body())
+        }
+    }
+
+    mod test_mod_query_response_messages {
+        use super::*;
+
+        async fn test_query_response_messages_body() {
+            let fixtures = get_fixtures();
+            let mock_insert_profile = get_insert_profile_mock();
+            let mock_insert_message = get_insert_message_mock();
+            let mock_insert_response_message_a = get_insert_response_message_mock_a();
+            let mock_insert_response_message_b = get_insert_response_message_mock_b();
+
+            let profile_id = mock_insert_profile
+                .insert_profile(fixtures.profile_create.clone()).await
+                .unwrap();
+
+            let original_msg_id = mock_insert_message
+                .insert_message(
+                    profile_id,
+                    "Body of message that is being responded to.",
+                    PUBLIC_GROUP_TYPE,
+                    None,
+                    None
+                )
+                .await
+                .unwrap();
+
+            let response_msg_a_id = mock_insert_response_message_a.insert_response_message(profile_id, "", 1, original_msg_id, None).await.unwrap();
+            let response_msg_b_id = mock_insert_response_message_b.insert_response_message(profile_id, "", 1, original_msg_id, None).await.unwrap();
+
+            let response_messages = fixtures.db_repo
+                .query_response_messages(original_msg_id, Utc::now(), 10)
+                .await
+                .unwrap();
+            // note: query_response_messages sorts descending
+            assert!(response_messages.get(0).unwrap().id == response_msg_b_id);
+            assert!(response_messages.get(1).unwrap().id == response_msg_a_id);
+        }
+
+        #[test]
+        fn test_query_response_messages() {
+            RT.block_on(test_query_response_messages_body())
         }
     }
 

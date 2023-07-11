@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     color: tertiary(),
   },
   imageStyle: {
-    marginTop: 50,
+    marginTop: 30,
     width: 340,
     height: 340,
   },
