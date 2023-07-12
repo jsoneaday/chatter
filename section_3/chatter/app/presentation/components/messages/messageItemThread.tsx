@@ -57,7 +57,6 @@ export default function MessageItemThread({
     setIsRefreshing(true);
     getResponseMessages(message.id, new Date().toISOString(), 10)
       .then((messages) => {
-        console.log("response messages", messages);
         setResponseMessages(messages);
         setIsRefreshing(false);
       })

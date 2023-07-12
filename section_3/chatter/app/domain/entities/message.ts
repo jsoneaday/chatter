@@ -110,7 +110,6 @@ export async function getResponseMessages(
   lastUpdatedAt: string,
   pageSize: number = 10
 ) {
-  console.log("getResponseMessages", originalMsgId, lastUpdatedAt, pageSize);
   // sample: followerId=233&lastUpdatedAt=2023-07-30T14:30:30Z
   const messageResponse = await fetch(MSG_RESPONSES_URL, {
     method: "post",

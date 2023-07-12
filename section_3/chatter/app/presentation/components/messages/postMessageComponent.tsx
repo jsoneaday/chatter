@@ -273,12 +273,7 @@ export default function PostMessageComponent() {
           style={styles.submitBtnContainer}
           onPress={onPressShowPostMessageDialog}
         >
-          <AntDesign
-            name="pluscircle"
-            size={50}
-            color={secondary()}
-            style={{ zIndex: 2 }}
-          />
+          <AntDesign name="pluscircle" size={50} color={secondary()} />
         </Pressable>
       )}
 
@@ -370,16 +365,13 @@ const styles = StyleSheet.create({
     backgroundColor: primary(true),
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-end",
-    paddingRight: 15,
-    paddingBottom: 15,
+    justifyContent: "center",
     borderRadius: 50,
     width: 50,
     height: 50,
     position: "absolute",
     right: 30,
     bottom: 100,
-    zIndex: 1,
   },
   body: {
     flexDirection: "column",
