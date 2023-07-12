@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, Image } from "react-native";
 import MessageModel from "../../common/models/message";
 import {
   bodyFontStyle,
+  headerFontStyle,
   subHeaderFontStyle,
 } from "../../theme/element-styles/textStyles";
 import { parseISO, formatDistanceToNow } from "date-fns";
@@ -18,6 +19,8 @@ import MessageList from "./messageList";
 import { useNavigation } from "@react-navigation/native";
 import { useProfile } from "../../../domain/store/profile/profileHooks";
 import { getResponseMessages } from "../../../domain/entities/message";
+import { visibleBorder } from "../../theme/visibleBorder";
+import { usePostMessageSheetOpener } from "../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerHooks";
 
 export interface MessageItemThreadProps {
   message: MessageModel;
@@ -45,15 +48,23 @@ export default function MessageItemThread({
         undefined
       >
     >();
+  const [showPostMessageSheet, setShowPostMessageSheet] =
+    usePostMessageSheetOpener();
 
   useEffect(() => {
-    onRefreshList();
+    refreshList();
 
     const date = parseISO(message.updatedAt);
     setUpdatedAt(formatDistanceToNow(date, { addSuffix: true }));
   }, [message]);
 
-  const onRefreshList = async () => {
+  useEffect(() => {
+    if (!showPostMessageSheet.show) {
+      refreshList();
+    }
+  }, [showPostMessageSheet]);
+
+  const refreshList = async () => {
     setIsRefreshing(true);
     getResponseMessages(message.id, new Date().toISOString(), 10)
       .then((messages) => {
@@ -83,7 +94,7 @@ export default function MessageItemThread({
         </View>
       </View>
       {/* top width sets following widths if wrapped */}
-      <View style={styles.contentContainer}>
+      <View style={{ ...(styles.contentContainer as object) }}>
         <View style={styles.containerBody}>
           <Text style={styles.txtBody}>{message.body}</Text>
           {imageUri ? (
@@ -91,9 +102,31 @@ export default function MessageItemThread({
           ) : null}
         </View>
         <View style={styles.updatedAtContainer as object}>
-          <Text
-            style={{ ...styles.txtUpdatedAt, marginLeft: 5 }}
-          >{`${updatedAt}`}</Text>
+          <Text style={{ fontSize: 16, marginRight: 6 }}>{`${updatedAt}`}</Text>
+          <Text style={{ ...(subHeaderFontStyle() as object), marginRight: 6 }}>
+            3.4K
+          </Text>
+          <Text style={{ fontSize: 16 }}>Views</Text>
+        </View>
+        <View style={styles.updatedAtContainer as object}>
+          <Text style={{ ...(subHeaderFontStyle() as object), marginRight: 6 }}>
+            3,401
+          </Text>
+          <Text style={{ fontSize: 16, marginRight: 6 }}>Resends</Text>
+          <Text style={{ ...(subHeaderFontStyle() as object), marginRight: 6 }}>
+            685
+          </Text>
+          <Text style={{ fontSize: 16 }}>Quotes</Text>
+        </View>
+        <View style={styles.updatedAtContainer as object}>
+          <Text style={{ ...(subHeaderFontStyle() as object), marginRight: 6 }}>
+            671
+          </Text>
+          <Text style={{ fontSize: 16, marginRight: 6 }}>Likes</Text>
+          <Text style={{ ...(subHeaderFontStyle() as object), marginRight: 6 }}>
+            98
+          </Text>
+          <Text style={{ fontSize: 16 }}>Bookmarks</Text>
         </View>
         <View style={styles.toolbarContainer}>
           <MessageListItemToolbar currentMsgId={message.id} />
@@ -103,7 +136,7 @@ export default function MessageItemThread({
         <MessageList
           navigation={navigation}
           messageItems={responseMessages}
-          onRefreshList={onRefreshList}
+          onRefreshList={refreshList}
           isRefreshing={isRefreshing}
         />
       </View>
@@ -138,13 +171,14 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingTop: 10,
     paddingBottom: 10,
+    ...bottomBorder,
   },
   containerBody: {
     flexDirection: "column",
     alignItems: "flex-start",
     justifyContent: "flex-start",
     minHeight: 60,
-    marginBottom: 10,
+    marginBottom: 5,
   },
   containerBodyHeader: {
     flexDirection: "row",
@@ -160,6 +194,7 @@ const styles = StyleSheet.create({
   updatedAtContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "flex-start",
     marginRight: 10,
     marginBottom: 8,
     paddingBottom: 8,

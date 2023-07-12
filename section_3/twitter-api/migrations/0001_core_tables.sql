@@ -50,24 +50,24 @@ create table message (
     constraint fk_profile foreign key(user_id) references profile(id)
 );
 
-insert into message (user_id, body, likes, msg_group_type) values (1, 'The president is doing a bad job. He should not be reelected.', 231, 1);
-insert into message (user_id, body, likes, msg_group_type) values (2, 'Apple pie is the best desert ever invented.', 2, 1);
-insert into message (user_id, body, likes, msg_group_type) values (1, 'I love dogs!', 56, 1);
-insert into message (user_id, body, likes, msg_group_type) values (3, 'I love cats!', 897, 1);
+insert into message (user_id, body, likes, msg_group_type) values (1, 'Matt told her to reach for the stars, but Veronica thought it was the most ridiculous advice she''d ever received.', 231, 1);
+insert into message (user_id, body, likes, msg_group_type) values (2, 'They decided to find the end of the rainbow. While they hoped they would find a pot of gold.', 2, 1);
+insert into message (user_id, body, likes, msg_group_type) values (1, 'Of course he was getting them, but if he wasn''t getting them, how would he ever be able to answer?', 56, 1);
+insert into message (user_id, body, likes, msg_group_type) values (3, 'Zeke read the sign as an invitation to explore an area that would be adventurous and exciting.', 897, 1);
 insert into message (user_id, body, likes, msg_group_type) values (3, 'Just came back from visiting Italy and it was wonderful.', 12, 1);
-insert into message (user_id, body, likes, msg_group_type) values (4, 'I love French fashion. Do you too?', 234, 1);
-insert into message (user_id, body, likes, msg_group_type) values (4, 'I wonder who will win the tour de france this year.', 23, 1);
-insert into message (user_id, body, likes, msg_group_type) values (5, 'Funny stories.', 4, 1);
-insert into message (user_id, body, likes, msg_group_type) values (6, 'Funny acting stories.', 14, 1);
+insert into message (user_id, body, likes, msg_group_type) values (4, 'She sat deep in thought. The next word that came out o her mouth would likely be the most important word of her life.', 234, 1);
+insert into message (user_id, body, likes, msg_group_type) values (4, 'The rain was coming. Everyone thought this would be a good thing. It hadn''t rained in months and the earth was dry as a bone.', 23, 1);
+insert into message (user_id, body, likes, msg_group_type) values (5, 'Luckily dogs don''t discriminate. Just watch at a dog park. Big black and white dogs wag their tails and play with tiny tan dogs.', 4, 1);
+insert into message (user_id, body, likes, msg_group_type) values (6, 'He looked at the sand. Picking up a handful, he wondered how many grains were in his hand. Hundreds of thousands? "Not enough,"', 14, 1);
 insert into message (user_id, body, likes, msg_group_type) values (6, 'Gone with the Wind is the greatest movie of all time.', 40, 1);
-insert into message (user_id, body, likes, msg_group_type) values (5, 'I had the worst day ever today.', 7, 1);
-insert into message (user_id, body, likes, msg_group_type) values (2, 'I had the best day ever today.', 21, 1);
-insert into message (user_id, body, likes, msg_group_type) values (2, 'What is the best pizza place in new jersey?', 23, 1);
-insert into message (user_id, body, likes, msg_group_type) values (3, 'Do you like cookies? I like cookies.', 65, 1);
-insert into message (user_id, body, likes, msg_group_type) values (3, 'Societies woes are caused by the secret society.', 87, 1);
-insert into message (user_id, body, likes, msg_group_type) values (5, 'If black were blue and blue were black where is my hat?', 09, 1);
-insert into message (user_id, body, likes, msg_group_type) values (5, 'Bears are omnivours.', 4, 1);
-insert into message (user_id, body, likes, msg_group_type) values (1, 'Who said I think therefore I am?', 435, 1);
+insert into message (user_id, body, likes, msg_group_type) values (5, 'The bowl was filled with fruit. It seemed to be an overabundance of strawberries, but it also included grapes and banana slices', 7, 1);
+insert into message (user_id, body, likes, msg_group_type) values (2, 'The only one who had disagreed with this sentiment was her brother.', 21, 1);
+insert into message (user_id, body, likes, msg_group_type) values (2, 'Patrick didn''t want to go. The fact that she was insisting they must go made him want to go even less.', 23, 1);
+insert into message (user_id, body, likes, msg_group_type) values (3, 'He couldn''t move. His head throbbed and spun. He couldn''t decide if it was the flu or the drinking last night.', 65, 1);
+insert into message (user_id, body, likes, msg_group_type) values (3, 'He slowly poured the drink over a large chunk of ice he has especially chiseled off a larger block.', 87, 1);
+insert into message (user_id, body, likes, msg_group_type) values (5, 'She wished that she could simply accept the gesture and be content knowing someone had given it to her.', 09, 1);
+insert into message (user_id, body, likes, msg_group_type) values (5, 'She sat deep in thought. The next word that came out o her mouth would likely be the most important word of her life.', 4, 1);
+insert into message (user_id, body, likes, msg_group_type) values (1, 'They would have never believed they would actually find the end of a rainbow, and when they did, what they actually found there.', 435, 1);
 
 create table message_response (
     "id" bigserial primary key,
@@ -80,8 +80,11 @@ create table message_response (
     constraint fk_responding_message foreign key(responding_msg_id) references message(id)
 );
 
-insert into message_response (original_msg_id, responding_msg_id) values (1, 17);
-insert into message_response (original_msg_id, responding_msg_id) values (1, 18);
+insert into message_response (original_msg_id, responding_msg_id) values (18, 5);
+insert into message_response (original_msg_id, responding_msg_id) values (18, 4);
+insert into message_response (original_msg_id, responding_msg_id) values (17, 3);
+insert into message_response (original_msg_id, responding_msg_id) values (17, 2);
+insert into message_response (original_msg_id, responding_msg_id) values (16, 1);
 
 create table message_broadcast (
     "id" bigserial primary key,
