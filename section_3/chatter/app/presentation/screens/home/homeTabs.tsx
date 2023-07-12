@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "./home";
-import MessageList from "../../components/messages/messageList";
+import MessageList from "../../components/messages/messageList/messageList";
 import MessageModel from "../../common/models/message";
 import { useProfile } from "../../../domain/store/profile/profileHooks";
 import { getMessagesByFollower } from "../../../domain/entities/message";

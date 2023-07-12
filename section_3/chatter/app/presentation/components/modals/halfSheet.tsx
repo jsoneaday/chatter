@@ -10,7 +10,6 @@ import { verticalSlideDuration } from "../../common/animationUtils";
 import { modalBackgroundColor, primary } from "../../theme/colors";
 import { bodyFontStyle } from "../../theme/element-styles/textStyles";
 import DragPill from "../buttons/dragPill";
-import { visibleBorder } from "../../theme/visibleBorder";
 
 interface HalfSheetProps {
   show: boolean;

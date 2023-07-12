@@ -8,7 +8,7 @@ export enum TypeOfPost {
 
 export type PostMessageOpenerState = {
   show: boolean;
-  typeOfPost: TypeOfPost;
+  typeOfPost?: TypeOfPost;
   broadcastingMsgOrOriginalMsgId?: bigint;
 };
 

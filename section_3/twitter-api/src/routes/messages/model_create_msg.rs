@@ -73,10 +73,10 @@ impl MessageCreateMultipart {
             }
         }
 
-        if user_id.is_some() && body.is_some() && group_type.is_some() {
+        if user_id.is_some() && group_type.is_some() {
             let result = Self {
                 user_id: user_id.unwrap(),
-                body: body.unwrap(),
+                body: if body.is_none() { "".to_string() } else { body.unwrap() },
                 group_type: match group_type.unwrap() {
                     1 => MessageGroupTypes::Public,
                     2 => MessageGroupTypes::Circle,

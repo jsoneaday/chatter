@@ -32,10 +32,13 @@ import {
   ApiMessageGroupType,
   createMessage,
   createMessageResponse,
+  getMessage,
 } from "../../../domain/entities/message";
 import { useProfile } from "../../../domain/store/profile/profileHooks";
 import { usePostMessageSheetOpener } from "../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerHooks";
 import { TypeOfPost } from "../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerSlice";
+import ResentItem from "./messageList/resentItem";
+import MessageModel from "../../common/models/message";
 
 const LAST_POSTED_MESSAGE_KEY = "LAST_POSTED_MESSAGE_KEY";
 
@@ -54,6 +57,10 @@ export default function PostMessageComponent() {
     useState<MessageAccessibility>(MessageAccessibility.Public);
   const [showEarlyExitSheet, setEarlyExitSheet] = useState(false);
   const [profile] = useProfile();
+  const [showResendOrQuote, setShowResendOrQuote] = useState(false);
+  const [messageToResend, setMessageToResend] = useState<
+    MessageModel | undefined
+  >();
 
   useEffect(() => {
     const keyboardShow = Keyboard.addListener("keyboardDidShow", (e) => {
@@ -79,6 +86,12 @@ export default function PostMessageComponent() {
   }, []);
 
   useEffect(() => {
+    if (showPostMessageSheet.typeOfPost == TypeOfPost.Resend) {
+      setShowResendOrQuote(true);
+    }
+  }, [showPostMessageSheet.typeOfPost]);
+
+  useEffect(() => {
     if (showPostMessageSheet.show) {
       asyncStorage.getItem(LAST_POSTED_MESSAGE_KEY).then((text) => {
         if (text) {
@@ -87,6 +100,28 @@ export default function PostMessageComponent() {
       });
     }
   }, [showPostMessageSheet.show]);
+
+  useEffect(() => {
+    if (showPostMessageSheet.broadcastingMsgOrOriginalMsgId) {
+      getMessage(showPostMessageSheet.broadcastingMsgOrOriginalMsgId)
+        .then((message) => {
+          setMessageToResend(message);
+        })
+        .catch((e) => {
+          setMessageToResend(undefined);
+        });
+    } else {
+      setMessageToResend(undefined);
+    }
+  }, [showPostMessageSheet.broadcastingMsgOrOriginalMsgId]);
+
+  const resetShowPostMessageSheet = () => {
+    setShowPostMessageSheet({
+      show: false,
+      typeOfPost: undefined,
+      broadcastingMsgOrOriginalMsgId: undefined,
+    });
+  };
 
   const getImageFile = async (uri: string) => {
     const blobResult = await fetch(uri);
@@ -103,6 +138,11 @@ export default function PostMessageComponent() {
 
   const toggleEarlyExitSheet = () => {
     setEarlyExitSheet(!showEarlyExitSheet);
+  };
+
+  const toggleResendOrQuoteSheet = () => {
+    resetShowPostMessageSheet();
+    setShowResendOrQuote(!showResendOrQuote);
   };
 
   const togglePostMsgGroupSelector = () => {
@@ -125,16 +165,19 @@ export default function PostMessageComponent() {
   };
 
   const onPressSubmitMessage = async () => {
-    console.log("current showPostMessageSheet", showPostMessageSheet);
     try {
-      if (showPostMessageSheet.typeOfPost == TypeOfPost.NewPost) {
+      if (
+        showPostMessageSheet.typeOfPost === TypeOfPost.NewPost ||
+        showPostMessageSheet.typeOfPost === TypeOfPost.Resend
+      ) {
         console.log("start createMessage");
         const result = await createMessage(
           profile!.id,
-          messageValue,
           currentMessageAccessibility == MessageAccessibility.Public
             ? ApiMessageGroupType.Public
             : ApiMessageGroupType.Circle,
+          messageValue,
+          undefined,
           selectedImageUri
         );
 
@@ -176,7 +219,10 @@ export default function PostMessageComponent() {
         throw new Error("Not implemented");
       }
     } catch (e) {
-      console.log("error creating message: ", e);
+      console.log(
+        `error type of message post ${showPostMessageSheet.typeOfPost} not implemented:`,
+        e
+      );
     }
   };
 
@@ -185,10 +231,20 @@ export default function PostMessageComponent() {
   };
 
   const toggleShowPostMessageSheet = () => {
-    setShowPostMessageSheet({
+    const newShowPostMessageSheet = {
       show: !showPostMessageSheet.show,
-      typeOfPost: TypeOfPost.NewPost,
-    });
+      typeOfPost: showPostMessageSheet.typeOfPost,
+      broadcastingMsgOrOriginalMsgId:
+        showPostMessageSheet.broadcastingMsgOrOriginalMsgId,
+    };
+    console.log("toggleShowPostMessageSheet", newShowPostMessageSheet);
+    setShowPostMessageSheet(newShowPostMessageSheet);
+  };
+
+  const closePostMsgSheet = () => {
+    resetShowPostMessageSheet();
+    clearTextInput();
+    emptySelectedImage();
   };
 
   const onPressDropDown = () => {
@@ -249,6 +305,10 @@ export default function PostMessageComponent() {
                   style={styles.selectedImageStyle}
                 />
               ) : null}
+              {showPostMessageSheet.typeOfPost === TypeOfPost.Resend &&
+              messageToResend ? (
+                <ResentItem messageModel={messageToResend} />
+              ) : null}
             </View>
             <KeyboardToolBar
               show={showKeyboardTabBar}
@@ -263,7 +323,18 @@ export default function PostMessageComponent() {
         show={showEarlyExitSheet}
         toggleSelf={toggleEarlyExitSheet}
         currentTxtValue={messageValue}
-        togglePostMsgSheet={toggleShowPostMessageSheet}
+        closePostMsgSheet={closePostMsgSheet}
+      />
+
+      <ResendOrQuoteResend
+        show={showResendOrQuote}
+        toggleSelf={toggleResendOrQuoteSheet}
+        profileId={profile ? profile.id : BigInt(0)}
+        broadcastingMsgId={showPostMessageSheet.broadcastingMsgOrOriginalMsgId!}
+        currentTxtValue={messageValue}
+        currentMessageAccessibility={currentMessageAccessibility}
+        closePostMsgSheet={closePostMsgSheet}
+        toggleShowPostMessageSheet={toggleShowPostMessageSheet}
         clearTextInput={clearTextInput}
         emptySelectedImage={emptySelectedImage}
       />
@@ -286,64 +357,140 @@ export default function PostMessageComponent() {
   );
 }
 
-interface EarlyExitDeleteOrSaveProps {
+interface SecondarySheetProps {
   show: boolean;
   toggleSelf: () => void;
   currentTxtValue: string;
-  togglePostMsgSheet: () => void;
-  clearTextInput: () => void;
-  emptySelectedImage: () => void;
+  closePostMsgSheet: () => void;
 }
 
 function EarlyExitDeleteOrSave({
   show,
   toggleSelf,
   currentTxtValue,
-  togglePostMsgSheet,
-  clearTextInput,
-  emptySelectedImage,
-}: EarlyExitDeleteOrSaveProps) {
+  closePostMsgSheet,
+}: SecondarySheetProps) {
   const onCancelEarlyExit = () => {
     toggleSelf();
   };
 
   const onPressDelete = async () => {
     await asyncStorage.deleteItem(LAST_POSTED_MESSAGE_KEY);
-    clearTextInput();
+
     toggleSelf();
-    togglePostMsgSheet();
-    emptySelectedImage();
+    closePostMsgSheet();
   };
 
   const onPressSaveDraft = async () => {
     await asyncStorage.setItem(LAST_POSTED_MESSAGE_KEY, currentTxtValue);
-    clearTextInput();
+
     toggleSelf();
-    togglePostMsgSheet();
+    closePostMsgSheet();
   };
 
   return (
     <HalfSheet show={show} toggleShow={toggleSelf} sheetHeightDenom={5}>
       {show && (
         <>
-          <View style={styles.earlyExitContainer}>
-            <Pressable onPress={onPressDelete} style={styles.exitItem}>
+          <View style={styles.secondaryContainer}>
+            <Pressable onPress={onPressDelete} style={styles.secondaryItem}>
               <DeleteIcon size={25} />
               <Spacer width={20} />
-              <Text style={{ ...styles.exitItemTxt, color: "red" }}>
+              <Text style={{ ...styles.secondaryItemTxt, color: "red" }}>
                 Delete
               </Text>
             </Pressable>
-            <Pressable onPress={onPressSaveDraft} style={styles.exitItem}>
+            <Pressable onPress={onPressSaveDraft} style={styles.secondaryItem}>
               <SaveDraftIcon size={25} />
               <Spacer width={20} />
-              <Text style={styles.exitItemTxt}>Save draft</Text>
+              <Text style={styles.secondaryItemTxt}>Save draft</Text>
             </Pressable>
           </View>
           <BottomButton
             isInverted={true}
             onPressBottomButton={onCancelEarlyExit}
           >
+            Cancel
+          </BottomButton>
+        </>
+      )}
+    </HalfSheet>
+  );
+}
+
+function ResendOrQuoteResend({
+  show,
+  toggleSelf,
+  profileId,
+  currentMessageAccessibility,
+  broadcastingMsgId,
+  closePostMsgSheet,
+  toggleShowPostMessageSheet,
+  clearTextInput,
+  emptySelectedImage,
+}: SecondarySheetProps & {
+  profileId: bigint;
+  broadcastingMsgId: bigint;
+  currentMessageAccessibility: MessageAccessibility;
+  toggleShowPostMessageSheet: () => void;
+  clearTextInput: () => void;
+  emptySelectedImage: () => void;
+}) {
+  const onCancel = () => {
+    toggleSelf();
+  };
+
+  const onPressResend = async () => {
+    try {
+      const result = await createMessage(
+        profileId,
+        currentMessageAccessibility == MessageAccessibility.Public
+          ? ApiMessageGroupType.Public
+          : ApiMessageGroupType.Circle,
+        undefined,
+        broadcastingMsgId
+      );
+
+      if (result.ok) {
+        console.log("created message: ", await result.json());
+      } else {
+        console.log("error creating message: ", result.status);
+      }
+
+      toggleSelf();
+      closePostMsgSheet();
+    } catch (e) {
+      console.log("failed to resend message", e);
+    }
+  };
+
+  const onPressQuoteResend = async () => {
+    toggleSelf();
+    toggleShowPostMessageSheet();
+    clearTextInput();
+    emptySelectedImage();
+  };
+
+  return (
+    <HalfSheet show={show} toggleShow={toggleSelf} sheetHeightDenom={6}>
+      {show && (
+        <>
+          <View style={styles.secondaryContainer}>
+            <Pressable onPress={onPressResend} style={styles.secondaryItem}>
+              <DeleteIcon size={25} />
+              <Spacer width={20} />
+              <Text style={styles.secondaryItemTxt}>Resend</Text>
+            </Pressable>
+            <Pressable
+              onPress={onPressQuoteResend}
+              style={styles.secondaryItem}
+            >
+              <SaveDraftIcon size={25} />
+              <Spacer width={20} />
+              <Text style={styles.secondaryItemTxt}>Quote and Resend</Text>
+            </Pressable>
+          </View>
+          <BottomButton isInverted={true} onPressBottomButton={onCancel}>
             Cancel
           </BottomButton>
         </>
@@ -397,18 +544,18 @@ const styles = StyleSheet.create({
     width: 340,
     height: 340,
   },
-  earlyExitContainer: {
+  secondaryContainer: {
     justifyContent: "flex-start",
     alignSelf: "stretch",
     marginTop: 30,
     paddingHorizontal: 30,
   },
-  exitItem: {
+  secondaryItem: {
     flexDirection: "row",
     justifyContent: "flex-start",
     marginBottom: 30,
   },
-  exitItemTxt: {
+  secondaryItemTxt: {
     ...bodyFontStyle,
   },
 });

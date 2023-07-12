@@ -1,7 +1,6 @@
 import MessageModel from "../../presentation/common/models/message";
 import {
   MSGS_URL,
-  MSG_IMAGE_URL,
   MSG_RESPONSES_URL,
   MSG_RESPONSE_URL,
   MSG_URL,
@@ -27,15 +26,24 @@ export enum ApiMessageGroupType {
 
 export async function createMessage(
   userId: bigint,
-  body: string,
   groupType: ApiMessageGroupType,
-  // todo: add optional broadcasting_msg_id
+  body?: string,
+  broadcastingMsgId?: bigint,
   uri?: string
 ) {
+  if (userId === BigInt(0))
+    throw new Error("createMessage userId must have a valid id");
+
   const formData = new FormData();
   formData.append("userId", userId.toString());
-  formData.append("body", body.toString());
   formData.append("groupType", groupType.toString());
+
+  if (body) {
+    formData.append("body", body.toString());
+  }
+  if (broadcastingMsgId) {
+    formData.append("broadcastingMsgId", broadcastingMsgId.toString());
+  }
   if (uri) {
     const ext = uri.substring(uri.lastIndexOf(".") + 1);
     formData.append("image", {
@@ -44,6 +52,7 @@ export async function createMessage(
       type: `image/${ext}`,
     } as any);
   }
+  console.log("createMessage formData", formData);
 
   return await fetch(MSG_URL, {
     method: "post",
@@ -76,6 +85,21 @@ export async function createMessageResponse(
     method: "post",
     body: formData,
   });
+}
+
+export async function getMessage(msgId: bigint) {
+  // sample: followerId=233&lastUpdatedAt=2023-07-30T14:30:30Z
+  const messageResponse = await fetch(`${MSG_URL}/${msgId}`, {
+    method: "get",
+  });
+
+  let message: MessageModel | undefined = undefined;
+  if (messageResponse.ok) {
+    const message: MessageModel = await messageResponse.json();
+    return message;
+  }
+  console.log("getMessage message", message);
+  return message;
 }
 
 export async function getMessagesByFollower(

@@ -6,11 +6,15 @@ import { IconProps } from "./iconPropType";
 import { usePostMessageSheetOpener } from "../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerHooks";
 import { TypeOfPost } from "../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerSlice";
 
+interface EntityId {
+  msgId: bigint;
+}
+
 export function ResponseIcon({
   isSelected,
   size,
   msgId,
-}: IconProps & { msgId: bigint }) {
+}: IconProps & EntityId) {
   const [show, setShow] = usePostMessageSheetOpener();
   const onPressPostMessageSheetOpen = () => {
     const showUpdated = {
@@ -33,11 +37,31 @@ export function ResponseIcon({
   );
 }
 
-export function BroadcastIcon({ isSelected, size }: IconProps) {
-  if (isSelected) {
-    return <MaterialIcons name="repeat" size={size} color={primary()} />;
-  }
-  return <MaterialIcons name="repeat" size={size} color={notSelected()} />;
+export function BroadcastIcon({
+  isSelected,
+  size,
+  msgId,
+}: IconProps & EntityId) {
+  const [show, setShow] = usePostMessageSheetOpener();
+  const onPressPostMessageSheetOpen = () => {
+    const showUpdated = {
+      show: false,
+      typeOfPost: TypeOfPost.Resend,
+      broadcastingMsgOrOriginalMsgId: msgId,
+    };
+    setShow(showUpdated);
+    console.log("BroadcastIcon", showUpdated);
+  };
+
+  return (
+    <Pressable onPress={onPressPostMessageSheetOpen}>
+      <MaterialIcons
+        name="repeat"
+        size={size}
+        color={isSelected ? primary() : notSelected()}
+      />
+    </Pressable>
+  );
 }
 
 export function LikeIcon({ isSelected, size }: IconProps) {

@@ -1,10 +1,10 @@
 import { FlashList } from "@shopify/flash-list";
 import { View, StyleSheet } from "react-native";
 import MessageListItem from "./messageListItem";
-import MessageModel from "../../common/models/message";
+import MessageModel from "../../../common/models/message";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../screens/home/home";
-import { bottomBorder } from "../../theme/element-styles/dividerStyles";
+import { RootStackParamList } from "../../../screens/home/home";
+import { bottomBorder } from "../../../theme/element-styles/dividerStyles";
 
 export interface MessageListProps {
   navigation: StackNavigationProp<

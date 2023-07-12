@@ -9,13 +9,13 @@ import {
 import { parseISO, formatDistanceToNow } from "date-fns";
 import { primary, tertiary } from "../../theme/colors";
 import Avatar from "../avatar";
-import MessageListItemToolbar from "./messageListItemToolbar";
+import MessageListItemToolbar from "./messageList/messageListItemToolbar";
 import { DotsIcon } from "../icons/menuItemToolbarIcons";
 const profileImg = require("../../theme/assets/profile.jpeg");
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack";
 import { RootStackParamList } from "../../screens/home/home";
 import { bottomBorder } from "../../theme/element-styles/dividerStyles";
-import MessageList from "./messageList";
+import MessageList from "./messageList/messageList";
 import { useNavigation } from "@react-navigation/native";
 import { useProfile } from "../../../domain/store/profile/profileHooks";
 import { getResponseMessages } from "../../../domain/entities/message";

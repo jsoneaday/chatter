@@ -5,7 +5,7 @@ import {
   LikeIcon,
   ResponseIcon,
   ShareIcon,
-} from "../icons/menuItemToolbarIcons";
+} from "../../icons/menuItemToolbarIcons";
 
 const size = 21;
 
@@ -19,7 +19,7 @@ export default function MessageListItemToolbar({
   return (
     <View style={styles.container}>
       <ResponseIcon size={size} msgId={currentMsgId} />
-      <BroadcastIcon size={size} />
+      <BroadcastIcon size={size} msgId={currentMsgId} />
       <LikeIcon size={size} />
       <ShareIcon size={size} />
     </View>
