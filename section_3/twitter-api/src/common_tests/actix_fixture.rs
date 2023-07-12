@@ -2,7 +2,7 @@ use crate::{
     common::{ app_state::AppState, fs::file_utils::get_avatar_buffer, entities::base::DbRepo},
     routes::{
         profiles::profile_route::{ create_profile, get_profile, get_profile_by_user, get_followers }, 
-        messages::message_route::{create_message, get_message, get_messages, get_message_image, create_response_message},
+        messages::message_route::{create_message, get_message, get_messages, get_message_image, create_response_message, get_response_messages},
     },
 };
 use chrono::{ DateTime, Utc };
@@ -93,6 +93,7 @@ pub async fn get_app() -> impl Service<Request, Response = ServiceResponse, Erro
                 web::scope("/v1")
                     .service(web::resource("/msg/{id}").route(web::get().to(get_message::<DbRepo>)))
                     .service(web::resource("/msg").route(web::post().to(create_message::<DbRepo>)))
+                    .service(web::resource("/msg_responses").route(web::post().to(get_response_messages::<DbRepo>)))
                     .service(web::resource("/msg_response").route(web::post().to(create_response_message::<DbRepo>)))
                     .service(web::resource("/msgs").route(web::post().to(get_messages::<DbRepo>)))
                     .service(web::resource("/msg_image/{id}").route(web::get().to(get_message_image::<DbRepo>)))

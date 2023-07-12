@@ -20,6 +20,14 @@ pub struct MessageByFollowingQuery {
     pub page_size: Option<i16>
 }
 
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MessageResponsesQuery {
+    pub original_msg_id: i64,
+    pub last_updated_at: DateTime<Utc>,
+    pub page_size: Option<i16>
+}
+
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct MessageResponder {

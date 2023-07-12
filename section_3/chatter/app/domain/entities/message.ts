@@ -2,6 +2,7 @@ import MessageModel from "../../presentation/common/models/message";
 import {
   MSGS_URL,
   MSG_IMAGE_URL,
+  MSG_RESPONSES_URL,
   MSG_RESPONSE_URL,
   MSG_URL,
 } from "../utils/api";
@@ -99,6 +100,36 @@ export async function getMessagesByFollower(
   if (messageResponse.ok) {
     const messages: MessageModel[] = await messageResponse.json();
     return messages;
+  }
+
+  return allMessages;
+}
+
+export async function getResponseMessages(
+  originalMsgId: bigint,
+  lastUpdatedAt: string,
+  pageSize: number = 10
+) {
+  console.log("getResponseMessages", originalMsgId, lastUpdatedAt, pageSize);
+  // sample: followerId=233&lastUpdatedAt=2023-07-30T14:30:30Z
+  const messageResponse = await fetch(MSG_RESPONSES_URL, {
+    method: "post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      originalMsgId,
+      lastUpdatedAt,
+      pageSize,
+    }),
+  });
+
+  let allMessages: MessageModel[] = [];
+  if (messageResponse.ok) {
+    const messages: MessageModel[] = await messageResponse.json();
+    return messages;
+  } else {
+    console.log("failed getting response messages", messageResponse.status);
   }
 
   return allMessages;

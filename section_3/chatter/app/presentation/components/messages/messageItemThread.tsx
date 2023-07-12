@@ -17,6 +17,7 @@ import { bottomBorder } from "../../theme/element-styles/dividerStyles";
 import MessageList from "./messageList";
 import { useNavigation } from "@react-navigation/native";
 import { useProfile } from "../../../domain/store/profile/profileHooks";
+import { getResponseMessages } from "../../../domain/entities/message";
 
 export interface MessageItemThreadProps {
   message: MessageModel;
@@ -33,7 +34,9 @@ export default function MessageItemThread({
 }: MessageItemThreadRouteProps) {
   const [updatedAt, setUpdatedAt] = useState("");
   const { message, imageUri } = route.params;
+  const [responseMessages, setResponseMessages] = useState<MessageModel[]>([]);
   const [profile] = useProfile();
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const navigation =
     useNavigation<
       StackNavigationProp<
@@ -44,9 +47,25 @@ export default function MessageItemThread({
     >();
 
   useEffect(() => {
+    onRefreshList();
+
     const date = parseISO(message.updatedAt);
     setUpdatedAt(formatDistanceToNow(date, { addSuffix: true }));
   }, [message]);
+
+  const onRefreshList = async () => {
+    setIsRefreshing(true);
+    getResponseMessages(message.id, new Date().toISOString(), 10)
+      .then((messages) => {
+        console.log("response messages", messages);
+        setResponseMessages(messages);
+        setIsRefreshing(false);
+      })
+      .catch((e) => {
+        console.log("error getting response messages", e);
+        setIsRefreshing(false);
+      });
+  };
 
   return (
     <View style={styles.container}>
@@ -81,13 +100,13 @@ export default function MessageItemThread({
           <MessageListItemToolbar currentMsgId={message.id} />
         </View>
       </View>
-      <View>
-        {/* <MessageList
+      <View style={{ width: "100%", height: "100%" }}>
+        <MessageList
           navigation={navigation}
-          messageItems={messageItems}
+          messageItems={responseMessages}
           onRefreshList={onRefreshList}
           isRefreshing={isRefreshing}
-        /> */}
+        />
       </View>
     </View>
   );

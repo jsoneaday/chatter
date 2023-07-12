@@ -1,13 +1,13 @@
 use crate::common::entities::messages::model::MessageWithFollowingAndBroadcastQueryResult;
 use crate::common::app_state::AppState;
-use crate::common::entities::messages::repo::{InsertMessageFn, QueryMessageFn, QueryMessagesFn, QueryMessageImageFn, InsertResponseMessageFn};
+use crate::common::entities::messages::repo::{InsertMessageFn, QueryMessageFn, QueryMessagesFn, QueryMessageImageFn, InsertResponseMessageFn, QueryResponseMessagesFn};
 use crate::routes::errors::error_utils::UserError;
 use crate::routes::output_id::OutputId;
 use crate::routes::profiles::model::ProfileShort;
 use actix_web::HttpResponse;
 use actix_web::web::Bytes;
 use actix_web::{web, web::{Path, Json}};
-use super::model::{MessageResponder, MessageQuery, MessageByFollowingQuery, MessageResponders};
+use super::model::{MessageResponder, MessageQuery, MessageByFollowingQuery, MessageResponders, MessageResponsesQuery};
 use super::model_create_msg::MessageCreateMultipart;
 use super::model_create_response_msg::MessageCreateResponseMultipart;
 
@@ -109,6 +109,35 @@ pub async fn get_messages<T: QueryMessagesFn>(app_data: web::Data<AppState<T>>, 
         },
         Err(e) => {
             println!("route get_messages error: {:?}", e);
+            Err(e.into())
+        }
+    }
+}
+
+pub async fn get_response_messages<T: QueryResponseMessagesFn>(app_data: web::Data<AppState<T>>, body: Json<MessageResponsesQuery>) 
+    -> Result<MessageResponders, UserError>  {
+    let page_size = match body.page_size {
+        Some(ps) => ps,
+        None => 10
+    };
+    
+    let messages_result = app_data.db_repo.query_response_messages(
+        body.original_msg_id, body.last_updated_at, page_size
+    ).await;
+    
+    let mut msg_collection: Vec<MessageResponder> = vec![];
+    match messages_result {
+        Ok(messages) => {
+            messages
+                .iter()
+                .for_each(|msg| {
+                    msg_collection.push(convert(msg))
+                });
+
+            Ok(MessageResponders(msg_collection))
+        },
+        Err(e) => {
+            println!("route get_response_messages error: {:?}", e);
             Err(e.into())
         }
     }
@@ -412,6 +441,30 @@ mod tests {
             let app_data = get_app_data(repo).await;
 
             let result = get_messages(app_data, Json(MessageByFollowingQuery { follower_id: 1, last_updated_at: Utc::now(), page_size: None })).await;
+
+            match result {
+                Ok(messages) => assert!(messages.0.len() > 0),
+                Err(e) => {
+                    panic!("Failed to get_messages {:?}", e);
+                }
+            };                      
+        }
+    }
+
+    mod test_mod_get_response_messages_and_check_id {  
+        use chrono::Utc;
+        use crate::{
+            routes::messages::{model::MessageResponsesQuery, message_route::get_response_messages}, 
+            common::entities::base::DbRepo
+        };
+        use super::*;
+
+        #[tokio::test]
+        async fn test_get_response_messages_and_check_id() {
+            let repo = DbRepo::init().await;
+            let app_data = get_app_data(repo).await;
+
+            let result = get_response_messages(app_data, Json(MessageResponsesQuery { original_msg_id: 1, last_updated_at: Utc::now(), page_size: None })).await;
 
             match result {
                 Ok(messages) => assert!(messages.0.len() > 0),

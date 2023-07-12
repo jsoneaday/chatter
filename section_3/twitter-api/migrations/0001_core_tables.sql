@@ -80,6 +80,9 @@ create table message_response (
     constraint fk_responding_message foreign key(responding_msg_id) references message(id)
 );
 
+insert into message_response (original_msg_id, responding_msg_id) values (1, 17);
+insert into message_response (original_msg_id, responding_msg_id) values (1, 18);
+
 create table message_broadcast (
     "id" bigserial primary key,
     "created_at" timestamptz(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
