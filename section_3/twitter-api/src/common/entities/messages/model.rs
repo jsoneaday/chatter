@@ -21,6 +21,11 @@ pub struct MessageImage {
 }
 
 #[derive(Deserialize, Serialize, FromRow, Clone, Debug)]
+pub struct MessageLikesQueryResult {
+    pub likes: i32
+}
+
+#[derive(Deserialize, Serialize, FromRow, Clone, Debug)]
 pub struct MessageWithProfileQueryResult {
     // messsage fields
     pub id: i64,

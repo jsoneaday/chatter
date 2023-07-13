@@ -10,6 +10,8 @@ use crate::common::entities::messages::model::{MessageWithProfileQueryResult, Me
 // 2. we create repeatable structure to our code
 // 3. we can hide some members even from our parent module
 mod private_members {    
+    use crate::common::entities::messages::model::MessageLikesQueryResult;
+
     use super::*;
 
     pub async fn insert_message_inner(
@@ -317,6 +319,27 @@ mod private_members {
         }
     }
 
+    pub async fn like_message_inner(conn: &Pool<Postgres>, id: i64) -> Result<(), sqlx::Error> {
+        let like_count = sqlx::query_as::<_, MessageLikesQueryResult>("select likes from message where id = $1")
+            .bind(id)
+            .fetch_one(conn)
+            .await;
+
+        match like_count {
+            Ok(count) => {
+                let update_result = sqlx::query::<_>("update message set likes = $1")
+                    .bind(count.likes + 1)
+                    .execute(conn)
+                    .await;
+                match update_result {
+                    Ok(_) => Ok(()),
+                    Err(e) => Err(e)
+                }
+            },
+            Err(e) => Err(e)
+        }        
+    }
+
     async fn get_broadcasting_messages_of_messages(
         conn: &Pool<Postgres>,
         following_messages_with_broadcasts: &Vec<MessageWithProfileQueryResult>
@@ -594,6 +617,19 @@ impl QueryResponseMessagesFn for DbRepo {
     }
 }
 
+#[automock]
+#[async_trait]
+pub trait LikeMessageFn {
+    async fn like_message(&self, id: i64) -> Result<(), sqlx::Error>;
+}
+
+#[async_trait]
+impl LikeMessageFn for DbRepo {
+    async fn like_message(&self, id: i64) -> Result<(), sqlx::Error> {
+        private_members::like_message_inner(self.get_conn(), id).await
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::sync::{ Arc, RwLock };
@@ -604,7 +640,7 @@ mod tests {
         common::entities::profiles::{
                 repo::{ InsertProfileFn, QueryProfileFn, MockInsertProfileFn },
                 model::ProfileCreate,
-            }        
+            }
     };
     use super::*;
 
@@ -1108,6 +1144,50 @@ mod tests {
                 assert!(created_following_messages.contains(following_msg_id));
             }
             assert!(following_msg_ids.len() == created_following_messages.len());
+        }
+    }
+
+    mod test_mod_like_message {
+        use super::*;
+
+        async fn test_like_message_body() {
+            let fixtures = get_fixtures();
+            let mock_insert_profile = get_insert_profile_mock();
+            let mock_insert_message = get_insert_message_mock();
+
+            let profile_id_result = mock_insert_profile.insert_profile(
+                ProfileCreate {
+                    user_name: "tester".to_string(),
+                    full_name: "Dave Wave".to_string(),
+                    description: "a description".to_string(),
+                    region: Some("usa".to_string()),
+                    main_url: Some("http://whatever.com".to_string()),
+                    avatar: Some(vec![]),
+                }
+            ).await;
+            let profile_id = profile_id_result.unwrap();
+            let original_msg_id = mock_insert_message.insert_message(
+                profile_id,
+                "Body of message that is being responded to.",
+                PUBLIC_GROUP_TYPE,
+                None,
+                None
+            )
+            .await
+            .unwrap();
+
+            let original_msg_before_like = fixtures.db_repo.query_message(original_msg_id).await.unwrap().unwrap();
+            let likes_before = original_msg_before_like.likes;
+            let like_response = fixtures.db_repo.like_message(original_msg_id).await;
+            let original_msg_after_like = fixtures.db_repo.query_message(original_msg_id).await.unwrap().unwrap();
+            let likes_after = original_msg_after_like.likes;
+            assert!(like_response.is_ok());
+            assert!(likes_before == likes_after - 1);
+        }
+
+        #[test]
+        fn test_like_message() {
+            RT.block_on(test_like_message_body())
         }
     }
 }

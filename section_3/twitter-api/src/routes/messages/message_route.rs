@@ -1,6 +1,6 @@
 use crate::common::entities::messages::model::MessageWithFollowingAndBroadcastQueryResult;
 use crate::common::app_state::AppState;
-use crate::common::entities::messages::repo::{InsertMessageFn, QueryMessageFn, QueryMessagesFn, QueryMessageImageFn, InsertResponseMessageFn, QueryResponseMessagesFn};
+use crate::common::entities::messages::repo::{InsertMessageFn, QueryMessageFn, QueryMessagesFn, QueryMessageImageFn, InsertResponseMessageFn, QueryResponseMessagesFn, LikeMessageFn};
 use crate::routes::errors::error_utils::UserError;
 use crate::routes::output_id::OutputId;
 use crate::routes::profiles::model::ProfileShort;
@@ -143,6 +143,15 @@ pub async fn get_response_messages<T: QueryResponseMessagesFn>(app_data: web::Da
     }
 }
 
+pub async fn like_message<T: LikeMessageFn>(app_data: web::Data<AppState<T>>, path: Path<MessageQuery>) -> Result<(), UserError> {
+    let like_result = app_data.db_repo.like_message(path.id).await;
+
+    match like_result {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e.into())
+    }
+}
+
 fn convert(message: &MessageWithFollowingAndBroadcastQueryResult) -> MessageResponder {
     MessageResponder {
         id: message.id,
@@ -179,9 +188,41 @@ fn convert(message: &MessageWithFollowingAndBroadcastQueryResult) -> MessageResp
 
 #[cfg(test)]
 mod tests {
+    use chrono::{Utc, DateTime};
     use actix_web::web::Json;
     use async_trait::async_trait;
-    use crate::{common::entities::messages::repo::InsertMessageFn, routes::messages::{message_route::create_message, model_create_msg::MessageCreateMultipart}, common_tests::actix_fixture::{get_app_data, get_fake_message_body}};
+    use crate::{
+        common::entities::messages::{repo::{QueryMessagesFn, InsertMessageFn}, model::MessageWithFollowingAndBroadcastQueryResult}, 
+        common_tests::actix_fixture::{get_app_data, get_fake_message_body},
+        routes::messages::{message_route::create_message, model_create_msg::MessageCreateMultipart, model::MessageGroupTypes},
+        routes::{errors::error_utils::UserError, messages::{message_route::get_messages, model::MessageByFollowingQuery}}, 
+    };
+    use fake::faker::{internet::en::Username, name::en::{FirstName, LastName}};
+    use fake::Fake;
+
+    fn get_fake_message_with_following(id: Option<i64>) -> MessageWithFollowingAndBroadcastQueryResult {
+        MessageWithFollowingAndBroadcastQueryResult {
+            id: if let Some(id) = id { id } else { 0 },
+            updated_at: Utc::now(),
+            body: None,
+            likes: 1,
+            image: None,
+            msg_group_type: MessageGroupTypes::Public as i32,
+            user_id: 0,
+            user_name: Username().fake(),
+            full_name: format!("{} {}", FirstName().fake::<String>(), LastName().fake::<String>()),
+            avatar: None,
+            broadcast_msg_id: None,
+            broadcast_msg_updated_at: None,
+            broadcast_msg_body: None,
+            broadcast_msg_likes: None,
+            broadcast_msg_image: None,
+            broadcast_msg_user_id: None,
+            broadcast_msg_user_name: None,
+            broadcast_msg_full_name: None,
+            broadcast_msg_avatar: None,
+        }
+    }
 
     mod test_mod_create_message_and_check_id {        
         use super::*;
@@ -337,12 +378,9 @@ mod tests {
     }
 
     mod test_mod_get_message_and_check_id {      
-        use actix_web::web::Path;
-        use chrono::Utc;
-        use fake::faker::{internet::en::Username, name::en::{FirstName, LastName}};
-        use fake::Fake;
+        use actix_web::web::Path;        
         use crate::{
-            routes::messages::{message_route::get_message, model::{MessageQuery, MessageGroupTypes}}, 
+            routes::messages::{message_route::get_message, model::MessageQuery}, 
             common::entities::messages::{repo::QueryMessageFn, model::MessageWithFollowingAndBroadcastQueryResult}
         };
         use super::*;
@@ -354,29 +392,7 @@ mod tests {
         #[async_trait]
         impl QueryMessageFn for TestRepo {            
             async fn query_message(&self, id: i64) -> Result<Option<MessageWithFollowingAndBroadcastQueryResult>, sqlx::Error> {
-                Ok(Some(
-                    MessageWithFollowingAndBroadcastQueryResult {
-                        id: ID,
-                        updated_at: Utc::now(),
-                        body: None,
-                        likes: 1,
-                        image: None,
-                        msg_group_type: MessageGroupTypes::Public as i32,
-                        user_id: 0,
-                        user_name: Username().fake(),
-                        full_name: format!("{} {}", FirstName().fake::<String>(), LastName().fake::<String>()),
-                        avatar: None,
-                        broadcast_msg_id: None,
-                        broadcast_msg_updated_at: None,
-                        broadcast_msg_body: None,
-                        broadcast_msg_likes: None,
-                        broadcast_msg_image: None,
-                        broadcast_msg_user_id: None,
-                        broadcast_msg_user_name: None,
-                        broadcast_msg_full_name: None,
-                        broadcast_msg_avatar: None,
-                    }
-                ))
+                Ok(Some(get_fake_message_with_following(Some(ID))))
             }
         }
 
@@ -392,12 +408,7 @@ mod tests {
         }
     }
 
-    mod test_mod_get_messages_failure_returns_correct_error {    
-        use chrono::{DateTime, Utc};
-        use crate::{
-            routes::{errors::error_utils::UserError, messages::{message_route::get_messages, model::MessageByFollowingQuery}}, 
-            common::entities::messages::{repo::QueryMessagesFn, model::MessageWithFollowingAndBroadcastQueryResult}
-        };
+    mod test_mod_get_messages_failure_returns_correct_error {        
         use super::*;
 
         struct TestRepo;
@@ -427,13 +438,27 @@ mod tests {
         }
     }
 
-    mod test_mod_get_messages_and_check_id {  
-        use chrono::Utc;
+    mod test_mod_get_messages_and_check_id {
         use crate::{
             routes::messages::{model::MessageByFollowingQuery, message_route::get_messages}, 
             common::entities::base::DbRepo
         };
         use super::*;
+
+        struct TestRepo;
+        
+        #[allow(unused)]
+        #[async_trait]
+        impl QueryMessagesFn for TestRepo {            
+            async fn query_messages(
+                &self, 
+                user_id: i64,
+                last_updated_at: DateTime<Utc>,
+                page_size: i16
+            ) -> Result<Vec<MessageWithFollowingAndBroadcastQueryResult>, sqlx::Error> {
+                Ok(vec![get_fake_message_with_following(None)])
+            }
+        }
 
         #[tokio::test]
         async fn test_get_messages_and_check_id() {
@@ -451,23 +476,73 @@ mod tests {
         }
     }
 
-    mod test_mod_get_response_messages_and_check_id {  
-        use chrono::Utc;
+    mod test_mod_get_response_messages_and_check_id {          
         use crate::{
             routes::messages::{model::MessageResponsesQuery, message_route::get_response_messages}, 
-            common::entities::base::DbRepo
+            common::entities::{base::DbRepo, messages::{repo::QueryResponseMessagesFn, model::MessageWithFollowingAndBroadcastQueryResult}}
         };
         use super::*;
+
+        struct TestRepo;
+        
+        #[allow(unused)]
+        #[async_trait]
+        impl QueryResponseMessagesFn for TestRepo {            
+            async fn query_response_messages(
+                &self, 
+                original_msg_id: i64,
+                last_updated_at: DateTime<Utc>,
+                page_size: i16
+            ) -> Result<Vec<MessageWithFollowingAndBroadcastQueryResult>, sqlx::Error> {
+                Ok(vec![
+                    get_fake_message_with_following(None)
+                ])
+            }
+        }
 
         #[tokio::test]
         async fn test_get_response_messages_and_check_id() {
             let repo = DbRepo::init().await;
             let app_data = get_app_data(repo).await;
 
-            let result = get_response_messages(app_data, Json(MessageResponsesQuery { original_msg_id: 1, last_updated_at: Utc::now(), page_size: None })).await;
+            let result = get_response_messages(app_data, Json(MessageResponsesQuery { original_msg_id: 18, last_updated_at: Utc::now(), page_size: None })).await;
 
             match result {
                 Ok(messages) => assert!(messages.0.len() > 0),
+                Err(e) => {
+                    panic!("Failed to get_messages {:?}", e);
+                }
+            };                      
+        }
+    }
+
+    mod test_mod_like_message {
+        use actix_web::web::Path;
+        use crate::{
+            routes::messages::{model::MessageQuery, message_route::like_message}, 
+            common::entities::messages::repo::LikeMessageFn
+        };
+        use super::*;
+
+        struct TestRepo;
+        
+        #[allow(unused)]
+        #[async_trait]
+        impl LikeMessageFn for TestRepo {            
+            async fn like_message(&self, id: i64) -> Result<(), sqlx::Error> {
+                Ok(())
+            }
+        }
+
+        #[tokio::test]
+        async fn test_route_like_message() {
+            let repo = TestRepo;
+            let app_data = get_app_data(repo).await;
+
+            let result = like_message(app_data, Path::from(MessageQuery { id: 1 })).await;
+
+            match result {
+                Ok(_) => (),
                 Err(e) => {
                     panic!("Failed to get_messages {:?}", e);
                 }

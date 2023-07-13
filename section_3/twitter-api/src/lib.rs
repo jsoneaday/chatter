@@ -64,7 +64,7 @@ pub async fn run() -> std::io::Result<()> {
                     client: reqwest::Client::new(),
                     db_repo,
                 });    
-    //info!("RUST_BACKTRACE={}", std::env::var("RUST_BACKTRACE").unwrap());
+    info!("RUST_BACKTRACE={}", if let Ok(backtrace) = std::env::var("RUST_BACKTRACE") { backtrace } else { "".to_string() } );
     let result = HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
