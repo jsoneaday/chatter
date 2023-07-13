@@ -170,22 +170,27 @@ export default function PostMessageComponent() {
         showPostMessageSheet.typeOfPost === TypeOfPost.NewPost ||
         showPostMessageSheet.typeOfPost === TypeOfPost.Resend
       ) {
-        console.log("start createMessage");
+        console.log(
+          "start createMessage typeOfPost",
+          showPostMessageSheet.typeOfPost
+        );
         const result = await createMessage(
           profile!.id,
           currentMessageAccessibility == MessageAccessibility.Public
             ? ApiMessageGroupType.Public
             : ApiMessageGroupType.Circle,
           messageValue,
-          undefined,
+          showPostMessageSheet.typeOfPost === TypeOfPost.NewPost
+            ? undefined
+            : showPostMessageSheet.broadcastingMsgOrOriginalMsgId!,
           selectedImageUri
         );
 
         if (result.ok) {
           console.log("created message: ", await result.json());
-          setMessageValue("");
-          toggleShowPostMessageSheet();
-          setSelectedImageUri("");
+          clearTextInput();
+          emptySelectedImage();
+          resetShowPostMessageSheet();
         } else {
           console.log("error creating message: ", result.status);
         }
@@ -209,9 +214,9 @@ export default function PostMessageComponent() {
 
         if (result.ok) {
           console.log("created response message: ", await result.json());
-          setMessageValue("");
-          toggleShowPostMessageSheet();
-          setSelectedImageUri("");
+          clearTextInput();
+          emptySelectedImage();
+          resetShowPostMessageSheet();
         } else {
           console.log("error creating response message: ", result.status);
         }
@@ -307,7 +312,9 @@ export default function PostMessageComponent() {
               ) : null}
               {showPostMessageSheet.typeOfPost === TypeOfPost.Resend &&
               messageToResend ? (
-                <ResentItem messageModel={messageToResend} />
+                <View style={{ marginLeft: 60, marginRight: 10 }}>
+                  <ResentItem messageModel={messageToResend} />
+                </View>
               ) : null}
             </View>
             <KeyboardToolBar

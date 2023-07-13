@@ -40,41 +40,43 @@ export default function ResentItem({ messageModel, navigation }: ResentProps) {
 
   return (
     <View style={listItemStyles.resentContainer}>
-      <View style={listItemStyles.resentAvatarContainer}>
-        <Avatar imgFile={profile} size={30} />
-      </View>
-      {/* top width sets following widths if wrapped */}
       <View style={listItemStyles.resentContentContainer}>
+        <View style={listItemStyles.resentAvatarContainer}>
+          <Avatar imgFile={profile} size={30} />
+        </View>
         <View style={listItemStyles.containerBodyHeader}>
-          <View style={listItemStyles.containerBodyHeaderLeft}>
-            <Text style={listItemStyles.txtFullName}>
-              {messageModel.profile.fullName}
-            </Text>
+          <Text style={listItemStyles.txtFullName}>
+            {messageModel.profile.fullName}
+          </Text>
+          <Text
+            style={listItemStyles.txtUserName}
+          >{`@${messageModel.profile.userName}`}</Text>
+          <View style={listItemStyles.updatedAtContainer}>
             <Text
-              style={listItemStyles.txtUserName}
-            >{`@${messageModel.profile.userName}`}</Text>
-            <View style={listItemStyles.updatedAtContainer}>
-              <Text
-                style={{ ...listItemStyles.txtUpdatedAt, fontSize: 6 }}
-              >{`\u2B22`}</Text>
-              <Text
-                style={{ ...listItemStyles.txtUpdatedAt, marginLeft: 5 }}
-              >{`${updatedAt}`}</Text>
-            </View>
+              style={{ ...listItemStyles.txtUpdatedAt, fontSize: 6 }}
+            >{`\u2B22`}</Text>
+            <Text
+              numberOfLines={1}
+              style={{
+                ...listItemStyles.txtUpdatedAt,
+                marginLeft: 5,
+                width: 100,
+              }}
+            >{`${updatedAt}`}</Text>
           </View>
         </View>
-        <Pressable onPress={onPressNavigate}>
-          <View style={listItemStyles.containerBody}>
-            <Text style={listItemStyles.txtBody}>{messageModel.body}</Text>
-            {imageUri ? (
-              <Image
-                source={{ uri: imageUri }}
-                style={listItemStyles.imageStyle}
-              />
-            ) : null}
-          </View>
-        </Pressable>
       </View>
+      <Pressable onPress={onPressNavigate}>
+        <View style={listItemStyles.containerBody}>
+          <Text style={listItemStyles.txtBody}>{messageModel.body}</Text>
+          {imageUri ? (
+            <Image
+              source={{ uri: imageUri }}
+              style={listItemStyles.imageStyle}
+            />
+          ) : null}
+        </View>
+      </Pressable>
     </View>
   );
 }

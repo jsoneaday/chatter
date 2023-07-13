@@ -133,7 +133,7 @@ mod private_members {
         let message_result = sqlx
             ::query_as::<_, MessageWithProfileQueryResult>(
                 r"
-                select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.id as broadcast_msg_id                    
+                select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id                    
                     from message m 
                         join profile p on m.user_id = p.id
                         left join message_broadcast mb on m.id = mb.main_msg_id
@@ -175,7 +175,7 @@ mod private_members {
         let following_messages_with_profiles_result = sqlx
             ::query_as::<_, MessageWithProfileQueryResult>(
                 r"
-                select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.id as broadcast_msg_id                    
+                select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id                    
                     from message m 
                         join follow f on m.user_id = f.following_id
                         join profile p on p.id = f.following_id
@@ -198,7 +198,7 @@ mod private_members {
                 let user_messages_with_profiles_result = sqlx
                     ::query_as::<_, MessageWithProfileQueryResult>(
                         r"
-                        select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.id as broadcast_msg_id                    
+                        select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id                    
                         from message m 
                             join profile p on m.user_id = p.id
                             left join message_broadcast mb on m.id = mb.main_msg_id
@@ -216,6 +216,7 @@ mod private_members {
 
                 match user_messages_with_profiles_result {
                     Ok(mut users_messages) => {
+                        println!("users_messages {:?}", users_messages);
                         following_messages.append(&mut users_messages);
                         following_messages.sort_by(|a, b| {
                             b.updated_at.cmp(&a.updated_at)
@@ -235,6 +236,7 @@ mod private_members {
                                 msg.broadcast_msg_id.is_some() && msg.broadcast_msg_id.unwrap() > 0
                             })
                             .collect::<Vec<MessageWithProfileQueryResult>>();
+                        println!("following_messages_with_broadcasts {:?}", following_messages_with_broadcasts);
 
                         let optional_matching_broadcast_messages = get_broadcasting_messages_of_messages(
                             conn,
@@ -271,7 +273,7 @@ mod private_members {
         let message_result = sqlx
             ::query_as::<_, MessageWithProfileQueryResult>(
                 r"
-                select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.id as broadcast_msg_id                    
+                select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id                   
                 from message m 
                     join profile p on m.user_id = p.id
                     join message_response mr on m.id = mr.responding_msg_id
@@ -329,7 +331,7 @@ mod private_members {
         let broadcasting_msg_result = sqlx
             ::query_as::<_, MessageWithProfileQueryResult>(
                 r"
-                select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.id as broadcast_msg_id
+                select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id
                     from message m 
                         join profile p on m.user_id = p.id
                         left join message_broadcast mb on m.id = mb.main_msg_id
@@ -355,7 +357,7 @@ mod private_members {
         let broadcasting_msg_result = sqlx
             ::query_as::<_, MessageWithProfileQueryResult>(
                 r"
-                select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.id as broadcast_msg_id
+                select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id
                     from message m 
                         join profile p on m.user_id = p.id
                         left join message_broadcast mb on m.id = mb.main_msg_id
@@ -381,9 +383,7 @@ mod private_members {
         let mut final_list_of_messages: Vec<MessageWithFollowingAndBroadcastQueryResult> = vec![];
 
         following_messages_with_broadcasts.iter().for_each(|following_message_with_broadcast| {
-            let matching_broadcast_msg = if
-                let Some(broadcast_messages) = optional_broadcast_messages
-            {
+            let matching_broadcast_msg = if let Some(broadcast_messages) = optional_broadcast_messages {
                 broadcast_messages
                     .iter()
                     .find(|bm| { Some(bm.id) == following_message_with_broadcast.broadcast_msg_id })

@@ -49,17 +49,17 @@ export const listItemStyles = StyleSheet.create({
     paddingVertical: 5,
   },
   resentContainer: {
-    flexDirection: "row",
+    flexDirection: "column",
     alignItems: "flex-start",
     justifyContent: "flex-start",
-    marginLeft: 60,
-    marginRight: 10,
     marginTop: 10,
     padding: 10,
     borderRadius: 10,
     borderWidth: Platform.OS === "ios" ? 0.17 : 0.2,
     borderColor: secondary(),
     borderStyle: "solid",
+    width: "100%",
+    maxHeight: 175,
   },
   avatarContainer: {
     paddingTop: 2,
@@ -68,13 +68,15 @@ export const listItemStyles = StyleSheet.create({
   resentAvatarContainer: {
     paddingTop: 2,
     marginRight: 10,
-    width: "10%",
   },
   contentContainer: {
     width: "85%",
   },
   resentContentContainer: {
-    width: "70%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    marginBottom: 5,
   },
   containerBody: {
     flexDirection: "column",
