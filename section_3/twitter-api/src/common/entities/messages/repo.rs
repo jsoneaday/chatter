@@ -216,7 +216,6 @@ mod private_members {
 
                 match user_messages_with_profiles_result {
                     Ok(mut users_messages) => {
-                        println!("users_messages {:?}", users_messages);
                         following_messages.append(&mut users_messages);
                         following_messages.sort_by(|a, b| {
                             b.updated_at.cmp(&a.updated_at)
@@ -236,8 +235,7 @@ mod private_members {
                                 msg.broadcast_msg_id.is_some() && msg.broadcast_msg_id.unwrap() > 0
                             })
                             .collect::<Vec<MessageWithProfileQueryResult>>();
-                        println!("following_messages_with_broadcasts {:?}", following_messages_with_broadcasts);
-
+                        
                         let optional_matching_broadcast_messages = get_broadcasting_messages_of_messages(
                             conn,
                             &following_messages_with_broadcasts

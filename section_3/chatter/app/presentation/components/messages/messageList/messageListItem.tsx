@@ -72,14 +72,26 @@ export default function MessageListItem({
     });
   };
 
-  return (
-    <View>
-      {messageModelType === MessageModelType.Resent ||
-      messageModelType === MessageModelType.QuotedResent ? (
+  const getResentHeader = () => {
+    if (messageModelType === MessageModelType.Resent) {
+      return (
+        <Text style={{ marginLeft: 65 }}>
+          {`${messageModel.item.profile.userName}  Retweeted`}
+        </Text>
+      );
+    } else if (messageModelType === MessageModelType.QuotedResent) {
+      return (
         <Text style={{ marginLeft: 65 }}>
           {`${currentMessageModel?.profile.userName}  Retweeted`}
         </Text>
-      ) : null}
+      );
+    }
+    return null;
+  };
+
+  return (
+    <View>
+      {getResentHeader()}
       <View style={listItemStyles.container}>
         <View style={listItemStyles.avatarContainer}>
           <Avatar imgFile={profile} size={50} />
