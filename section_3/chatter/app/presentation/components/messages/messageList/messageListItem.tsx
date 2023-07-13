@@ -5,7 +5,7 @@ import { ListRenderItemInfo } from "@shopify/flash-list";
 import Avatar from "../../avatar";
 import MessageListItemToolbar from "./messageListItemToolbar";
 import { DotsIcon } from "../../icons/menuItemToolbarIcons";
-const profile = require("../../../theme/assets/profile.jpeg");
+const profile = require("../../../theme/assets/profile.png");
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../../screens/home/home";
 import {

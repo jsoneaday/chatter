@@ -8,7 +8,7 @@ import {
 import Spacer from "../spacer";
 import { ProfileMenuIcon } from "../icons/profileMenuIcon";
 import { primary } from "../../theme/colors";
-const profilePic = require("../../theme/assets/profile.jpeg");
+const profilePic = require("../../theme/assets/profile.png");
 
 interface LeftSlideMenuItemsProps {
   fullName: string;

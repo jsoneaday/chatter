@@ -11,7 +11,7 @@ import { primary, tertiary } from "../../theme/colors";
 import Avatar from "../avatar";
 import MessageListItemToolbar from "./messageList/messageListItemToolbar";
 import { DotsIcon } from "../icons/menuItemToolbarIcons";
-const profileImg = require("../../theme/assets/profile.jpeg");
+const profileImg = require("../../theme/assets/profile.png");
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack";
 import { RootStackParamList } from "../../screens/home/home";
 import { bottomBorder } from "../../theme/element-styles/dividerStyles";

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Image, Pressable } from "react-native";
 import MessageModel from "../../../common/models/message";
 import Avatar from "../../avatar";
-const profile = require("../../../theme/assets/profile.jpeg");
+const profile = require("../../../theme/assets/profile.png");
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../../screens/home/home";
 import {

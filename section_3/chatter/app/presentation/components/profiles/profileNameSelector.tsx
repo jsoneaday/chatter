@@ -6,7 +6,7 @@ import {
   bodyFontStyle,
   subHeaderFontStyle,
 } from "../../theme/element-styles/textStyles";
-const profilePic = require("../../theme/assets/profile.jpeg");
+const profilePic = require("../../theme/assets/profile.png");
 
 export type ProfileNameDisplayData = {
   fullName: string;
