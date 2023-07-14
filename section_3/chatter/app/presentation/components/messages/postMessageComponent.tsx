@@ -118,7 +118,8 @@ export default function PostMessageComponent() {
   const resetShowPostMessageSheet = () => {
     setShowPostMessageSheet({
       show: false,
-      typeOfPost: undefined,
+      displayPostButton: true,
+      typeOfPost: TypeOfPost.NewPost,
       broadcastingMsgOrOriginalMsgId: undefined,
     });
   };
@@ -238,6 +239,7 @@ export default function PostMessageComponent() {
   const toggleShowPostMessageSheet = () => {
     const newShowPostMessageSheet = {
       show: !showPostMessageSheet.show,
+      displayPostButton: !showPostMessageSheet.show,
       typeOfPost: showPostMessageSheet.typeOfPost,
       broadcastingMsgOrOriginalMsgId:
         showPostMessageSheet.broadcastingMsgOrOriginalMsgId,
@@ -346,7 +348,7 @@ export default function PostMessageComponent() {
         emptySelectedImage={emptySelectedImage}
       />
 
-      {!showPostMessageSheet.show && (
+      {!showPostMessageSheet.show && showPostMessageSheet.displayPostButton && (
         <Pressable
           style={styles.submitBtnContainer}
           onPress={onPressShowPostMessageDialog}

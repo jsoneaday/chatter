@@ -28,6 +28,8 @@ export function cacheFile(
       .catch((error) => {
         console.error("failed to download message file", error);
       });
+  } else {
+    setImageUri("");
   }
 }
 

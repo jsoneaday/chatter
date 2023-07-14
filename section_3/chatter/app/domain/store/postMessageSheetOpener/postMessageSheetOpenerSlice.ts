@@ -9,12 +9,14 @@ export enum TypeOfPost {
 
 export type PostMessageOpenerState = {
   show: boolean;
+  displayPostButton: boolean;
   typeOfPost?: TypeOfPost;
   broadcastingMsgOrOriginalMsgId?: bigint;
 };
 
 let initialState: PostMessageOpenerState = {
   show: false,
+  displayPostButton: true,
   typeOfPost: TypeOfPost.NewPost,
 };
 

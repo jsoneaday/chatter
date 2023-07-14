@@ -217,10 +217,10 @@ mod private_members {
                     .fetch_all(conn).await;
 
                 match user_messages_with_profiles_result {
-                    Ok(mut users_messages) => {
+                    Ok(mut users_messages) => {                        
                         following_messages.append(&mut users_messages);
                         following_messages.sort_by(|a, b| {
-                            a.updated_at.cmp(&b.updated_at)
+                            b.updated_at.cmp(&a.updated_at)
                         });
                         let following_messages_len = following_messages.len();
                         let new_page_size = if following_messages_len >= page_size as usize {

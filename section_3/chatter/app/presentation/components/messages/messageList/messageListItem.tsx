@@ -14,6 +14,7 @@ import {
   setUpdatedAtDate,
 } from "./messageItemUtils";
 import ResentItem from "./resentItem";
+import { usePostMessageSheetOpener } from "../../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerHooks";
 
 interface MessageItemProps {
   messageModel: ListRenderItemInfo<MessageModel>;
@@ -44,6 +45,8 @@ export default function MessageListItem({
   const [messageModelType, setMessageModelType] = useState<MessageModelType>(
     MessageModelType.Plain
   );
+  const [showPostMessageSheet, setShowPostMessageSheet] =
+    usePostMessageSheetOpener();
 
   useEffect(() => {
     cacheFile(messageModel.item, setImageUri);
@@ -66,6 +69,10 @@ export default function MessageListItem({
   }, [messageModel.item]);
 
   const onPressNavigate = () => {
+    const postMessageSheet = { ...showPostMessageSheet };
+    postMessageSheet.displayPostButton = false;
+    setShowPostMessageSheet(postMessageSheet);
+
     navigation.navigate("MessageItemThread", {
       message: currentMessageModel!,
       imageUri: imageUri,
