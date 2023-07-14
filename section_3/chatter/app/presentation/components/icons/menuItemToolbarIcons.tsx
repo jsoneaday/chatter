@@ -5,6 +5,7 @@ import { notSelected, primary } from "../../theme/colors";
 import { IconProps } from "./iconPropType";
 import { usePostMessageSheetOpener } from "../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerHooks";
 import { TypeOfPost } from "../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerSlice";
+import { likeMessage } from "../../../domain/entities/message";
 
 interface EntityId {
   msgId: bigint;
@@ -42,7 +43,7 @@ export function BroadcastIcon({
   size,
   msgId,
 }: IconProps & EntityId) {
-  const [show, setShow] = usePostMessageSheetOpener();
+  const [_, setShow] = usePostMessageSheetOpener();
   const onPressPostMessageSheetOpen = () => {
     const showUpdated = {
       show: false,
@@ -64,11 +65,21 @@ export function BroadcastIcon({
   );
 }
 
-export function LikeIcon({ isSelected, size }: IconProps) {
-  if (isSelected) {
-    return <Ionicons name="heart-sharp" size={size} color={primary()} />;
-  }
-  return <Ionicons name="heart-outline" size={size} color={notSelected()} />;
+export function LikeIcon({ isSelected, size, msgId }: IconProps & EntityId) {
+  const onPressPostMessageSheetOpen = async () => {
+    await likeMessage(msgId);
+    console.log("LikeIcon");
+  };
+
+  return (
+    <Pressable onPress={onPressPostMessageSheetOpen}>
+      <Ionicons
+        name={isSelected ? "heart-sharp" : "heart-outline"}
+        size={size}
+        color={isSelected ? primary() : notSelected()}
+      />
+    </Pressable>
+  );
 }
 
 export function ShareIcon({ isSelected, size }: IconProps) {

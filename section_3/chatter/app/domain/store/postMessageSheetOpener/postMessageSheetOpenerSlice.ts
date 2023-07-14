@@ -4,6 +4,7 @@ export enum TypeOfPost {
   NewPost,
   Response,
   Resend,
+  Like,
 }
 
 export type PostMessageOpenerState = {

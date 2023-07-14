@@ -1,5 +1,6 @@
 import MessageModel from "../../presentation/common/models/message";
 import {
+  LIKE_MSG_URL,
   MSGS_URL,
   MSG_RESPONSES_URL,
   MSG_RESPONSE_URL,
@@ -156,4 +157,13 @@ export async function getResponseMessages(
   }
 
   return allMessages;
+}
+
+export async function likeMessage(id: bigint) {
+  const likeResponse = await fetch(`${LIKE_MSG_URL}/${id}`, {
+    method: "post",
+  });
+  if (!likeResponse.ok) {
+    console.log("likeMessage has failed", likeResponse.status);
+  }
 }

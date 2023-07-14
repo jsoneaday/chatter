@@ -143,11 +143,11 @@ pub async fn get_response_messages<T: QueryResponseMessagesFn>(app_data: web::Da
     }
 }
 
-pub async fn like_message<T: LikeMessageFn>(app_data: web::Data<AppState<T>>, path: Path<MessageQuery>) -> Result<(), UserError> {
+pub async fn like_message<T: LikeMessageFn>(app_data: web::Data<AppState<T>>, path: Path<MessageQuery>) -> Result<String, UserError> {
     let like_result = app_data.db_repo.like_message(path.id).await;
 
     match like_result {
-        Ok(_) => Ok(()),
+        Ok(_) => Ok("".to_string()),
         Err(e) => Err(e.into())
     }
 }

@@ -6,3 +6,4 @@ export const MSG_IMAGE_URL = `${CHATTER_ROOT_URL}msg_image`;
 export const MSGS_URL = `${CHATTER_ROOT_URL}msgs`;
 export const PROFILE_URL = `${CHATTER_ROOT_URL}profile`;
 export const FOLLOW_URL = `${CHATTER_ROOT_URL}follow`;
+export const LIKE_MSG_URL = `${CHATTER_ROOT_URL}like_msg`;

@@ -20,7 +20,7 @@ export default function MessageListItemToolbar({
     <View style={styles.container}>
       <ResponseIcon size={size} msgId={currentMsgId} />
       <BroadcastIcon size={size} msgId={currentMsgId} />
-      <LikeIcon size={size} />
+      <LikeIcon size={size} msgId={currentMsgId} />
       <ShareIcon size={size} />
     </View>
   );

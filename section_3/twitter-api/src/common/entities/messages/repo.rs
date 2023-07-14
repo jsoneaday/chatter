@@ -220,7 +220,7 @@ mod private_members {
                     Ok(mut users_messages) => {
                         following_messages.append(&mut users_messages);
                         following_messages.sort_by(|a, b| {
-                            b.updated_at.cmp(&a.updated_at)
+                            a.updated_at.cmp(&b.updated_at)
                         });
                         let following_messages_len = following_messages.len();
                         let new_page_size = if following_messages_len >= page_size as usize {
@@ -327,8 +327,9 @@ mod private_members {
 
         match like_count {
             Ok(count) => {
-                let update_result = sqlx::query::<_>("update message set likes = $1")
+                let update_result = sqlx::query::<_>("update message set likes = $1 where id = $2")
                     .bind(count.likes + 1)
+                    .bind(id)
                     .execute(conn)
                     .await;
                 match update_result {

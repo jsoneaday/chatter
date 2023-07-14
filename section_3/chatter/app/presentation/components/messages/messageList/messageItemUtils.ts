@@ -126,4 +126,5 @@ export const listItemStyles = StyleSheet.create({
     width: 340,
     height: 340,
   },
+  resentHeader: { marginLeft: 65 },
 });

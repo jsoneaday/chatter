@@ -75,13 +75,13 @@ export default function MessageListItem({
   const getResentHeader = () => {
     if (messageModelType === MessageModelType.Resent) {
       return (
-        <Text style={{ marginLeft: 65 }}>
+        <Text style={listItemStyles.resentHeader}>
           {`${messageModel.item.profile.userName}  Retweeted`}
         </Text>
       );
     } else if (messageModelType === MessageModelType.QuotedResent) {
       return (
-        <Text style={{ marginLeft: 65 }}>
+        <Text style={listItemStyles.resentHeader}>
           {`${currentMessageModel?.profile.userName}  Retweeted`}
         </Text>
       );
