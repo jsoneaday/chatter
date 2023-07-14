@@ -97,7 +97,7 @@ export default function MessageListItem({
   };
 
   return (
-    <View>
+    <>
       {getResentHeader()}
       <View style={listItemStyles.container}>
         <View style={listItemStyles.avatarContainer}>
@@ -148,6 +148,6 @@ export default function MessageListItem({
           </View>
         </View>
       </View>
-    </View>
+    </>
   );
 }
