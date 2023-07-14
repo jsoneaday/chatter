@@ -129,7 +129,7 @@ export default function MessageItemThread({
           <Text style={{ fontSize: 16 }}>Bookmarks</Text>
         </View>
         <View style={styles.toolbarContainer}>
-          <MessageListItemToolbar currentMsgId={message.id} />
+          <MessageListItemToolbar currentMsg={message} />
         </View>
       </View>
       <View style={{ width: "100%", height: "100%" }}>

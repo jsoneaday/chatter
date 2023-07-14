@@ -135,7 +135,7 @@ mod private_members {
         let message_result = sqlx
             ::query_as::<_, MessageWithProfileQueryResult>(
                 r"
-                select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id                    
+                select m.id, m.updated_at, m.body, m.likes, (select count(*) from message_response where original_msg_id = m.id) as responses, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id                    
                     from message m 
                         join profile p on m.user_id = p.id
                         left join message_broadcast mb on m.id = mb.main_msg_id
@@ -177,7 +177,7 @@ mod private_members {
         let following_messages_with_profiles_result = sqlx
             ::query_as::<_, MessageWithProfileQueryResult>(
                 r"
-                select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id                    
+                select m.id, m.updated_at, m.body, m.likes, (select count(*) from message_response where original_msg_id = m.id) as responses, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id                    
                     from message m 
                         join follow f on m.user_id = f.following_id
                         join profile p on p.id = f.following_id
@@ -200,7 +200,7 @@ mod private_members {
                 let user_messages_with_profiles_result = sqlx
                     ::query_as::<_, MessageWithProfileQueryResult>(
                         r"
-                        select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id                    
+                        select m.id, m.updated_at, m.body, m.likes, (select count(*) from message_response where original_msg_id = m.id) as responses, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id                    
                         from message m 
                             join profile p on m.user_id = p.id
                             left join message_broadcast mb on m.id = mb.main_msg_id
@@ -273,7 +273,7 @@ mod private_members {
         let message_result = sqlx
             ::query_as::<_, MessageWithProfileQueryResult>(
                 r"
-                select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id                   
+                select m.id, m.updated_at, m.body, m.likes, (select count(*) from message_response where original_msg_id = m.id) as responses, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id                   
                 from message m 
                     join profile p on m.user_id = p.id
                     join message_response mr on m.id = mr.responding_msg_id
@@ -353,7 +353,7 @@ mod private_members {
         let broadcasting_msg_result = sqlx
             ::query_as::<_, MessageWithProfileQueryResult>(
                 r"
-                select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id
+                select m.id, m.updated_at, m.body, m.likes, (select count(*) from message_response where original_msg_id = m.id) as responses, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id
                     from message m 
                         join profile p on m.user_id = p.id
                         left join message_broadcast mb on m.id = mb.main_msg_id
@@ -379,7 +379,7 @@ mod private_members {
         let broadcasting_msg_result = sqlx
             ::query_as::<_, MessageWithProfileQueryResult>(
                 r"
-                select m.id, m.updated_at, m.body, m.likes, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id
+                select m.id, m.updated_at, m.body, m.likes, (select count(*) from message_response where original_msg_id = m.id) as responses, m.image, m.msg_group_type, m.user_id, p.user_name, p.full_name, p.avatar, mb.broadcasting_msg_id as broadcast_msg_id
                     from message m 
                         join profile p on m.user_id = p.id
                         left join message_broadcast mb on m.id = mb.main_msg_id
@@ -433,6 +433,7 @@ mod private_members {
             updated_at: message_with_broadcast.updated_at,
             body: message_with_broadcast.body.clone(),
             likes: message_with_broadcast.likes,
+            responses: message_with_broadcast.responses,
             image: message_with_broadcast.image.clone(),
             msg_group_type: message_with_broadcast.msg_group_type,
             user_id: message_with_broadcast.user_id,
@@ -444,6 +445,7 @@ mod private_members {
             broadcast_msg_user_id: None,
             broadcast_msg_body: None,
             broadcast_msg_likes: None,
+            broadcast_msg_responses: None,
             broadcast_msg_image: None,
             broadcast_msg_user_name: None,
             broadcast_msg_full_name: None,
@@ -455,6 +457,7 @@ mod private_members {
             final_message.broadcast_msg_updated_at = Some(matching_broadcast.updated_at);
             final_message.broadcast_msg_body = matching_broadcast.body.to_owned();
             final_message.broadcast_msg_likes = Some(matching_broadcast.likes);
+            final_message.broadcast_msg_responses = matching_broadcast.responses;
             final_message.broadcast_msg_image = matching_broadcast.image.to_owned();
             final_message.broadcast_msg_user_id = Some(matching_broadcast.user_id);
             final_message.broadcast_msg_user_name = Some(matching_broadcast.user_name.to_string());

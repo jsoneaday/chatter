@@ -35,6 +35,7 @@ pub struct MessageResponder {
     pub updated_at: DateTime<Utc>,
     pub body: Option<String>,
     pub likes: i32,
+    pub responses: Option<i64>,
     pub has_image: bool,
     pub broadcasting_msg: Option<Box<MessageResponder>>,
     pub profile: ProfileShort

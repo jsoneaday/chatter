@@ -158,6 +158,7 @@ fn convert(message: &MessageWithFollowingAndBroadcastQueryResult) -> MessageResp
         updated_at: message.updated_at,
         body: message.body.clone(),
         likes: message.likes,
+        responses: message.responses,
         has_image: message.image.is_some(),
         broadcasting_msg: match message.broadcast_msg_id {
             Some(id) => {
@@ -166,6 +167,7 @@ fn convert(message: &MessageWithFollowingAndBroadcastQueryResult) -> MessageResp
                     updated_at: message.broadcast_msg_updated_at.unwrap(),
                     body: message.broadcast_msg_body.clone(),
                     likes: message.broadcast_msg_likes.unwrap(),
+                    responses: message.broadcast_msg_responses,
                     has_image: message.broadcast_msg_image.is_some(),
                     broadcasting_msg: None ,
                     profile: ProfileShort {
@@ -206,6 +208,7 @@ mod tests {
             updated_at: Utc::now(),
             body: None,
             likes: 1,
+            responses: None,
             image: None,
             msg_group_type: MessageGroupTypes::Public as i32,
             user_id: 0,
@@ -216,6 +219,7 @@ mod tests {
             broadcast_msg_updated_at: None,
             broadcast_msg_body: None,
             broadcast_msg_likes: None,
+            broadcast_msg_responses: None,
             broadcast_msg_image: None,
             broadcast_msg_user_id: None,
             broadcast_msg_user_name: None,

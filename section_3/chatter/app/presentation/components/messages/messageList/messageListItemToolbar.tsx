@@ -6,24 +6,28 @@ import {
   ResponseIcon,
   ShareIcon,
 } from "../../icons/menuItemToolbarIcons";
+import MessageModel from "../../../common/models/message";
 
 const size = 21;
 
 export interface MessageListItemToolbarProps {
-  currentMsgId: bigint;
+  currentMsg: MessageModel | undefined;
 }
 
 export default function MessageListItemToolbar({
-  currentMsgId,
+  currentMsg,
 }: MessageListItemToolbarProps) {
-  return (
-    <View style={styles.container}>
-      <ResponseIcon size={size} msgId={currentMsgId} />
-      <BroadcastIcon size={size} msgId={currentMsgId} />
-      <LikeIcon size={size} msgId={currentMsgId} />
-      <ShareIcon size={size} />
-    </View>
-  );
+  if (currentMsg) {
+    return (
+      <View style={styles.container}>
+        <ResponseIcon size={size} message={currentMsg} />
+        <BroadcastIcon size={size} message={currentMsg} />
+        <LikeIcon size={size} message={currentMsg} />
+        <ShareIcon size={size} />
+      </View>
+    );
+  }
+  return null;
 }
 
 const styles = StyleSheet.create({
