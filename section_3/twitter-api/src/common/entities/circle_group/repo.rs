@@ -26,10 +26,38 @@ mod private_members {
 
     pub async fn insert_circle_member_inner(
         conn: &Pool<Postgres>,
-        circle_group_id: i64,
+        circle_owner_id: i64,
         new_member_id: i64
     ) -> Result<i64, sqlx::Error> {
-        let insert_result = sqlx
+        let query_circle_group_result = sqlx::query_as::<_, EntityId>("select id from circle_group where owner_id = $1")
+            .bind(circle_owner_id)
+            .fetch_one(conn)
+            .await;
+        
+        #[allow(unused)] let mut circle_group_id: i64 = 0;
+        match query_circle_group_result {
+            Ok(entity) => circle_group_id = entity.id,
+            Err(e) => match e {
+                sqlx::Error::RowNotFound => {
+                    let insert_result = sqlx
+                        ::query_as::<_, EntityId>(
+                            "insert into circle_group (owner_id) values ($1) returning id"
+                        )
+                        .bind(circle_owner_id)
+                        .fetch_one(conn).await;
+
+                    match insert_result {
+                        Ok(entity) => circle_group_id = entity.id,
+                        Err(e) => return Err(e),
+                    };
+                },
+                _ => {
+                    return Err(e);
+                }
+            }
+        };
+
+        let insert_circle_member_result = sqlx
             ::query_as::<_, EntityId>(
                 "insert into circle_group_member (circle_group_id, member_id) values ($1, $2) returning id"
             )
@@ -37,7 +65,7 @@ mod private_members {
             .bind(new_member_id)
             .fetch_one(conn).await;
 
-        match insert_result {
+        match insert_circle_member_result {
             Ok(row) => Ok(row.id),
             Err(e) => Err(e),
         }
@@ -102,7 +130,7 @@ impl InsertCircleFn for DbRepo {
 pub trait InsertCircleMemberFn {
     async fn insert_circle_member(
         &self,
-        circle_group_id: i64,
+        circle_owner_id: i64,
         new_member_id: i64
     ) -> Result<i64, sqlx::Error>;
 }
@@ -111,10 +139,10 @@ pub trait InsertCircleMemberFn {
 impl InsertCircleMemberFn for DbRepo {
     async fn insert_circle_member(
         &self,
-        circle_group_id: i64,
+        circle_owner_id: i64,
         new_member_id: i64
     ) -> Result<i64, sqlx::Error> {
-        private_members::insert_circle_member_inner(self.get_conn(), circle_group_id, new_member_id).await
+        private_members::insert_circle_member_inner(self.get_conn(), circle_owner_id, new_member_id).await
     }
 }
 
@@ -162,14 +190,12 @@ mod tests {
         CircleGroupMemberWithProfileQueryResult,
         CircleGroupWithProfileQueryResult,
     };
-    use crate::{
-        common::entities::profiles::{
-            repo::{ InsertProfileFn, QueryProfileFn },
-            model::ProfileCreate,
-        },
+    use crate::common::entities::profiles::{
+        repo::{ InsertProfileFn, QueryProfileFn },
+        model::ProfileCreate,
     };
     use super::*;
-    use super::{ InsertCircleFn };
+    use super::InsertCircleFn;
     use crate::common::entities::profiles::model::ProfileQueryResult;
     use std::sync::{ Arc, RwLock };
     use lazy_static::lazy_static;
@@ -178,7 +204,8 @@ mod tests {
     #[allow(unused)]
     struct Fixtures {
         pub follower: ProfileQueryResult,
-        pub following_profiles: Vec<ProfileQueryResult>,
+        pub following: ProfileQueryResult,
+        /// randomly select on person being followed group
         pub circle_group: CircleGroupWithProfileQueryResult,
         pub circle_group_members: Vec<CircleGroupMemberWithProfileQueryResult>,
         pub db_repo: DbRepo,
@@ -208,56 +235,47 @@ mod tests {
             }
         ).unwrap();
 
-        let mut following_profiles = Vec::new();
-        for _ in [..11] {
-            let following_result_id = db_repo.insert_profile(ProfileCreate {
-                user_name: "following".to_string(),
-                full_name: "Following Guy".to_string(),
-                description: format!("{} Following's description", PREFIX),
-                region: Some("usa".to_string()),
-                main_url: Some("http://whatever.com".to_string()),
-                avatar: Some(vec![]),
-            }).await;
+        let following_result_id = db_repo.insert_profile(ProfileCreate {
+            user_name: "following".to_string(),
+            full_name: "Following Guy".to_string(),
+            description: format!("{} Following's description", PREFIX),
+            region: Some("usa".to_string()),
+            main_url: Some("http://whatever.com".to_string()),
+            avatar: Some(vec![]),
+        }).await;
 
-            let following = (
-                match following_result_id {
-                    Ok(id) => {
-                        let profile_result = db_repo.query_profile(id).await;
-                        match profile_result {
-                            Ok(profile) => profile,
-                            Err(_) => None,
-                        }
+        let following = (
+            match following_result_id {
+                Ok(id) => {
+                    let profile_result = db_repo.query_profile(id).await;
+                    match profile_result {
+                        Ok(profile) => profile,
+                        Err(_) => None,
                     }
-                    Err(_) => None,
                 }
-            ).unwrap();
-
-            following_profiles.push(following);
-        }
-
-        let follower_id = follower.id;
-        let insert_circle_result_id = db_repo.insert_circle(follower_id).await.unwrap();
+                Err(_) => None,
+            }
+        ).unwrap();
+      
+        let mut circle_group_members = Vec::new();
+        let currently_following = following.clone();
+        let insert_circle_result_id = db_repo.insert_circle(currently_following.id).await.unwrap();
         let circle_group = db_repo
             .query_circle(insert_circle_result_id).await
             .unwrap()
+            .unwrap();            
+        let insert_circle_member_id = db_repo
+            .insert_circle_member(circle_group.owner_id, follower.id).await
             .unwrap();
-
-        let mut circle_group_members = Vec::new();
-        for _ in [..11] {
-            let current_following = following_profiles.iter().nth(0).unwrap();
-            let insert_circle_member_id = db_repo
-                .insert_circle_member(circle_group.id, current_following.id).await
-                .unwrap();
-            let circle_member = db_repo
-                .query_circle_member(insert_circle_member_id).await
-                .unwrap()
-                .unwrap();
-            circle_group_members.push(circle_member);
-        }
+        let circle_member = db_repo
+            .query_circle_member(insert_circle_member_id).await
+            .unwrap()
+            .unwrap();
+        circle_group_members.push(circle_member);
 
         Fixtures {
             follower,
-            following_profiles,
+            following,
             circle_group,
             circle_group_members,
             db_repo
@@ -303,20 +321,16 @@ mod tests {
     }
 
     mod test_mod_insert_new_circle_group {
-        use crate::common::entities::profiles::repo::{ MockInsertProfileFn, MockQueryProfileFn };
+        use crate::common::entities::profiles::repo::MockInsertProfileFn;
         use super::*;
 
         async fn test_insert_new_circle_group_body() {
             let fixtures = get_fixtures();
-            let follower = fixtures.follower.clone();
-            let follower_id = follower.clone().id;
+            let following = fixtures.follower.clone();
+            let following_id = following.clone().id;
             let mut mock_insert_profile = MockInsertProfileFn::new();
-            mock_insert_profile.expect_insert_profile().returning(move |_| { Ok(follower_id) });
-            let mut mock_query_profile = MockQueryProfileFn::new();
-            mock_query_profile
-                .expect_query_profile()
-                .returning(move |_| { Ok(Some(follower.clone())) });
-
+            mock_insert_profile.expect_insert_profile().returning(move |_| { Ok(following_id) });
+            
             let profile_id = mock_insert_profile
                 .insert_profile(ProfileCreate {
                     user_name: "follower".to_string(),
@@ -327,12 +341,8 @@ mod tests {
                     avatar: Some(vec![]),
                 }).await
                 .unwrap();
-            let profile = mock_query_profile
-                .query_profile(profile_id).await
-                .unwrap()
-                .unwrap();
 
-            let circle_id = fixtures.db_repo.insert_circle(profile.id).await.unwrap();
+            let circle_id = fixtures.db_repo.insert_circle(profile_id).await.unwrap();
 
             assert!(circle_id > 0);
         }
@@ -349,18 +359,9 @@ mod tests {
 
         fn get_insert_profile_mock() -> MockInsertProfileFn {
             let mut mock_insert_profile = MockInsertProfileFn::new();
-            mock_insert_profile.expect_insert_profile().returning(move |params| {
+            mock_insert_profile.expect_insert_profile().returning(move |_| {
                 let fixtures = get_fixtures();
-                if fixtures.follower.user_name == params.user_name {
-                    Ok(fixtures.follower.id)
-                } else {
-                    Ok(
-                        fixtures.following_profiles
-                            .iter()
-                            .find(|p| { p.user_name == params.user_name })
-                            .unwrap().id
-                    )
-                }
+                Ok(fixtures.following.id)
             });
             mock_insert_profile
         }
@@ -379,36 +380,36 @@ mod tests {
             let mock_insert_profile = get_insert_profile_mock();
             let mock_insert_circle = get_insert_circle_mock();
 
-            let follower_id = mock_insert_profile
+            let circle_owner_id = mock_insert_profile
+                .insert_profile(ProfileCreate {
+                    user_name: "following".to_string(),
+                    full_name: "Following Guy".to_string(),
+                    description: "Following's description".to_string(),
+                    region: Some("usa".to_string()),
+                    main_url: Some("http://whatever.com".to_string()),
+                    avatar: Some(vec![]),
+                }).await
+                .unwrap();
+            _ = mock_insert_circle
+                .insert_circle(circle_owner_id).await
+                .unwrap();
+
+            let circle_member_id = mock_insert_profile
                 .insert_profile(ProfileCreate {
                     user_name: "follower".to_string(),
                     full_name: "Follower Guy".to_string(),
-                    description: "Follower's description".to_string(),
-                    region: Some("usa".to_string()),
-                    main_url: Some("http://whatever.com".to_string()),
-                    avatar: Some(vec![]),
-                }).await
-                .unwrap();
-            let circle_group_id = mock_insert_circle
-                .insert_circle(follower_id).await
-                .unwrap();
-
-            let following_id = mock_insert_profile
-                .insert_profile(ProfileCreate {
-                    user_name: "following".to_string(),
-                    full_name: "following Guy".to_string(),
-                    description: "following's description".to_string(),
+                    description: "follower's description".to_string(),
                     region: Some("usa".to_string()),
                     main_url: Some("http://whatever.com".to_string()),
                     avatar: Some(vec![]),
                 }).await
                 .unwrap();
 
-            let circle_member_id = fixtures.db_repo
-                .insert_circle_member(circle_group_id, following_id).await
+            let circle_group_member_id = fixtures.db_repo
+                .insert_circle_member(circle_owner_id, circle_member_id).await
                 .unwrap();
 
-            assert!(circle_member_id > 0);
+            assert!(circle_group_member_id > 0);
         }
 
         #[test]
@@ -422,7 +423,7 @@ mod tests {
             let mock_insert_profile = get_insert_profile_mock();
             let mock_insert_circle = get_insert_circle_mock();
 
-            let follower_id = mock_insert_profile
+            let member_id = mock_insert_profile
                 .insert_profile(ProfileCreate {
                     user_name: "follower".to_string(),
                     full_name: "Follower Guy".to_string(),
@@ -431,12 +432,8 @@ mod tests {
                     main_url: Some("http://whatever.com".to_string()),
                     avatar: Some(vec![]),
                 }).await
-                .unwrap();
-            let circle_group_id = mock_insert_circle
-                .insert_circle(follower_id).await
-                .unwrap();
-
-            let following_id = mock_insert_profile
+                .unwrap();            
+            let owner_id = mock_insert_profile
                 .insert_profile(ProfileCreate {
                     user_name: "following".to_string(),
                     full_name: "following Guy".to_string(),
@@ -447,8 +444,12 @@ mod tests {
                 }).await
                 .unwrap();
 
+            let circle_group_id = mock_insert_circle
+                .insert_circle(owner_id).await
+                .unwrap();
+
             let circle_member_id = fixtures.db_repo
-                .insert_circle_member(circle_group_id, following_id).await
+                .insert_circle_member(owner_id, member_id).await
                 .unwrap();
             let circle_member = fixtures.db_repo
                 .query_circle_member(circle_member_id).await
@@ -458,7 +459,7 @@ mod tests {
             assert!(circle_member_id > 0);
             assert!(circle_member.id == circle_member_id);
             assert!(circle_member.circle_group_id == circle_group_id);
-            assert!(circle_member.member_id == following_id);
+            assert!(circle_member.member_id == member_id);
         }
 
         #[test]
