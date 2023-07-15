@@ -88,10 +88,8 @@ pub async fn run() -> std::io::Result<()> {
                     .service(web::resource("/profile").route(web::post().to(create_profile::<DbRepo>)))
                     .service(web::resource("/follow/{id}").route(web::get().to(get_followers::<DbRepo>)))
                     .service(web::resource("/like_msg/{id}").route(web::post().to(like_message::<DbRepo>)))
-                    .service(web::resource("/circle")
-                        .route(web::post().to(create_circle_member::<DbRepo>))
-                        .route(web::delete().to(remove_circle_member::<DbRepo>))
-                    )                    
+                    .service(web::resource("/circle").route(web::post().to(create_circle_member::<DbRepo>)))
+                    .service(web::resource("/circle_remove/circle_group_id/member_id").route(web::delete().to(remove_circle_member::<DbRepo>)))                 
             )
     })
     .bind((host, port))?
