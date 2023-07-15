@@ -268,6 +268,7 @@ mod tests {
     use super::*;
     use super::InsertCircleFn;
     use crate::common::entities::profiles::model::ProfileQueryResult;
+    use crate::common::entities::profiles::repo::MockInsertProfileFn;
     use std::sync::{ Arc, RwLock };
     use lazy_static::lazy_static;
 
@@ -280,6 +281,35 @@ mod tests {
         pub circle_group: CircleGroupWithProfileQueryResult,
         pub circle_group_members: Vec<CircleGroupMemberWithProfileQueryResult>,
         pub db_repo: DbRepo,
+    }
+
+    fn get_insert_profile_mock() -> MockInsertProfileFn {
+        let mut mock_insert_profile = MockInsertProfileFn::new();
+        mock_insert_profile.expect_insert_profile().returning(move |profile_create| {
+            let fixtures = get_fixtures();
+            if profile_create.user_name == "following" {
+                Ok(fixtures.following.id)
+            } else {
+                Ok(fixtures.follower.id)
+            }
+        });
+        mock_insert_profile
+    }
+
+    fn get_insert_circle_mock() -> MockInsertCircleFn {
+        let mut mock_insert_circle = MockInsertCircleFn::new();
+        mock_insert_circle
+            .expect_insert_circle()
+            .returning(|_| { Ok(get_fixtures().circle_group.id) });
+        mock_insert_circle
+    }
+
+    fn get_insert_circle_member_mock() -> MockInsertCircleMemberFn {
+        let mut mock_insert_circle_member = MockInsertCircleMemberFn::new();
+        mock_insert_circle_member
+            .expect_insert_circle_member()
+            .returning(|_, _| { Ok(get_fixtures().circle_group_members.get(0).unwrap().id) });
+        mock_insert_circle_member
     }
 
     const PREFIX: &str = "Test circle";
@@ -388,8 +418,7 @@ mod tests {
         };
     }
 
-    mod test_mod_insert_new_circle_group {
-        use crate::common::entities::profiles::repo::MockInsertProfileFn;
+    mod test_mod_insert_new_circle_group {        
         use super::*;
 
         async fn test_insert_new_circle_group_body() {
@@ -422,37 +451,7 @@ mod tests {
     }
 
     mod test_mod_insert_new_circle_member {
-        use crate::common::entities::profiles::repo::MockInsertProfileFn;
         use super::*;
-
-        fn get_insert_profile_mock() -> MockInsertProfileFn {
-            let mut mock_insert_profile = MockInsertProfileFn::new();
-            mock_insert_profile.expect_insert_profile().returning(move |profile_create| {
-                let fixtures = get_fixtures();
-                if profile_create.user_name == "following" {
-                    Ok(fixtures.following.id)
-                } else {
-                    Ok(fixtures.follower.id)
-                }
-            });
-            mock_insert_profile
-        }
-
-        fn get_insert_circle_mock() -> MockInsertCircleFn {
-            let mut mock_insert_circle = MockInsertCircleFn::new();
-            mock_insert_circle
-                .expect_insert_circle()
-                .returning(|_| { Ok(get_fixtures().circle_group.id) });
-            mock_insert_circle
-        }
-
-        fn get_insert_circle_member_mock() -> MockInsertCircleMemberFn {
-            let mut mock_insert_circle_member = MockInsertCircleMemberFn::new();
-            mock_insert_circle_member
-                .expect_insert_circle_member()
-                .returning(|_, _| { Ok(get_fixtures().circle_group_members.get(0).unwrap().id) });
-            mock_insert_circle_member
-        }
 
         async fn test_insert_new_circle_group_member_body() {
             let fixtures = get_fixtures();
@@ -590,6 +589,38 @@ mod tests {
         #[test]
         fn test_delete_member() {
             RT.block_on(test_delete_member_body());
+        }
+    }
+
+    mod test_mod_query_circle_by_owner {
+        use crate::common::entities::profiles::repo::MockInsertProfileFn;
+        use super::*;
+
+        async fn test_query_circle_by_owner_body() {
+            let fixtures = get_fixtures();
+            let owner = fixtures.following.clone();
+            let mut mock_insert_owner = MockInsertProfileFn::new();
+            mock_insert_owner.expect_insert_profile().returning(move |_| { Ok(owner.id) });            
+            let owner_id = mock_insert_owner
+                .insert_profile(ProfileCreate {
+                    user_name: "follower".to_string(),
+                    full_name: "Follower Guy".to_string(),
+                    description: "Follower's description".to_string(),
+                    region: Some("usa".to_string()),
+                    main_url: Some("http://whatever.com".to_string()),
+                    avatar: Some(vec![]),
+                }).await
+                .unwrap();
+            let mock_insert_circle = get_insert_circle_mock();
+            let inserted_circle_id = mock_insert_circle.insert_circle(owner_id).await.unwrap();
+            let get_circle_id = fixtures.db_repo.query_circle_by_owner(owner_id).await.unwrap().unwrap();
+
+            assert!(get_circle_id == inserted_circle_id);
+        }
+
+        #[test]
+        fn test_query_circle_by_owner() {
+            RT.block_on(test_query_circle_by_owner_body());
         }
     }
 }
