@@ -22,6 +22,7 @@ export function ResponseIcon({
     const showUpdated = {
       show: !show.show,
       typeOfPost: TypeOfPost.Response,
+      displayPostButton: false,
       broadcastingMsgOrOriginalMsgId: message.id,
     };
     setShow(showUpdated);
@@ -50,6 +51,7 @@ export function BroadcastIcon({
     const showUpdated = {
       show: false,
       typeOfPost: TypeOfPost.Resend,
+      displayPostButton: false,
       broadcastingMsgOrOriginalMsgId: message.id,
     };
     setShow(showUpdated);
@@ -80,7 +82,7 @@ export function LikeIcon({ isSelected, size, message }: IconProps & EntityId) {
         size={size}
         color={isSelected ? primary() : notSelected()}
       />
-      <Text>{message.likes}</Text>
+      <Text>{message.likes === 0 ? "" : message.likes}</Text>
     </Pressable>
   );
 }

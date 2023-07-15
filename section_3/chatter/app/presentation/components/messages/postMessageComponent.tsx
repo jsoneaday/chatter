@@ -239,7 +239,7 @@ export default function PostMessageComponent() {
   const toggleShowPostMessageSheet = () => {
     const newShowPostMessageSheet = {
       show: !showPostMessageSheet.show,
-      displayPostButton: !showPostMessageSheet.show,
+      displayPostButton: !showPostMessageSheet.displayPostButton,
       typeOfPost: showPostMessageSheet.typeOfPost,
       broadcastingMsgOrOriginalMsgId:
         showPostMessageSheet.broadcastingMsgOrOriginalMsgId,
