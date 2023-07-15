@@ -1,6 +1,6 @@
-use std::{ pin::Pin };
+use std::pin::Pin;
 use actix_http::body::BoxBody;
-use actix_multipart::{ Multipart };
+use actix_multipart::Multipart;
 use actix_web::http::header::ContentType;
 use actix_web::{ FromRequest, HttpRequest, Responder, HttpResponse};
 use actix_web::dev::Payload;

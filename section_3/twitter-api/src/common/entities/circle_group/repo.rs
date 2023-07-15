@@ -104,6 +104,19 @@ mod private_members {
             .bind(id)
             .fetch_optional(conn).await
     }
+
+    pub async fn delete_member_inner(conn: &Pool<Postgres>, circle_group_id: i64, member_id: i64) -> Result<(), sqlx::Error> {
+        let result = sqlx::query::<_>("delete from circle_group_member where circle_group_id = $1 and $2")
+            .bind(circle_group_id)
+            .bind(member_id)
+            .execute(conn)
+            .await;
+
+        match result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e)
+        }
+    }
 }
 
 #[automock]
@@ -181,6 +194,19 @@ impl QueryCircleMemberFn for DbRepo {
         id: i64
     ) -> Result<Option<CircleGroupMemberWithProfileQueryResult>, sqlx::Error> {
         private_members::query_circle_member_inner(self.get_conn(), id).await
+    }
+}
+
+#[automock]
+#[async_trait]
+pub trait DeleteCircleMemberFn {
+    async fn delete_member(&self, circle_group_id: i64, member_id: i64) -> Result<(), sqlx::Error>;
+}
+
+#[async_trait]
+impl DeleteCircleMemberFn for DbRepo {
+    async fn delete_member(&self, circle_group_id: i64, member_id: i64) -> Result<(), sqlx::Error> {
+        private_members::delete_member_inner(self.get_conn(), circle_group_id, member_id).await
     }
 }
 
@@ -465,6 +491,51 @@ mod tests {
         #[test]
         fn test_insert_new_circle_group_member_and_verify_fields() {
             RT.block_on(test_insert_new_circle_group_member_and_verify_fields_body());
+        }
+    }
+
+    mod test_mod_delete_member {
+        use crate::common::entities::profiles::repo::MockInsertProfileFn;
+        use super::*;
+
+        async fn test_delete_member_body() {
+            let fixtures = get_fixtures();
+            let owner = fixtures.following.clone();
+            let mut mock_insert_owner = MockInsertProfileFn::new();
+            mock_insert_owner.expect_insert_profile().returning(move |_| { Ok(owner.id) });            
+            let owner_id = mock_insert_owner
+                .insert_profile(ProfileCreate {
+                    user_name: "follower".to_string(),
+                    full_name: "Follower Guy".to_string(),
+                    description: "Follower's description".to_string(),
+                    region: Some("usa".to_string()),
+                    main_url: Some("http://whatever.com".to_string()),
+                    avatar: Some(vec![]),
+                }).await
+                .unwrap();
+
+            let member = fixtures.follower.clone();
+            let mut mock_insert_member = MockInsertProfileFn::new();
+            mock_insert_member.expect_insert_profile().returning(move |_| { Ok(member.id) });            
+            let member_id = mock_insert_member
+                .insert_profile(ProfileCreate {
+                    user_name: "follower".to_string(),
+                    full_name: "Follower Guy".to_string(),
+                    description: "Follower's description".to_string(),
+                    region: Some("usa".to_string()),
+                    main_url: Some("http://whatever.com".to_string()),
+                    avatar: Some(vec![]),
+                }).await
+                .unwrap();
+
+            let circle_id = fixtures.db_repo.insert_circle_member(owner_id, member_id).await.unwrap();
+
+            assert!(circle_id > 0);
+        }
+
+        #[test]
+        fn test_delete_member() {
+            RT.block_on(test_delete_member_body());
         }
     }
 }

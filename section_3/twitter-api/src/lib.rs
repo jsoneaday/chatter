@@ -40,6 +40,10 @@ pub mod routes {
     pub mod utils {
         pub mod multipart;
     }
+    pub mod circle {
+        pub mod model;
+        pub mod circle_route;
+    }
 }
 
 use std::env;
@@ -51,6 +55,7 @@ use routes::messages::message_route::{get_message, get_messages};
 use routes::profiles::profile_route::{ create_profile, get_profile, get_profile_by_user, get_followers };
 use std::error::Error;
 use crate::common::app_state::AppState;
+use crate::routes::circle::circle_route::{create_circle_member, remove_circle_member};
 use crate::routes::messages::message_route::{ create_message, get_message_image, create_response_message, get_response_messages, like_message };
 
 pub async fn run() -> std::io::Result<()> {
@@ -83,6 +88,10 @@ pub async fn run() -> std::io::Result<()> {
                     .service(web::resource("/profile").route(web::post().to(create_profile::<DbRepo>)))
                     .service(web::resource("/follow/{id}").route(web::get().to(get_followers::<DbRepo>)))
                     .service(web::resource("/like_msg/{id}").route(web::post().to(like_message::<DbRepo>)))
+                    .service(web::resource("/circle")
+                        .route(web::post().to(create_circle_member::<DbRepo>))
+                        .route(web::delete().to(remove_circle_member::<DbRepo>))
+                    )                    
             )
     })
     .bind((host, port))?

@@ -119,9 +119,7 @@ mod tests {
         Fake
     };
     use crate::{
-        common::{
-            entities::{profiles::{repo::InsertProfileFn, model::ProfileCreate}}
-        }, 
+        common::entities::profiles::{repo::InsertProfileFn, model::ProfileCreate}, 
         common_tests::actix_fixture::{get_profile_avatar, get_fake_main_url, get_app_data
         }, routes::{profiles::model::ProfileCreateMultipart, errors::error_utils::UserError}
     };
@@ -320,7 +318,7 @@ mod tests {
     }
 
     mod test_mod_get_followers {            
-        use crate::{common::entities::base::DbRepo};
+        use crate::common::entities::base::DbRepo;
         use super::*;
 
         #[tokio::test]
