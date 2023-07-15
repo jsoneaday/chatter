@@ -1,4 +1,3 @@
-import "react-native-gesture-handler";
 import React from "react";
 import LeftSlideMenu from "./app/presentation/components/menu/leftSlideMenu";
 import { Provider as ReduxProvider } from "react-redux";

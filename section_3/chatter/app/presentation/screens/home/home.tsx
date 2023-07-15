@@ -23,7 +23,7 @@ export default function Home() {
   const [_, setProfile] = useProfile();
 
   useEffect(() => {
-    getProfile("jon")
+    getProfile("lynn")
       .then((profileResult) => {
         if (profileResult.ok) {
           profileResult.json().then((profileData) => {

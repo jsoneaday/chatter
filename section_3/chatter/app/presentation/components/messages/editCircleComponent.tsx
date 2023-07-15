@@ -15,9 +15,14 @@ import { FlashList } from "@shopify/flash-list";
 import ProfileNameSelector, {
   ProfileNameDisplayData,
 } from "../profiles/profileNameSelector";
-import { getFollowers } from "../../../domain/entities/follow";
+import { Follower, getFollowers } from "../../../domain/entities/follow";
+import { useProfile } from "../../../domain/store/profile/profileHooks";
+import {
+  getCircleGroupByOwner,
+  getCircleMembers,
+} from "../../../domain/entities/circle";
 
-const Tabs: [string, string] = ["Twitter Circle", "Recommended"];
+const Tabs: [string, string] = ["Chatter Circle", "Recommended"];
 
 interface EditCircleComponentProps {
   show: boolean;
@@ -28,15 +33,24 @@ export default function EditCircleComponent({
   show,
   toggleSelf,
 }: EditCircleComponentProps) {
-  const [currentView, setCurrentView] = useState<JSX.Element>(
-    <ChatterCircle />
-  );
+  const [circleGroupId, setCircleGroupId] = useState(BigInt(0));
+  const [currentView, setCurrentView] = useState<JSX.Element>();
+  const [profile, setProfile] = useProfile();
+
+  useEffect(() => {
+    console.log("EditCircleComponent profile", profile);
+    if (profile) {
+      getCircleGroupByOwner(profile!.id).then((circleGroupId) => {
+        setCircleGroupId(circleGroupId || BigInt(0));
+      });
+    }
+  }, [profile]);
 
   const onSelectedTabChanged = async (selectedTab: string) => {
     if (selectedTab == Tabs[0]) {
-      setCurrentView(<ChatterCircle />);
+      setCurrentView(<ChatterCircle circleGroupId={circleGroupId} />);
     } else {
-      setCurrentView(<Recommended />);
+      setCurrentView(<Recommended circleGroupId={circleGroupId} />);
     }
   };
 
@@ -66,55 +80,91 @@ export default function EditCircleComponent({
   );
 }
 
-function ChatterCircle() {
+interface TabProps {
+  circleGroupId: bigint;
+}
+
+function ChatterCircle({ circleGroupId }: TabProps) {
+  const [circleMembers, setCircleMembers] =
+    useState<ProfileNameDisplayData[]>();
+  const [profile] = useProfile();
+
+  useEffect(() => {
+    refreshMembers();
+  }, [profile]);
+
+  const refreshMembers = async () => {
+    console.log("getting circle members...", circleGroupId);
+    const members = await getCircleMembers(circleGroupId);
+    const foundCircleMembers = members?.map((member) => {
+      return {
+        id: member.memberId,
+        userName: member.userName,
+        fullName: member.fullName,
+        avatar: member.avatar,
+      };
+    });
+    setCircleMembers(foundCircleMembers);
+  };
+
   return (
     <View style={styles.childContainer}>
-      <Disclaimer />
+      <View style={styles.childItem}>
+        <Disclaimer />
+      </View>
+      <View style={{ width: "100%", height: "100%" }}>
+        <FlashList
+          renderItem={(item) => (
+            <ProfileNameSelector
+              isAdding={false}
+              refreshList={refreshMembers}
+              circleGroupId={circleGroupId}
+              ownerId={profile?.id || BigInt(0)}
+              member={item.item}
+            />
+          )}
+          estimatedItemSize={10}
+          data={circleMembers}
+        />
+      </View>
     </View>
   );
 }
 
-function Recommended() {
+function Recommended({ circleGroupId }: TabProps) {
   const [potentialCircleProfiles, setPotentialCircleProfiles] =
     useState<ProfileNameDisplayData[]>();
+  const [profile] = useProfile();
 
   useEffect(() => {
-    getFollowers(BigInt(2))
-      .then((followersResult) => {
-        if (followersResult.ok) {
-          followersResult.json().then((followers) => {
-            setPotentialCircleProfiles(
-              followers.map(
-                (follower: {
-                  id: bigint;
-                  createdAt: Date;
-                  userName: string;
-                  fullName: string;
-                  description: string;
-                  region?: string;
-                  mainUrl?: string;
-                  avatar?: Blob;
-                }) => {
-                  return {
-                    fullName: follower.fullName,
-                    userName: follower.userName,
-                    avatar: follower.avatar,
-                  };
-                }
-              )
-            );
-          });
-        } else {
-          console.log(
-            "Failed to get followers status:",
-            followersResult.status
-          );
+    refreshCircleProfiles();
+  }, [profile]);
+
+  const refreshCircleProfiles = async () => {
+    console.log("getting recommended followers");
+    const members = await getCircleMembers(circleGroupId);
+    const followers = await getFollowers(profile!.id);
+
+    const followersList = followers
+      .filter((follower) => {
+        if (members) {
+          return members.find((member) => member.memberId === follower.id)
+            ? false
+            : true;
         }
+        return true;
       })
-      .catch((e) => {
-        console.log("Failed to get followers", e);
+      .map((follower) => {
+        return {
+          id: follower.id,
+          fullName: follower.fullName,
+          userName: follower.userName,
+          avatar: follower.avatar,
+        };
       });
-  }, []);
+    console.log("filtered followers list", followersList);
+    setPotentialCircleProfiles(followersList);
+  };
 
   return (
     <View style={styles.childContainer}>
@@ -130,7 +180,15 @@ function Recommended() {
       </View>
       <View style={{ width: "100%", height: "100%" }}>
         <FlashList
-          renderItem={(item) => <ProfileNameSelector profile={item.item} />}
+          renderItem={(item) => (
+            <ProfileNameSelector
+              isAdding={true}
+              refreshList={refreshCircleProfiles}
+              circleGroupId={circleGroupId}
+              ownerId={profile?.id || BigInt(0)}
+              member={item.item}
+            />
+          )}
           estimatedItemSize={10}
           data={potentialCircleProfiles}
         />

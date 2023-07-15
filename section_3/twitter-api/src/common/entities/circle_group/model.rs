@@ -37,5 +37,5 @@ pub struct CircleGroupMemberWithProfileQueryResult {
     pub member_id: i64,
     pub user_name: String,
     pub full_name: String,
-    pub avatar: Vec<u8>
+    pub avatar: Option<Vec<u8>>
 }

@@ -2,7 +2,7 @@ use crate::{
     common::{ app_state::AppState, fs::file_utils::get_avatar_buffer, entities::base::DbRepo},
     routes::{
         profiles::profile_route::{ create_profile, get_profile, get_profile_by_user, get_followers }, 
-        messages::message_route::{create_message, get_message, get_messages, get_message_image, create_response_message, get_response_messages, like_message},
+        messages::message_route::{create_message, get_message, get_messages, get_message_image, create_response_message, get_response_messages, like_message}, circle::circle_route::{create_circle_member, get_circle_by_owner, remove_circle_member, get_circle_members},
     },
 };
 use chrono::{ DateTime, Utc };
@@ -102,6 +102,10 @@ pub async fn get_app() -> impl Service<Request, Response = ServiceResponse, Erro
                     .service(web::resource("/profile").route(web::post().to(create_profile::<DbRepo>)))
                     .service(web::resource("/follow/{id}").route(web::get().to(get_followers::<DbRepo>)))
                     .service(web::resource("/like_msg/{id}").route(web::post().to(like_message::<DbRepo>)))
+                    .service(web::resource("/circle").route(web::post().to(create_circle_member::<DbRepo>)))
+                    .service(web::resource("/circle/{id}").route(web::get().to(get_circle_by_owner::<DbRepo>)))
+                    .service(web::resource("/circle_members/{id}").route(web::get().to(get_circle_members::<DbRepo>)))
+                    .service(web::resource("/circle_remove").route(web::post().to(remove_circle_member::<DbRepo>)))        
             )
     ).await
 }

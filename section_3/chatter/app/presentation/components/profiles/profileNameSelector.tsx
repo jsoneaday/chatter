@@ -6,21 +6,44 @@ import {
   bodyFontStyle,
   subHeaderFontStyle,
 } from "../../theme/element-styles/textStyles";
+import {
+  addCircleMember,
+  removeCircleMember,
+} from "../../../domain/entities/circle";
 const profilePic = require("../../theme/assets/profile.png");
 
 export type ProfileNameDisplayData = {
+  id: bigint;
   fullName: string;
   userName: string;
   avatar?: Blob;
 };
 
 interface ProfileNameDisplayProps {
-  profile: ProfileNameDisplayData;
+  isAdding: boolean;
+  refreshList: () => Promise<void>;
+  circleGroupId: bigint;
+  ownerId: bigint;
+  /// the profile that is following this user
+  member: ProfileNameDisplayData;
 }
 
 export default function ProfileNameSelector({
-  profile,
+  isAdding,
+  refreshList,
+  circleGroupId,
+  ownerId,
+  member,
 }: ProfileNameDisplayProps) {
+  const onPressProfileToCircle = async () => {
+    if (isAdding) {
+      await addCircleMember(ownerId, member.id);
+    } else {
+      await removeCircleMember(circleGroupId, member.id);
+    }
+    await refreshList();
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.profileInfoContainer}>
@@ -32,15 +55,16 @@ export default function ProfileNameSelector({
             justifyContent: "flex-start",
           }}
         >
-          <Text style={{ ...subHeaderFontStyle() }}>{profile.fullName}</Text>
-          <Text style={{ ...bodyFontStyle }}>{`@${profile.userName}`}</Text>
+          <Text style={{ ...subHeaderFontStyle() }}>{member.fullName}</Text>
+          <Text style={{ ...bodyFontStyle }}>{`@${member.userName}`}</Text>
         </View>
       </View>
       <PrimaryButton
         containerStyle={styles.primaryBtnContainer}
         txtStyle={styles.primaryBtnTxt}
+        onPress={onPressProfileToCircle}
       >
-        Add
+        {isAdding ? "Add" : "Remove"}
       </PrimaryButton>
     </View>
   );
@@ -57,7 +81,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   primaryBtnContainer: {
-    width: 110,
+    width: 115,
     paddingBottom: 15,
     paddingTop: 15,
     paddingRight: 25,

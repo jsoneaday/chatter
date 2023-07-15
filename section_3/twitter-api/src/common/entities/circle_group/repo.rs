@@ -88,25 +88,51 @@ mod private_members {
             .fetch_optional(conn).await
     }
 
-    pub async fn query_circle_member_inner(
+    pub async fn query_circle_by_owner_inner(
         conn: &Pool<Postgres>,
-        id: i64
-    ) -> Result<Option<CircleGroupMemberWithProfileQueryResult>, sqlx::Error> {
+        owner_id: i64
+    ) -> Result<Option<i64>, sqlx::Error> {
+        let result = sqlx
+            ::query_as::<_, EntityId>(
+                r"
+                select id
+                from circle_group 
+                where owner_id = $1
+            "
+            )
+            .bind(owner_id)
+            .fetch_optional(conn)
+            .await;
+        match result {
+            Ok(entity) => 
+            if let Some(entity) = entity {
+                Ok(Some(entity.id)) 
+            } else {
+                Ok(None)
+            },
+            Err(e) => Err(e)
+        }
+    }
+
+    pub async fn query_circle_members_inner(
+        conn: &Pool<Postgres>,
+        circle_group_id: i64
+    ) -> Result<Vec<CircleGroupMemberWithProfileQueryResult>, sqlx::Error> {
         sqlx
             ::query_as::<_, CircleGroupMemberWithProfileQueryResult>(
                 r"
                 select c.id, c.updated_at, c.circle_group_id, p.id as member_id, p.user_name, p.full_name, p.avatar
                 from circle_group_member c
                     join profile p on c.member_id = p.id
-                where c.id = $1
-            "
+                where c.circle_group_id = $1
+                "
             )
-            .bind(id)
-            .fetch_optional(conn).await
+            .bind(circle_group_id)
+            .fetch_all(conn).await
     }
 
     pub async fn delete_member_inner(conn: &Pool<Postgres>, circle_group_id: i64, member_id: i64) -> Result<(), sqlx::Error> {
-        let result = sqlx::query::<_>("delete from circle_group_member where circle_group_id = $1 and $2")
+        let result = sqlx::query::<_>("delete from circle_group_member where circle_group_id = $1 and member_id = $2")
             .bind(circle_group_id)
             .bind(member_id)
             .execute(conn)
@@ -180,20 +206,39 @@ impl QueryCircleFn for DbRepo {
 
 #[automock]
 #[async_trait]
-pub trait QueryCircleMemberFn {
-    async fn query_circle_member(
+pub trait QueryCircleByOwnerFn {
+    async fn query_circle_by_owner(
         &self,
-        id: i64
-    ) -> Result<Option<CircleGroupMemberWithProfileQueryResult>, sqlx::Error>;
+        owner_id: i64
+    ) -> Result<Option<i64>, sqlx::Error>;
 }
 
 #[async_trait]
-impl QueryCircleMemberFn for DbRepo {
-    async fn query_circle_member(
+impl QueryCircleByOwnerFn for DbRepo {
+    async fn query_circle_by_owner(
         &self,
-        id: i64
-    ) -> Result<Option<CircleGroupMemberWithProfileQueryResult>, sqlx::Error> {
-        private_members::query_circle_member_inner(self.get_conn(), id).await
+        owner_id: i64
+    ) -> Result<Option<i64>, sqlx::Error> {
+        private_members::query_circle_by_owner_inner(self.get_conn(), owner_id).await
+    }
+}
+
+#[automock]
+#[async_trait]
+pub trait QueryCircleMembersFn {
+    async fn query_circle_members(
+        &self,
+        circle_group_id: i64
+    ) -> Result<Vec<CircleGroupMemberWithProfileQueryResult>, sqlx::Error>;
+}
+
+#[async_trait]
+impl QueryCircleMembersFn for DbRepo {
+    async fn query_circle_members(
+        &self,
+        circle_group_id: i64
+    ) -> Result<Vec<CircleGroupMemberWithProfileQueryResult>, sqlx::Error> {
+        private_members::query_circle_members_inner(self.get_conn(), circle_group_id).await
     }
 }
 
@@ -283,21 +328,18 @@ mod tests {
             }
         ).unwrap();
       
-        let mut circle_group_members = Vec::new();
         let currently_following = following.clone();
         let insert_circle_result_id = db_repo.insert_circle(currently_following.id).await.unwrap();
         let circle_group = db_repo
             .query_circle(insert_circle_result_id).await
             .unwrap()
             .unwrap();            
-        let insert_circle_member_id = db_repo
+        _ = db_repo
             .insert_circle_member(circle_group.owner_id, follower.id).await
             .unwrap();
-        let circle_member = db_repo
-            .query_circle_member(insert_circle_member_id).await
-            .unwrap()
+        let circle_group_members = db_repo
+            .query_circle_members(circle_group.id).await
             .unwrap();
-        circle_group_members.push(circle_member);
 
         Fixtures {
             follower,
@@ -385,9 +427,13 @@ mod tests {
 
         fn get_insert_profile_mock() -> MockInsertProfileFn {
             let mut mock_insert_profile = MockInsertProfileFn::new();
-            mock_insert_profile.expect_insert_profile().returning(move |_| {
+            mock_insert_profile.expect_insert_profile().returning(move |profile_create| {
                 let fixtures = get_fixtures();
-                Ok(fixtures.following.id)
+                if profile_create.user_name == "following" {
+                    Ok(fixtures.following.id)
+                } else {
+                    Ok(fixtures.follower.id)
+                }
             });
             mock_insert_profile
         }
@@ -398,6 +444,14 @@ mod tests {
                 .expect_insert_circle()
                 .returning(|_| { Ok(get_fixtures().circle_group.id) });
             mock_insert_circle
+        }
+
+        fn get_insert_circle_member_mock() -> MockInsertCircleMemberFn {
+            let mut mock_insert_circle_member = MockInsertCircleMemberFn::new();
+            mock_insert_circle_member
+                .expect_insert_circle_member()
+                .returning(|_, _| { Ok(get_fixtures().circle_group_members.get(0).unwrap().id) });
+            mock_insert_circle_member
         }
 
         async fn test_insert_new_circle_group_member_body() {
@@ -448,6 +502,7 @@ mod tests {
 
             let mock_insert_profile = get_insert_profile_mock();
             let mock_insert_circle = get_insert_circle_mock();
+            let mock_insert_circle_member = get_insert_circle_member_mock();
 
             let member_id = mock_insert_profile
                 .insert_profile(ProfileCreate {
@@ -473,19 +528,18 @@ mod tests {
             let circle_group_id = mock_insert_circle
                 .insert_circle(owner_id).await
                 .unwrap();
-
-            let circle_member_id = fixtures.db_repo
+            _ = mock_insert_circle_member
                 .insert_circle_member(owner_id, member_id).await
                 .unwrap();
-            let circle_member = fixtures.db_repo
-                .query_circle_member(circle_member_id).await
-                .unwrap()
+
+            let circle_members = fixtures.db_repo
+                .query_circle_members(circle_group_id).await
                 .unwrap();
 
-            assert!(circle_member_id > 0);
-            assert!(circle_member.id == circle_member_id);
-            assert!(circle_member.circle_group_id == circle_group_id);
-            assert!(circle_member.member_id == member_id);
+            let first_circle_member = circle_members.get(0).unwrap();
+            assert!(first_circle_member.id > 0);
+            assert!(first_circle_member.circle_group_id == circle_group_id);
+            assert!(first_circle_member.member_id == member_id);
         }
 
         #[test]

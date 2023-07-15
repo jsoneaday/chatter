@@ -6,19 +6,6 @@ import {
   MSG_RESPONSE_URL,
   MSG_URL,
 } from "../utils/api";
-/// @ts-ignore
-import { v4 as uuidv4 } from "uuid";
-
-export default class MessageEntity {
-  constructor(
-    id: bigint,
-    user_id: bigint,
-    body: string,
-    likes: number,
-    updated_at?: Date,
-    image?: Blob
-  ) {}
-}
 
 export enum ApiMessageGroupType {
   Public = 1,
