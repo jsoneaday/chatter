@@ -1,6 +1,5 @@
 use actix_web::{web::{self, Json, Path}, HttpResponse};
 use crate::{common::{app_state::AppState, entities::circle_group::repo::{InsertCircleMemberFn, DeleteCircleMemberFn, QueryCircleByOwnerFn, QueryCircleMembersFn}}, routes::{errors::error_utils::UserError, output_id::OutputId}};
-
 use super::model::{CreateCircleMemberQuery, RemoveCircleMemberQuery, CircleQuery, CircleGroupMemberResponder, CircleGroupMemberResponders};
 
 pub async fn create_circle_member<T: InsertCircleMemberFn>(app_data: web::Data<AppState<T>>, json: Json<CreateCircleMemberQuery>) -> Result<OutputId, UserError> {
@@ -13,7 +12,6 @@ pub async fn create_circle_member<T: InsertCircleMemberFn>(app_data: web::Data<A
 }
 
 pub async fn remove_circle_member<T: DeleteCircleMemberFn>(app_data: web::Data<AppState<T>>, json: Json<RemoveCircleMemberQuery>) -> HttpResponse {
-    println!("start remove_circle_member {} {}", json.circle_group_id, json.member_id);
     let result = app_data.db_repo.delete_member(json.circle_group_id, json.member_id).await;
 
     match result {

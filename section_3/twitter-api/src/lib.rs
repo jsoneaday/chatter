@@ -66,7 +66,6 @@ pub async fn run() -> std::io::Result<()> {
     let host = env::var("HOST").unwrap();
     let db_repo = DbRepo::init().await;
     let app_data = web::Data::new(AppState {
-                    client: reqwest::Client::new(),
                     db_repo,
                 });    
     info!("RUST_BACKTRACE={}", if let Ok(backtrace) = std::env::var("RUST_BACKTRACE") { backtrace } else { "".to_string() } );

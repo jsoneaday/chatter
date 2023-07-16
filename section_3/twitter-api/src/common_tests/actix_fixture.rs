@@ -74,7 +74,6 @@ fn is_jpeg(avatar: Vec<u8>) -> bool {
 #[allow(unused)]
 pub async fn get_app_state<T>(db_repo: T) -> AppState<T> {
     AppState {
-        client: reqwest::Client::new(),
         db_repo,
     }
 }
