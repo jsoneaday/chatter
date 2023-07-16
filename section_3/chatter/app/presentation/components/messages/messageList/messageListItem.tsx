@@ -99,9 +99,9 @@ export default function MessageListItem({
   const height = () => {
     let height = 130;
     if (imageUri) {
-      height += 330;
+      height += 310;
     } else if (currentMessageModel?.body && currentBroadcastMessageModel) {
-      height += 370;
+      height += 350;
     }
     return height;
   };
