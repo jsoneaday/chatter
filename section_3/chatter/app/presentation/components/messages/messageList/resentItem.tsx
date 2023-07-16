@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, Pressable } from "react-native";
+import { View, Text, Image, Pressable, StyleSheet } from "react-native";
 import MessageModel from "../../../common/models/message";
 import Avatar from "../../avatar";
 const profile = require("../../../theme/assets/profile.png");
@@ -38,6 +38,14 @@ export default function ResentItem({ messageModel, navigation }: ResentProps) {
     }
   };
 
+  const height = () => {
+    let height = 0;
+    if (imageUri) {
+      height += 340;
+    }
+    return height;
+  };
+
   return (
     <View style={listItemStyles.resentContainer}>
       <View style={listItemStyles.resentContentContainer}>
@@ -67,16 +75,22 @@ export default function ResentItem({ messageModel, navigation }: ResentProps) {
         </View>
       </View>
       <Pressable onPress={onPressNavigate}>
-        <View style={listItemStyles.containerBody}>
+        <View style={{ ...listItemStyles.containerBody, height: height() }}>
           <Text style={listItemStyles.txtBody}>{messageModel.body}</Text>
           {imageUri ? (
-            <Image
-              source={{ uri: imageUri }}
-              style={listItemStyles.imageStyle}
-            />
+            <Image source={{ uri: imageUri }} style={styles.imageStyle} />
           ) : null}
         </View>
       </Pressable>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  imageStyle: {
+    marginTop: 30,
+    width: undefined,
+    height: "92%",
+    aspectRatio: 1,
+  },
+});

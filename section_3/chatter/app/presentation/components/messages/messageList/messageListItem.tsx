@@ -96,10 +96,20 @@ export default function MessageListItem({
     return null;
   };
 
+  const height = () => {
+    let height = 130;
+    if (imageUri) {
+      height += 330;
+    } else if (currentMessageModel?.body && currentBroadcastMessageModel) {
+      height += 370;
+    }
+    return height;
+  };
+
   return (
     <>
       {getResentHeader()}
-      <View style={listItemStyles.container}>
+      <View style={{ ...listItemStyles.container, height: height() }}>
         <View style={listItemStyles.avatarContainer}>
           <Avatar imgFile={profile} size={50} />
         </View>

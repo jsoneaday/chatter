@@ -61,7 +61,6 @@ export const listItemStyles = StyleSheet.create({
     borderColor: secondary(),
     borderStyle: "solid",
     width: "100%",
-    maxHeight: 175,
   },
   avatarContainer: {
     paddingTop: 2,
