@@ -1,14 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
-import { ComponentA, ComponentB } from "./Components";
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <ComponentA>
-        <ComponentB />
-      </ComponentA>
-    </View>
-  );
+  return;
 }
 
 const styles = StyleSheet.create({
