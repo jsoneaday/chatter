@@ -1,5 +1,4 @@
 import { StyleSheet, View, Text } from "react-native";
-import { ClassB } from "./Inheritance";
 import { ComponentA, ComponentB } from "./Composition";
 
 export default function App() {
