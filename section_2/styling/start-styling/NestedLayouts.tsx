@@ -3,23 +3,20 @@ import { StyleSheet, View } from "react-native";
 export function RootContainer() {
   return (
     <View style={styles.rootContainer}>
-      <View
-        style={{ ...styles.subContainer, borderColor: "red", flex: 0 }}
-      ></View>
-      <View
-        style={{ ...styles.subContainer, borderColor: "orange", flex: 0 }}
-      ></View>
+      <View style={{ ...styles.subContainer, borderColor: "red" }}></View>
+      <View style={{ ...styles.subContainer, borderColor: "orange" }}></View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   rootContainer: {
-    flex: 0,
-    flexDirection: "column",
+    flex: 1,
+    flexDirection: "row",
     alignItems: "stretch",
-    justifyContent: "flex-end",
-    borderWidth: 5,
+    justifyContent: "flex-start",
+    marginTop: 50,
+    borderWidth: 15,
     borderColor: "blue",
   },
   subContainer: {

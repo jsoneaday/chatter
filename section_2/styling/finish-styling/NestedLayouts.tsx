@@ -12,20 +12,16 @@ export function RootContainer() {
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
-    flexDirection: "column",
-    alignItems: "flex-start",
+    flexDirection: "row",
+    alignItems: "stretch",
     justifyContent: "space-around",
     marginBottom: 50,
     borderColor: "blue",
     borderWidth: 5,
   },
   subContainer: {
-    flex: 0,
-    flexDirection: "column",
-    alignItems: "stretch",
-    justifyContent: "flex-start",
+    flex: 1,
     borderColor: "red",
     borderWidth: 15,
-    height: "25%",
   },
 });
