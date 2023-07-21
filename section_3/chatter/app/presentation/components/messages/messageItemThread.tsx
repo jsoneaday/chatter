@@ -3,7 +3,6 @@ import { View, StyleSheet, Text, Image } from "react-native";
 import MessageModel from "../../common/models/message";
 import {
   bodyFontStyle,
-  headerFontStyle,
   subHeaderFontStyle,
 } from "../../theme/element-styles/textStyles";
 import { parseISO, formatDistanceToNow } from "date-fns";
@@ -19,7 +18,6 @@ import MessageList from "./messageList/messageList";
 import { useNavigation } from "@react-navigation/native";
 import { useProfile } from "../../../domain/store/profile/profileHooks";
 import { getResponseMessages } from "../../../domain/entities/message";
-import { visibleBorder } from "../../theme/visibleBorder";
 import { usePostMessageSheetOpener } from "../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerHooks";
 
 export interface MessageItemThreadProps {
