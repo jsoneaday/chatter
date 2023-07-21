@@ -1,21 +1,19 @@
 import { useEffect, useState } from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Image } from "react-native";
 import * as FileSystem from "expo-file-system";
 
 export default function App() {
   const [imageUri, setImageUri] = useState("");
 
   useEffect(() => {
-    console.log("attempt file download");
     FileSystem.downloadAsync(
-      `http://localhost:4001/v1/msg_image/${273}`,
-      FileSystem.cacheDirectory + `image-${273}.jpg`,
+      `http://localhost:4001/v1/msg_image/${18}`,
+      FileSystem.cacheDirectory + `msg-${18}.jpg`,
       {
         headers: { Accept: "image/jpeg" },
       }
     )
       .then((response) => {
-        console.log("saved uri", response.uri);
         setImageUri(response.uri);
       })
       .catch((err) => {
@@ -28,7 +26,7 @@ export default function App() {
       {imageUri ? (
         <Image source={{ uri: imageUri }} style={{ height: 350, width: 350 }} />
       ) : (
-        <Text style={{ fontSize: 40 }}>No File yet</Text>
+        <Text style={{ fontSize: 40 }}>Has not loaded</Text>
       )}
     </View>
   );
