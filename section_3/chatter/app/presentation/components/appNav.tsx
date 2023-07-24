@@ -1,22 +1,22 @@
 import React, { useRef, useEffect, useState } from "react";
-import { useSlideMenuOpener } from "./app/domain/store/slideMenuOpener/slideMenuOpenerHooks";
+import { useSlideMenuOpener } from "../../domain/store/slideMenuOpener/slideMenuOpenerHooks";
 import { Animated, useWindowDimensions, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import Home from "./app/presentation/screens/home/home";
-import { primary, secondary, tertiary } from "./app/presentation/theme/colors";
+import Home from "../screens/home/home";
+import { primary, secondary, tertiary } from "../theme/colors";
 import {
   BrowseIcon,
   DirectMessageIcon,
   HomeIcon,
   NotificationIcon,
-} from "./app/presentation/components/icons/menuIcons";
-import Browse from "./app/presentation/screens/browse";
-import Notifications from "./app/presentation/screens/notifications";
-import DirectMessage from "./app/presentation/screens/directmessage";
-import { horizontalSlideDuration } from "./app/presentation/common/animationUtils";
+} from "./icons/menuIcons";
+import Browse from "../screens/browse";
+import Notifications from "../screens/notifications";
+import DirectMessage from "../screens/directmessage";
+import { horizontalSlideDuration } from "../common/animationUtils";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import PostMessageComponent from "./app/presentation/components/messages/postMessageComponent";
-import { headerStyle } from "./app/presentation/theme/element-styles/screenHeaderStyles";
+import PostMessageComponent from "./messages/postMessageComponent";
+import { headerStyle } from "../theme/element-styles/screenHeaderStyles";
 
 type RootTabParamList = {
   Home: undefined;

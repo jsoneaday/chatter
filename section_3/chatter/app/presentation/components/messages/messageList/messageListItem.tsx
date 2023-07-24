@@ -15,6 +15,7 @@ import {
 } from "./messageItemUtils";
 import ResentItem from "./resentItem";
 import { usePostMessageSheetOpener } from "../../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerHooks";
+import { visibleBorder } from "../../../theme/visibleBorder";
 
 interface MessageItemProps {
   messageModel: ListRenderItemInfo<MessageModel>;
@@ -96,8 +97,18 @@ export default function MessageListItem({
     return null;
   };
 
-  const height = () => {
+  const rootHeight = () => {
     let height = 130;
+    if (imageUri) {
+      height += 310;
+    } else if (currentMessageModel?.body && currentBroadcastMessageModel) {
+      height += 350;
+    }
+    return height;
+  };
+
+  const bodyHeight = () => {
+    let height = 60;
     if (imageUri) {
       height += 310;
     } else if (currentMessageModel?.body && currentBroadcastMessageModel) {
@@ -109,7 +120,7 @@ export default function MessageListItem({
   return (
     <>
       {getResentHeader()}
-      <View style={{ ...listItemStyles.container, height: height() }}>
+      <View style={{ ...listItemStyles.container, height: rootHeight() }}>
         <View style={listItemStyles.avatarContainer}>
           <Avatar imgFile={profile} size={50} />
         </View>
@@ -134,11 +145,18 @@ export default function MessageListItem({
             </View>
             <DotsIcon size={18} />
           </View>
-          <Pressable onPress={onPressNavigate}>
-            <View style={listItemStyles.containerBody}>
+
+          <View
+            style={{
+              ...listItemStyles.containerBody,
+              height: bodyHeight(),
+            }}
+          >
+            <Pressable onPress={onPressNavigate}>
               <Text style={listItemStyles.txtBody}>
                 {currentMessageModel?.body}
               </Text>
+              {/* this is difficult because adding a component later in render cycle causes its zindex to be higher */}
               {imageUri ? (
                 <Image
                   source={{ uri: imageUri }}
@@ -151,8 +169,9 @@ export default function MessageListItem({
                   navigation={navigation}
                 />
               )}
-            </View>
-          </Pressable>
+            </Pressable>
+          </View>
+
           <View style={listItemStyles.toolbarContainer}>
             <MessageListItemToolbar currentMsg={currentMessageModel} />
           </View>

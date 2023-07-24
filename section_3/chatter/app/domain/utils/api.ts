@@ -1,4 +1,4 @@
-export const CHATTER_ROOT_URL = "http://localhost:4000/v1/";
+export const CHATTER_ROOT_URL = "http://localhost:4001/v1/";
 export const MSG_URL = `${CHATTER_ROOT_URL}msg`;
 export const MSG_RESPONSE_URL = `${CHATTER_ROOT_URL}msg_response`;
 export const MSG_RESPONSES_URL = `${CHATTER_ROOT_URL}msg_responses`;

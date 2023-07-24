@@ -9,6 +9,7 @@ import {
 } from "../../../theme/element-styles/textStyles";
 import { secondary, tertiary } from "../../../theme/colors";
 import { Platform, StyleSheet } from "react-native";
+import { visibleBorder } from "../../../theme/visibleBorder";
 
 export function cacheFile(
   messageModel: MessageModel,
@@ -123,7 +124,6 @@ export const listItemStyles = StyleSheet.create({
     color: tertiary(),
   },
   imageStyle: {
-    marginTop: 30,
     width: 340,
     height: 340,
   },

@@ -88,7 +88,6 @@ export default function ResentItem({ messageModel, navigation }: ResentProps) {
 
 const styles = StyleSheet.create({
   imageStyle: {
-    marginTop: 30,
     width: undefined,
     height: "92%",
     aspectRatio: 1,
