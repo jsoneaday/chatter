@@ -15,7 +15,7 @@ import { FlashList } from "@shopify/flash-list";
 import ProfileNameSelector, {
   ProfileNameDisplayData,
 } from "../profiles/profileNameSelector";
-import { Follower, getFollowers } from "../../../domain/entities/follow";
+import { getFollowers } from "../../../domain/entities/follow";
 import { useProfile } from "../../../domain/store/profile/profileHooks";
 import {
   getCircleGroupByOwner,
@@ -38,19 +38,27 @@ export default function EditCircleComponent({
   const [profile, setProfile] = useProfile();
 
   useEffect(() => {
+    refreshCircleGroupByOwner();
+  }, [profile]);
+
+  const refreshCircleGroupByOwner = async () => {
     console.log("EditCircleComponent profile", profile);
     if (profile) {
-      getCircleGroupByOwner(profile!.id).then((circleGroupId) => {
-        setCircleGroupId(circleGroupId || BigInt(0));
-      });
+      const circleGroupId = await getCircleGroupByOwner(profile!.id);
+      setCircleGroupId(circleGroupId || BigInt(0));
     }
-  }, [profile]);
+  };
 
   const onSelectedTabChanged = async (selectedTab: string) => {
     if (selectedTab == Tabs[0]) {
       setCurrentView(<ChatterCircle circleGroupId={circleGroupId} />);
     } else {
-      setCurrentView(<Recommended circleGroupId={circleGroupId} />);
+      setCurrentView(
+        <Recommended
+          circleGroupId={circleGroupId}
+          refreshCircleGroupByOwner={refreshCircleGroupByOwner}
+        />
+      );
     }
   };
 
@@ -131,7 +139,10 @@ function ChatterCircle({ circleGroupId }: TabProps) {
   );
 }
 
-function Recommended({ circleGroupId }: TabProps) {
+function Recommended({
+  circleGroupId,
+  refreshCircleGroupByOwner,
+}: TabProps & { refreshCircleGroupByOwner: () => Promise<void> }) {
   const [potentialCircleProfiles, setPotentialCircleProfiles] =
     useState<ProfileNameDisplayData[]>();
   const [profile] = useProfile();
@@ -183,6 +194,7 @@ function Recommended({ circleGroupId }: TabProps) {
           renderItem={(item) => (
             <ProfileNameSelector
               isAdding={true}
+              refreshCircleGroupByOwner={refreshCircleGroupByOwner}
               refreshList={refreshCircleProfiles}
               circleGroupId={circleGroupId}
               ownerId={profile?.id || BigInt(0)}

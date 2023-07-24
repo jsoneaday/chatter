@@ -26,10 +26,12 @@ interface ProfileNameDisplayProps {
   ownerId: bigint;
   /// the profile that is following this user
   member: ProfileNameDisplayData;
+  refreshCircleGroupByOwner?: () => Promise<void>;
 }
 
 export default function ProfileNameSelector({
   isAdding,
+  refreshCircleGroupByOwner,
   refreshList,
   circleGroupId,
   ownerId,
@@ -38,6 +40,7 @@ export default function ProfileNameSelector({
   const onPressProfileToCircle = async () => {
     if (isAdding) {
       await addCircleMember(ownerId, member.id);
+      refreshCircleGroupByOwner && (await refreshCircleGroupByOwner());
     } else {
       await removeCircleMember(circleGroupId, member.id);
     }
