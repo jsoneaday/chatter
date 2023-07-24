@@ -15,6 +15,7 @@ export interface MessageListProps {
   messageItems: MessageModel[];
   onRefreshList: () => void;
   isRefreshing: boolean;
+  scrollEnabled?: boolean;
 }
 
 export default function MessageList({
@@ -22,6 +23,7 @@ export default function MessageList({
   messageItems,
   onRefreshList,
   isRefreshing,
+  scrollEnabled = true,
 }: MessageListProps) {
   return (
     <View style={styles.messagesContainer}>
@@ -35,6 +37,7 @@ export default function MessageList({
         data={messageItems}
         refreshing={isRefreshing}
         onRefresh={onRefreshList}
+        scrollEnabled={scrollEnabled}
       />
     </View>
   );

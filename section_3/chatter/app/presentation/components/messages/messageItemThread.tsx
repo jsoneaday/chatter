@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Text, Image } from "react-native";
+import { View, StyleSheet, Text, Image, ScrollView } from "react-native";
 import MessageModel from "../../common/models/message";
 import {
   bodyFontStyle,
@@ -77,67 +77,82 @@ export default function MessageItemThread({
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <View style={styles.avatarContainer}>
-          <Avatar imgFile={profileImg} size={50} />
-        </View>
-        <View style={styles.containerBodyHeader}>
-          <View style={styles.containerBodyHeaderLeft}>
-            <Text style={styles.txtFullName}>{message.profile.fullName}</Text>
-            <Text
-              style={styles.txtUserName}
-            >{`@${message.profile.userName}`}</Text>
+      <ScrollView>
+        <View style={styles.headerContainer}>
+          <View style={styles.avatarContainer}>
+            <Avatar imgFile={profileImg} size={50} />
           </View>
-          <DotsIcon size={18} />
+          <View style={styles.containerBodyHeader}>
+            <View style={styles.containerBodyHeaderLeft}>
+              <Text style={styles.txtFullName}>{message.profile.fullName}</Text>
+              <Text
+                style={styles.txtUserName}
+              >{`@${message.profile.userName}`}</Text>
+            </View>
+            <DotsIcon size={18} />
+          </View>
         </View>
-      </View>
-      {/* top width sets following widths if wrapped */}
-      <View style={{ ...(styles.contentContainer as object) }}>
-        <View style={styles.containerBody}>
-          <Text style={styles.txtBody}>{message.body}</Text>
-          {imageUri ? (
-            <Image source={{ uri: imageUri }} style={styles.imageStyle} />
-          ) : null}
+        {/* top width sets following widths if wrapped */}
+        <View style={{ ...(styles.contentContainer as object) }}>
+          <View style={styles.containerBody}>
+            <Text style={styles.txtBody}>{message.body}</Text>
+            {imageUri ? (
+              <Image source={{ uri: imageUri }} style={styles.imageStyle} />
+            ) : null}
+          </View>
+          <View style={styles.updatedAtContainer as object}>
+            <Text
+              style={{ fontSize: 16, marginRight: 6 }}
+            >{`${updatedAt}`}</Text>
+            <Text
+              style={{ ...(subHeaderFontStyle() as object), marginRight: 6 }}
+            >
+              3.4K
+            </Text>
+            <Text style={{ fontSize: 16 }}>Views</Text>
+          </View>
+          <View style={styles.updatedAtContainer as object}>
+            <Text
+              style={{ ...(subHeaderFontStyle() as object), marginRight: 6 }}
+            >
+              3,401
+            </Text>
+            <Text style={{ fontSize: 16, marginRight: 6 }}>Resends</Text>
+            <Text
+              style={{ ...(subHeaderFontStyle() as object), marginRight: 6 }}
+            >
+              685
+            </Text>
+            <Text style={{ fontSize: 16 }}>Quotes</Text>
+          </View>
+          <View style={styles.updatedAtContainer as object}>
+            <Text
+              style={{ ...(subHeaderFontStyle() as object), marginRight: 6 }}
+            >
+              671
+            </Text>
+            <Text style={{ fontSize: 16, marginRight: 6 }}>Likes</Text>
+            <Text
+              style={{ ...(subHeaderFontStyle() as object), marginRight: 6 }}
+            >
+              98
+            </Text>
+            <Text style={{ fontSize: 16 }}>Bookmarks</Text>
+          </View>
+          <View style={styles.toolbarContainer}>
+            <MessageListItemToolbar currentMsg={message} />
+          </View>
         </View>
-        <View style={styles.updatedAtContainer as object}>
-          <Text style={{ fontSize: 16, marginRight: 6 }}>{`${updatedAt}`}</Text>
-          <Text style={{ ...(subHeaderFontStyle() as object), marginRight: 6 }}>
-            3.4K
-          </Text>
-          <Text style={{ fontSize: 16 }}>Views</Text>
+        <View style={{ width: "100%", height: "100%" }}>
+          <MessageList
+            navigation={navigation}
+            messageItems={responseMessages}
+            onRefreshList={refreshList}
+            isRefreshing={isRefreshing}
+            scrollEnabled={false}
+          />
         </View>
-        <View style={styles.updatedAtContainer as object}>
-          <Text style={{ ...(subHeaderFontStyle() as object), marginRight: 6 }}>
-            3,401
-          </Text>
-          <Text style={{ fontSize: 16, marginRight: 6 }}>Resends</Text>
-          <Text style={{ ...(subHeaderFontStyle() as object), marginRight: 6 }}>
-            685
-          </Text>
-          <Text style={{ fontSize: 16 }}>Quotes</Text>
-        </View>
-        <View style={styles.updatedAtContainer as object}>
-          <Text style={{ ...(subHeaderFontStyle() as object), marginRight: 6 }}>
-            671
-          </Text>
-          <Text style={{ fontSize: 16, marginRight: 6 }}>Likes</Text>
-          <Text style={{ ...(subHeaderFontStyle() as object), marginRight: 6 }}>
-            98
-          </Text>
-          <Text style={{ fontSize: 16 }}>Bookmarks</Text>
-        </View>
-        <View style={styles.toolbarContainer}>
-          <MessageListItemToolbar currentMsg={message} />
-        </View>
-      </View>
-      <View style={{ width: "100%", height: "100%" }}>
-        <MessageList
-          navigation={navigation}
-          messageItems={responseMessages}
-          onRefreshList={refreshList}
-          isRefreshing={isRefreshing}
-        />
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -145,15 +160,14 @@ export default function MessageItemThread({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: primary(true),
+    flex: 1,
     flexDirection: "column",
     alignItems: "flex-start",
     justifyContent: "flex-start",
-    paddingRight: 15,
     paddingLeft: 15,
     paddingTop: 10,
     paddingVertical: 5,
     width: "100%",
-    height: "100%",
   },
   headerContainer: {
     flexDirection: "row",
