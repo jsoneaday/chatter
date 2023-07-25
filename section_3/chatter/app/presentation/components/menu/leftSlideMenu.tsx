@@ -20,7 +20,6 @@ export default function LeftSlideMenu() {
     <SlideInSheet
       show={show}
       toggleShow={toggleShow}
-      slideInFromSide={SlideInFromSide.Left}
       maxWidth={windowDimensions.width * 0.85}
     >
       <LeftSlideMenuItems

@@ -159,7 +159,15 @@ export default function PostMessageComponent() {
 
   const onPressCancelMessage = () => {
     if (!messageValue) {
-      toggleShowPostMessageSheet();
+      const newShowPostMessageSheet = {
+        show: false,
+        displayPostButton: true,
+        typeOfPost: showPostMessageSheet.typeOfPost,
+        broadcastingMsgOrOriginalMsgId:
+          showPostMessageSheet.broadcastingMsgOrOriginalMsgId,
+      };
+      console.log("onPressCancelMessage", newShowPostMessageSheet);
+      setShowPostMessageSheet(newShowPostMessageSheet);
     } else {
       toggleEarlyExitSheet();
     }
@@ -233,7 +241,14 @@ export default function PostMessageComponent() {
   };
 
   const onPressShowPostMessageDialog = () => {
-    toggleShowPostMessageSheet();
+    const newShowPostMessageSheet = {
+      show: !showPostMessageSheet.show,
+      displayPostButton: !showPostMessageSheet.displayPostButton,
+      typeOfPost: TypeOfPost.NewPost,
+      broadcastingMsgOrOriginalMsgId: undefined,
+    };
+    console.log("onPressShowPostMessageDialog", newShowPostMessageSheet);
+    setShowPostMessageSheet(newShowPostMessageSheet);
   };
 
   const toggleShowPostMessageSheet = () => {

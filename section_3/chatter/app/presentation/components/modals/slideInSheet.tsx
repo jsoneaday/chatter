@@ -15,7 +15,6 @@ export enum SlideInFromSide {
 }
 
 interface SlideInSheetProps {
-  slideInFromSide: SlideInFromSide;
   show: boolean;
   toggleShow: () => void;
   children: ReactNode;
@@ -23,15 +22,12 @@ interface SlideInSheetProps {
 }
 
 export default function SlideInSheet({
-  slideInFromSide,
   show,
   toggleShow,
   children,
   maxWidth,
 }: SlideInSheetProps) {
   const windowDimensions = useWindowDimensions();
-  // right's normal starting value is screen width (or container width)
-  // left's normal starting value is 0
   const right = useRef(new Animated.Value(windowDimensions.width)).current;
 
   useEffect(() => {
@@ -51,19 +47,6 @@ export default function SlideInSheet({
       }).start();
     }
   }, [show]);
-
-  const getCorrectLeftRightCoordinate = () => {
-    if (slideInFromSide === SlideInFromSide.Left) {
-      return {
-        left: 0,
-        right: right,
-      };
-    }
-    return {
-      left: right,
-      right: 0,
-    };
-  };
 
   return (
     <>
