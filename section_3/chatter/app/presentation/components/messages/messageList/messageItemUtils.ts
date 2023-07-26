@@ -9,7 +9,6 @@ import {
 } from "../../../theme/element-styles/textStyles";
 import { secondary, tertiary } from "../../../theme/colors";
 import { Platform, StyleSheet } from "react-native";
-import { visibleBorder } from "../../../theme/visibleBorder";
 
 export function cacheFile(
   messageModel: MessageModel,

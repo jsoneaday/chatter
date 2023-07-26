@@ -53,8 +53,10 @@ export default function PostMessageComponent() {
   const [selectedImageUri, setSelectedImageUri] = useState<string>();
   const [showPostMsgGroupSelector, setShowPostMsgGroupSelector] =
     useState(false);
-  const [currentMessageAccessibility, setCurrentMessageAccessibility] =
-    useState<MessageAccessibility>(MessageAccessibility.Public);
+  const [
+    currentMessageGroupAccessibility,
+    setCurrentMessageGroupAccessibility,
+  ] = useState<MessageAccessibility>(MessageAccessibility.Public);
   const [showEarlyExitSheet, setEarlyExitSheet] = useState(false);
   const [profile] = useProfile();
   const [showResendOrQuote, setShowResendOrQuote] = useState(false);
@@ -86,7 +88,12 @@ export default function PostMessageComponent() {
   }, []);
 
   useEffect(() => {
+    console.log(
+      "showPostMessageSheet.typeOfPost",
+      showPostMessageSheet.typeOfPost
+    );
     if (showPostMessageSheet.typeOfPost == TypeOfPost.Resend) {
+      console.log("showResendOrQuote");
       setShowResendOrQuote(true);
     }
   }, [showPostMessageSheet.typeOfPost]);
@@ -94,6 +101,7 @@ export default function PostMessageComponent() {
   useEffect(() => {
     if (showPostMessageSheet.show) {
       asyncStorage.getItem(LAST_POSTED_MESSAGE_KEY).then((text) => {
+        console.log("last saved text value", text);
         if (text) {
           setMessageValue(text);
         }
@@ -152,9 +160,10 @@ export default function PostMessageComponent() {
 
   const onChangeText = async (text: string) => {
     setMessageValue(text);
-    if (!text || text.length === 0) {
-      await asyncStorage.deleteItem(LAST_POSTED_MESSAGE_KEY);
-    }
+    // if (!text || text.length === 0) {
+    //   console.log("message text was deleted");
+    //   await asyncStorage.deleteItem(LAST_POSTED_MESSAGE_KEY);
+    // }
   };
 
   const onPressCancelMessage = () => {
@@ -162,7 +171,7 @@ export default function PostMessageComponent() {
       const newShowPostMessageSheet = {
         show: false,
         displayPostButton: true,
-        typeOfPost: showPostMessageSheet.typeOfPost,
+        typeOfPost: TypeOfPost.NewPost,
         broadcastingMsgOrOriginalMsgId:
           showPostMessageSheet.broadcastingMsgOrOriginalMsgId,
       };
@@ -185,7 +194,7 @@ export default function PostMessageComponent() {
         );
         const result = await createMessage(
           profile!.id,
-          currentMessageAccessibility == MessageAccessibility.Public
+          currentMessageGroupAccessibility == MessageAccessibility.Public
             ? ApiMessageGroupType.Public
             : ApiMessageGroupType.Circle,
           messageValue,
@@ -214,7 +223,7 @@ export default function PostMessageComponent() {
         const result = await createMessageResponse(
           profile!.id,
           messageValue,
-          currentMessageAccessibility == MessageAccessibility.Public
+          currentMessageGroupAccessibility == MessageAccessibility.Public
             ? ApiMessageGroupType.Public
             : ApiMessageGroupType.Circle,
           showPostMessageSheet.broadcastingMsgOrOriginalMsgId,
@@ -300,7 +309,7 @@ export default function PostMessageComponent() {
                   onPress={onPressDropDown}
                 >
                   <Text style={{ color: secondary() }}>
-                    {currentMessageAccessibility}
+                    {currentMessageGroupAccessibility}
                   </Text>
                   <Entypo
                     name="chevron-small-down"
@@ -356,7 +365,7 @@ export default function PostMessageComponent() {
         profileId={profile ? profile.id : BigInt(0)}
         broadcastingMsgId={showPostMessageSheet.broadcastingMsgOrOriginalMsgId!}
         currentTxtValue={messageValue}
-        currentMessageAccessibility={currentMessageAccessibility}
+        currentMessageAccessibility={currentMessageGroupAccessibility}
         closePostMsgSheet={closePostMsgSheet}
         toggleShowPostMessageSheet={toggleShowPostMessageSheet}
         clearTextInput={clearTextInput}
@@ -375,7 +384,7 @@ export default function PostMessageComponent() {
       <PostMessageGroupSelector
         show={showPostMsgGroupSelector}
         toggleSelf={togglePostMsgGroupSelector}
-        setMessageAccessibility={setCurrentMessageAccessibility}
+        setMessageAccessibility={setCurrentMessageGroupAccessibility}
       />
     </>
   );
@@ -406,6 +415,7 @@ function EarlyExitDeleteOrSave({
   };
 
   const onPressSaveDraft = async () => {
+    console.log("onPressSaveDraft currentTxtValue", currentTxtValue);
     await asyncStorage.setItem(LAST_POSTED_MESSAGE_KEY, currentTxtValue);
 
     toggleSelf();

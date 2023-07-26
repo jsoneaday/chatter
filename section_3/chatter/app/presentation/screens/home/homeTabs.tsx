@@ -33,6 +33,7 @@ export default function HomeTabs({ navigation }: HomeTabsProps) {
 
   const refreshMessagesByFollower = async () => {
     if (profile) {
+      setIsRefreshing(true);
       await getMessagesByFollower(profile.id, new Date().toISOString(), 10)
         .then((messages) => {
           console.log("refreshed messages");
@@ -48,7 +49,6 @@ export default function HomeTabs({ navigation }: HomeTabsProps) {
   };
 
   const onRefreshList = async () => {
-    setIsRefreshing(true);
     await refreshMessagesByFollower();
   };
 

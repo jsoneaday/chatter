@@ -15,7 +15,6 @@ import {
 } from "./messageItemUtils";
 import ResentItem from "./resentItem";
 import { usePostMessageSheetOpener } from "../../../../domain/store/postMessageSheetOpener/postMessageSheetOpenerHooks";
-import { visibleBorder } from "../../../theme/visibleBorder";
 
 interface MessageItemProps {
   messageModel: ListRenderItemInfo<MessageModel>;
@@ -97,30 +96,43 @@ export default function MessageListItem({
     return null;
   };
 
-  const rootHeight = () => {
-    let height = 130;
-    if (imageUri) {
-      height += 310;
-    } else if (currentMessageModel?.body && currentBroadcastMessageModel) {
-      height += 350;
+  const bodyHeight = () => {
+    let height = 60; // handle padding and headers
+    if (currentMessageModel?.body) {
+      height += currentMessageModel?.body.length / 3;
+    }
+    if (
+      messageModelType == MessageModelType.Plain ||
+      messageModelType == MessageModelType.Resent
+    ) {
+      if (currentMessageModel?.hasImage) {
+        height += 310;
+      }
+    } else if (messageModelType == MessageModelType.QuotedResent) {
+      height += 60; // handle broadcast padding and headers
+      if (currentMessageModel?.hasImage) {
+        height += 310;
+      }
+      if (currentBroadcastMessageModel?.body) {
+        height += currentBroadcastMessageModel?.body.length / 3;
+      }
+      if (currentBroadcastMessageModel?.hasImage) {
+        height += 310;
+      }
     }
     return height;
   };
 
-  const bodyHeight = () => {
-    let height = 60;
-    if (imageUri) {
-      height += 310;
-    } else if (currentMessageModel?.body && currentBroadcastMessageModel) {
-      height += 350;
-    }
+  const containerHeight = () => {
+    let height = bodyHeight();
+    height += 70;
     return height;
   };
 
   return (
     <>
       {getResentHeader()}
-      <View style={{ ...listItemStyles.container, height: rootHeight() }}>
+      <View style={{ ...listItemStyles.container, height: containerHeight() }}>
         <View style={listItemStyles.avatarContainer}>
           <Avatar imgFile={profile} size={50} />
         </View>
